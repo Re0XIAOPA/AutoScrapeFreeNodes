@@ -28,6 +28,7 @@ jobs:
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           persist-credentials: true
+          fetch-depth: 0
         
       # 设置Node.js环境
       - name: 设置Node.js
@@ -60,4 +61,4 @@ jobs:
           git config --local user.name "GitHub Action"
           git add data/*.json
           git diff --quiet && git diff --staged --quiet || git commit -m "自动更新: 更新节点数据 [skip ci]"
-          git push 
+          git push --set-upstream origin main || (git pull --rebase origin main && git push) 
