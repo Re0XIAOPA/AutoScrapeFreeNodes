@@ -1,0 +1,69 @@
+server {
+    listen 80;
+    # 替换为您的域名
+    server_name your-domain.com;
+
+    # 强制使用HTTPS（可选）
+    return 301 https://$host$request_uri;
+}
+
+server {
+    listen 443 ssl http2;
+    # 替换为您的域名
+    server_name your-domain.com;
+
+    # SSL配置（使用宝塔自动申请的证书路径）
+    ssl_certificate /path/to/cert.pem;
+    ssl_certificate_key /path/to/key.pem;
+    ssl_protocols TLSv1.2 TLSv1.3;
+    ssl_prefer_server_ciphers on;
+
+    # 网站根目录
+    root /www/wwwroot/freesub;
+    index index.html;
+
+    # 日志配置
+    access_log /var/log/nginx/freesub.access.log;
+    error_log /var/log/nginx/freesub.error.log;
+
+    # 启用Gzip压缩
+    gzip on;
+    gzip_min_length 1k;
+    gzip_comp_level 6;
+    gzip_types text/plain text/css application/json application/javascript;
+
+    # 静态资源缓存
+    location ~* \.(css|js|jpg|jpeg|png|gif|ico)$ {
+        expires 7d;
+        add_header Cache-Control "public, max-age=604800";
+    }
+
+    # JSON数据文件短期缓存
+    location ~* \.(json)$ {
+        expires 1h;
+        add_header Cache-Control "public, max-age=3600";
+    }
+
+    # API路径无缓存
+    location /api/ {
+        expires -1;
+        add_header Cache-Control "no-store, no-cache, must-revalidate, proxy-revalidate";
+    }
+
+    # 启用SPA模式（处理前端路由）
+    location / {
+        try_files $uri $uri/ /index.html;
+    }
+
+    # 安全相关设置
+    add_header X-Content-Type-Options "nosniff";
+    add_header X-XSS-Protection "1; mode=block";
+    add_header X-Frame-Options "SAMEORIGIN";
+
+    # 禁止访问隐藏文件
+    location ~ /\. {
+        deny all;
+        access_log off;
+        log_not_found off;
+    }
+} 

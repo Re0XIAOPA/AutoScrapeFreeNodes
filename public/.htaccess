@@ -1,0 +1,50 @@
+# Apache 配置文件
+# 启用重写引擎
+RewriteEngine On
+
+# 如果请求的不是文件和目录，重定向到index.html
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule ^(.*)$ index.html [L,QSA]
+
+# 启用CORS
+<IfModule mod_headers.c>
+    Header set Access-Control-Allow-Origin "*"
+    Header set Access-Control-Allow-Methods "GET, POST, OPTIONS"
+    Header set Access-Control-Allow-Headers "Origin, X-Requested-With, Content-Type, Accept"
+</IfModule>
+
+# 添加正确的MIME类型
+<IfModule mod_mime.c>
+    AddType application/javascript .js
+    AddType text/css .css
+    AddType application/json .json
+</IfModule>
+
+# 启用Gzip压缩
+<IfModule mod_deflate.c>
+    AddOutputFilterByType DEFLATE text/html text/plain text/css application/javascript application/json
+</IfModule>
+
+# 设置缓存策略
+<IfModule mod_expires.c>
+    ExpiresActive On
+    
+    # 图片和媒体文件缓存7天
+    ExpiresByType image/jpeg "access plus 7 days"
+    ExpiresByType image/png "access plus 7 days"
+    ExpiresByType image/gif "access plus 7 days"
+    ExpiresByType image/webp "access plus 7 days"
+    ExpiresByType image/svg+xml "access plus 7 days"
+    ExpiresByType image/x-icon "access plus 7 days"
+    
+    # CSS和JavaScript缓存1天
+    ExpiresByType text/css "access plus 1 day"
+    ExpiresByType application/javascript "access plus 1 day"
+    
+    # JSON数据文件缓存15分钟
+    ExpiresByType application/json "access plus 15 minutes"
+</IfModule>
+
+# 禁止目录列表
+Options -Indexes 
