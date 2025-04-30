@@ -10,6 +10,9 @@ on:
         required: false
         default: false
         type: boolean
+  schedule:
+    # 每天UTC时间16:30 (对应北京时间00:30)
+    - cron: '30 16 * * *'
 
 permissions:
   contents: read
@@ -53,7 +56,7 @@ jobs:
           path: './dist'
       
       - name: 上传构建日志
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v2
         with:
           name: build-logs
           path: |

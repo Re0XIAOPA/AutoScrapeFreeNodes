@@ -33,7 +33,10 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // 更新下次刷新时间显示
     const buildTime = ENV_CONFIG.buildTime ? new Date(ENV_CONFIG.buildTime) : new Date();
-    nextRefreshTime.innerHTML = `<i class="bi bi-info-circle"></i> 静态构建于: <strong>${buildTime.toLocaleString()}</strong>`;
+    nextRefreshTime.innerHTML = `
+      <i class="bi bi-info-circle"></i> 静态构建于: <strong>${buildTime.toLocaleString()}</strong>
+      <span class="ms-2 badge bg-info">每天00:30自动更新</span>
+    `;
   }
   
   // 初始化页面

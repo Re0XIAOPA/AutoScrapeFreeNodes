@@ -22,7 +22,7 @@
 
 ### 方法一：在GitHub Pages上部署（推荐）
 
-这个项目已经配置了GitHub Actions，可以自动构建并部署到GitHub Pages。
+这个项目已经配置了GitHub Actions，可以自动构建并部署到GitHub Pages。**系统会每天北京时间凌晨00:30自动重新构建并更新数据。**
 
 1. Fork这个仓库到你的GitHub账号
 2. 在仓库设置中启用GitHub Pages：
@@ -88,6 +88,16 @@ npm run verify
 ### 修改抓取配置
 
 编辑`config.json`文件以添加或修改抓取源、更新频率等设置。
+
+### 修改自动更新时间
+
+如果你想修改自动更新的时间，可以编辑`.github/workflows/deploy.yml`文件中的`cron`表达式：
+
+```yaml
+schedule:
+  # 格式: '分钟 小时 日 月 星期'
+  - cron: '30 16 * * *'  # UTC时间16:30，对应北京时间00:30
+```
 
 ## 许可证
 
