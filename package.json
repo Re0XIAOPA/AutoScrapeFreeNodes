@@ -1,0 +1,16 @@
+{
+  "name": "freenode-scraper",
+  "version": "1.0.0",
+  "description": "自动抓取免费节点并展示",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js"
+  },
+  "dependencies": {
+    "express": "^4.18.2",
+    "axios": "^1.6.2",
+    "cheerio": "^1.0.0-rc.12",
+    "cron": "^3.1.6",
+    "fs-extra": "^11.2.0"
+  }
+} 

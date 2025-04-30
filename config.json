@@ -1,0 +1,26 @@
+{
+  "sites": [
+    {
+      "url": "https://clashnode.github.io/",
+      "enabled": true,
+      "description": "免费节点订阅站点1"
+    },
+    {
+      "url": "https://clash-meta.github.io/",
+      "enabled": true,
+      "description": "免费节点订阅站点2"
+    },
+    {
+      "url": "https://www.airportnode.com/",
+      "enabled": true,
+      "description": "免费节点订阅站点3"
+    }
+  ],
+  "settings": {
+    "updateInterval": 15,
+    "maxArticlesPerSite": 20,
+    "cleanOldDataOnUpdate": true,
+    "port": 3001,
+    "dataDir": "data"
+  }
+} 
