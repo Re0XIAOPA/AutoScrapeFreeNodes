@@ -3,6 +3,15 @@ const path = require('path');
 const axios = require('axios');
 const { execSync } = require('child_process');
 
+// 检查 Node.js 版本
+const nodeVersion = process.versions.node;
+const majorVersion = parseInt(nodeVersion.split('.')[0], 10);
+if (majorVersion < 18) {
+  console.error(`错误: Node.js 版本过低 (${nodeVersion})，需要 Node.js 18 或更高版本`);
+  console.error('请升级 Node.js 后再运行此脚本: https://nodejs.org/');
+  process.exit(1);
+}
+
 // 配置
 const config = require('./config.json');
 const OUTPUT_DIR = 'dist';
@@ -45,10 +54,15 @@ async function generateStaticSite() {
     // 确保数据目录存在
     fs.ensureDirSync(DATA_DIR);
     
-    // 执行一次抓取更新数据
-    console.log('执行数据抓取...');
-    const scraper = require('./scraper');
-    await scraper.scrapeAllSites();
+    try {
+      // 执行一次抓取更新数据
+      console.log('执行数据抓取...');
+      const scraper = require('./scraper');
+      await scraper.scrapeAllSites();
+    } catch (scraperError) {
+      console.error('数据抓取过程中发生错误:', scraperError);
+      console.log('继续生成静态站点，将使用现有数据...');
+    }
     
     // 复制数据文件
     console.log('复制数据文件...');
@@ -92,36 +106,41 @@ async function generateStaticSite() {
     }
     
     siteFiles.forEach(file => {
-      const siteData = fs.readJsonSync(path.join(DATA_DIR, file));
-      const siteName = file.replace('.json', '');
-      
-      // 详细数据
-      sitesData[siteName] = siteData;
-      
-      // 简化的订阅数据
-      const processedData = {
-        url: siteData.url,
-        siteName: siteData.siteName,
-        scrapedAt: siteData.scrapedAt,
-        subscriptionCount: siteData.totalSubscriptions || 0,
-        subscriptions: []
-      };
-      
-      if (siteData.articles && Array.isArray(siteData.articles)) {
-        siteData.articles.forEach(article => {
-          if (article.subscriptions && Array.isArray(article.subscriptions)) {
-            processedData.subscriptions = processedData.subscriptions.concat(
-              article.subscriptions.map(sub => ({
-                ...sub,
-                articleTitle: article.title,
-                articleUrl: article.url
-              }))
-            );
-          }
-        });
+      try {
+        const siteData = fs.readJsonSync(path.join(DATA_DIR, file));
+        const siteName = file.replace('.json', '');
+        
+        // 详细数据
+        sitesData[siteName] = siteData;
+        
+        // 简化的订阅数据
+        const processedData = {
+          url: siteData.url,
+          siteName: siteData.siteName,
+          scrapedAt: siteData.scrapedAt,
+          subscriptionCount: siteData.totalSubscriptions || 0,
+          subscriptions: []
+        };
+        
+        if (siteData.articles && Array.isArray(siteData.articles)) {
+          siteData.articles.forEach(article => {
+            if (article.subscriptions && Array.isArray(article.subscriptions)) {
+              processedData.subscriptions = processedData.subscriptions.concat(
+                article.subscriptions.map(sub => ({
+                  ...sub,
+                  articleTitle: article.title,
+                  articleUrl: article.url
+                }))
+              );
+            }
+          });
+        }
+        
+        subscriptionsData[siteName] = processedData;
+      } catch (fileError) {
+        console.error(`处理文件 ${file} 时出错:`, fileError);
+        console.log(`跳过此文件，继续处理其他文件...`);
       }
-      
-      subscriptionsData[siteName] = processedData;
     });
     
     // 写入站点详细数据
@@ -163,6 +182,11 @@ async function generateStaticSite() {
     return true;
   } catch (error) {
     console.error('生成静态网站时出错:', error);
+    if (error.code === 'MODULE_NOT_FOUND') {
+      console.error('找不到所需模块，请确保已运行 npm install 安装所有依赖');
+    } else if (error.message && error.message.includes('ReadableStream')) {
+      console.error('当前Node.js版本不支持ReadableStream API，请升级到Node.js 18或更高版本');
+    }
     return false;
   }
 }

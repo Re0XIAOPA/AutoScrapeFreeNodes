@@ -1,9 +1,9 @@
 name: 部署免费节点抓取工具到GitHub Pages
 
 on:
-  # 自动执行的时间，每4小时运行一次
+  # 自动执行的时间，北京时间00:30运行
   schedule:
-    - cron: '0 */4 * * *'
+    - cron: '30 16 * * *'
   
   # 当push到main分支时也执行
   push:
@@ -19,13 +19,14 @@ jobs:
     steps:
       # 检出仓库代码
       - name: 检出代码
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
         
       # 设置Node.js环境
       - name: 设置Node.js
-        uses: actions/setup-node@v2
+        uses: actions/setup-node@v3
         with:
-          node-version: '16'
+          node-version: '18'
+          cache: 'npm'
           
       # 安装依赖
       - name: 安装依赖
