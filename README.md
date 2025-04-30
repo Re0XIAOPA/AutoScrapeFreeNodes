@@ -24,9 +24,10 @@ https://www.airportnode.com/category-1.html
 本项目已配置自动化工作流，可直接部署到GitHub Pages：
 
 1. Fork本仓库到你的GitHub账号
-2. 在仓库设置中启用GitHub Pages，选择`gh-pages`分支作为源
-3. GitHub Actions会自动构建并部署静态网站
-4. 访问`https://你的用户名.github.io/仓库名`查看网站
+2. **设置仓库权限**：进入仓库设置 → Actions → General → Workflow permissions，选择"Read and write permissions"并保存
+3. 在仓库设置中启用GitHub Pages，选择`gh-pages`分支作为源
+4. 手动触发一次工作流：Actions → "部署免费节点抓取工具到GitHub Pages" → Run workflow
+5. 访问`https://你的用户名.github.io/仓库名`查看网站
 
 工作流会：
 - 每天北京时间00:30自动抓取节点并部署网站

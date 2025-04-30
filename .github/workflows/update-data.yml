@@ -8,6 +8,10 @@ on:
   # 允许手动触发工作流
   workflow_dispatch:
 
+# 设置权限
+permissions:
+  contents: write
+
 jobs:
   update-data:
     runs-on: ubuntu-latest
@@ -16,6 +20,9 @@ jobs:
       # 检出仓库代码
       - name: 检出代码
         uses: actions/checkout@v3
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          persist-credentials: true
         
       # 设置Node.js环境
       - name: 设置Node.js

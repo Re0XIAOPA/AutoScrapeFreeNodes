@@ -12,6 +12,11 @@ on:
   # 允许手动触发工作流
   workflow_dispatch:
 
+# 设置权限
+permissions:
+  contents: write
+  pages: write
+
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
@@ -20,6 +25,9 @@ jobs:
       # 检出仓库代码
       - name: 检出代码
         uses: actions/checkout@v3
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          persist-credentials: true
         
       # 设置Node.js环境
       - name: 设置Node.js
@@ -38,11 +46,12 @@ jobs:
         
       # 部署到GitHub Pages
       - name: 部署到GitHub Pages
-        uses: JamesIves/github-pages-deploy-action@4.1.5
+        uses: JamesIves/github-pages-deploy-action@v4
         with:
-          branch: gh-pages  # 部署到gh-pages分支
           folder: dist      # 使用dist目录作为源目录
+          branch: gh-pages  # 部署到gh-pages分支
           clean: true       # 清理旧文件
+          token: ${{ secrets.GITHUB_TOKEN }}
       
       # 提交最新数据到主分支
       - name: 提交最新数据
