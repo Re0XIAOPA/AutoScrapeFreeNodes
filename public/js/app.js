@@ -6,6 +6,7 @@ let currentView = 'normal'; // 'normal' or 'detailed'
 
 // API基础URL - 从环境配置中获取
 const API_BASE_URL = ENV_CONFIG.API_BASE_URL;
+const IS_STATIC_MODE = ENV_CONFIG.isStaticMode || false;
 
 // 文档加载完成后执行
 document.addEventListener('DOMContentLoaded', function() {
@@ -23,6 +24,17 @@ document.addEventListener('DOMContentLoaded', function() {
   const maxArticlesEl = document.getElementById('max-articles');
   const lastUpdatedEl = document.getElementById('last-updated');
   const siteListEl = document.getElementById('site-list');
+  
+  // 如果是静态模式，禁用刷新按钮
+  if (IS_STATIC_MODE) {
+    refreshBtn.disabled = true;
+    refreshBtn.innerHTML = '<i class="bi bi-info-circle me-1"></i> 静态模式';
+    refreshBtn.title = '静态部署模式下不支持实时刷新';
+    
+    // 更新下次刷新时间显示
+    const buildTime = ENV_CONFIG.buildTime ? new Date(ENV_CONFIG.buildTime) : new Date();
+    nextRefreshTime.innerHTML = `<i class="bi bi-info-circle"></i> 静态构建于: <strong>${buildTime.toLocaleString()}</strong>`;
+  }
   
   // 初始化页面
   loadConfig();
@@ -67,6 +79,9 @@ document.addEventListener('DOMContentLoaded', function() {
   
   // 手动刷新按钮事件
   refreshBtn.addEventListener('click', function() {
+    // 静态模式下不执行刷新操作
+    if (IS_STATIC_MODE) return;
+    
     refreshBtn.disabled = true;
     refreshBtn.innerHTML = `<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> 刷新中...`;
     
@@ -94,6 +109,9 @@ document.addEventListener('DOMContentLoaded', function() {
   
   // 更新下一次刷新时间的显示 - 精确计算15分钟间隔的更新时间
   function updateNextRefreshTime() {
+    // 静态模式下不更新刷新时间
+    if (IS_STATIC_MODE) return;
+    
     const nextRefreshTimeEl = document.getElementById('next-refresh-time');
     
     if (!configData.settings || !configData.settings.updateInterval) {
@@ -123,12 +141,21 @@ document.addEventListener('DOMContentLoaded', function() {
   
   // 开启定时更新时间显示
   updateNextRefreshTime();
-  setInterval(updateNextRefreshTime, 30000); // 每30秒更新一次显示
+  if (!IS_STATIC_MODE) {
+    setInterval(updateNextRefreshTime, 30000); // 每30秒更新一次显示
+  }
 });
 
 // 加载配置信息
 function loadConfig() {
-  fetch(`${API_BASE_URL}/api/config`)
+  let url = `${API_BASE_URL}/api/config`;
+  
+  // 如果是静态模式，直接从数据目录读取配置文件
+  if (IS_STATIC_MODE) {
+    url = `${API_BASE_URL}/config.json`;
+  }
+  
+  fetch(url)
     .then(response => {
       if (!response.ok) {
         throw new Error(`服务器响应错误: ${response.status}`);
@@ -183,40 +210,138 @@ function loadSubscriptions() {
   `;
   
   // 获取简洁视图数据
-  fetch(`${API_BASE_URL}/api/subscriptions`)
-    .then(response => {
-      if (!response.ok) {
-        throw new Error(`服务器响应错误: ${response.status}`);
-      }
-      return response.json();
-    })
-    .then(data => {
-      allSubscriptions = data;
-      updateStats(data);
-      
-      // 获取详细视图数据
-      return fetch(`${API_BASE_URL}/api/sites`);
-    })
-    .then(response => {
-      if (!response.ok) {
-        throw new Error(`服务器响应错误: ${response.status}`);
-      }
-      return response.json();
-    })
-    .then(data => {
-      detailedData = data;
-      renderSubscriptions();
-    })
-    .catch(error => {
-      console.error('加载订阅数据失败:', error);
-      subscriptionsContainer.innerHTML = `
-        <div class="col-12">
+  let subscriptionsUrl = `${API_BASE_URL}/api/subscriptions`;
+  let sitesUrl = `${API_BASE_URL}/api/sites`;
+  
+  // 如果是静态模式，从JSON文件中读取数据
+  if (IS_STATIC_MODE) {
+    // 列出所有站点文件
+    const sitePromises = [];
+    
+    // 首先获取目录列表（在静态模式下，无法获取目录列表，需要通过config获取站点列表）
+    fetch(`${API_BASE_URL}/config.json`)
+      .then(response => response.json())
+      .then(config => {
+        if (!config.sites || config.sites.length === 0) {
+          throw new Error('找不到站点配置');
+        }
+        
+        // 模拟subscriptions API返回的数据结构
+        const subscriptionsData = {};
+        const detailedSitesData = {};
+        
+        // 为每个站点创建一个Promise
+        const promises = config.sites
+          .filter(site => site.enabled)
+          .map(site => {
+            // 从URL中提取站点标识符
+            const siteId = site.url.replace(/^https?:\/\//, '').replace(/[^\w]/g, '_');
+            
+            return fetch(`${API_BASE_URL}/${siteId}.json`)
+              .then(response => {
+                if (!response.ok) {
+                  console.warn(`无法加载站点数据: ${siteId}`);
+                  return null;
+                }
+                return response.json();
+              })
+              .then(siteData => {
+                if (!siteData) return;
+                
+                detailedSitesData[siteId] = siteData;
+                
+                // 处理新的数据结构，与api/subscriptions返回的格式一致
+                const processedData = {
+                  url: siteData.url,
+                  siteName: siteData.siteName,
+                  scrapedAt: siteData.scrapedAt,
+                  subscriptionCount: siteData.totalSubscriptions || 0,
+                  subscriptions: []
+                };
+                
+                // 从所有文章中收集订阅链接
+                if (siteData.articles && Array.isArray(siteData.articles)) {
+                  siteData.articles.forEach(article => {
+                    if (article.subscriptions && Array.isArray(article.subscriptions)) {
+                      processedData.subscriptions = processedData.subscriptions.concat(
+                        article.subscriptions.map(sub => ({
+                          ...sub,
+                          articleTitle: article.title,
+                          articleUrl: article.url
+                        }))
+                      );
+                    }
+                  });
+                }
+                
+                subscriptionsData[siteId] = processedData;
+              });
+          });
+        
+        Promise.all(promises)
+          .then(() => {
+            // 处理订阅数据
+            allSubscriptions = subscriptionsData;
+            updateStats(subscriptionsData);
+            
+            // 处理详细数据
+            detailedData = detailedSitesData;
+            
+            // 渲染数据
+            renderSubscriptions();
+          })
+          .catch(error => {
+            console.error('加载站点数据失败:', error);
+            subscriptionsContainer.innerHTML = `
+              <div class="alert alert-danger">
+                <i class="bi bi-exclamation-triangle"></i> 加载数据失败: ${error.message}
+              </div>
+            `;
+          });
+      })
+      .catch(error => {
+        console.error('加载配置失败:', error);
+        subscriptionsContainer.innerHTML = `
           <div class="alert alert-danger">
-            加载订阅数据失败: ${error.message || '未知错误'}
+            <i class="bi bi-exclamation-triangle"></i> 加载配置失败: ${error.message}
           </div>
-        </div>
-      `;
-    });
+        `;
+      });
+  } else {
+    // 非静态模式，使用API
+    fetch(subscriptionsUrl)
+      .then(response => {
+        if (!response.ok) {
+          throw new Error(`服务器响应错误: ${response.status}`);
+        }
+        return response.json();
+      })
+      .then(data => {
+        allSubscriptions = data;
+        updateStats(data);
+        
+        // 获取详细视图数据
+        return fetch(sitesUrl);
+      })
+      .then(response => {
+        if (!response.ok) {
+          throw new Error(`服务器响应错误: ${response.status}`);
+        }
+        return response.json();
+      })
+      .then(data => {
+        detailedData = data;
+        renderSubscriptions();
+      })
+      .catch(error => {
+        console.error('加载数据失败:', error);
+        subscriptionsContainer.innerHTML = `
+          <div class="alert alert-danger">
+            <i class="bi bi-exclamation-triangle"></i> 加载数据失败: ${error.message}
+          </div>
+        `;
+      });
+  }
 }
 
 // 更新统计信息

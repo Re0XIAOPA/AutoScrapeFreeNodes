@@ -4,7 +4,10 @@
   "description": "自动抓取免费节点并展示",
   "main": "index.js",
   "scripts": {
-    "start": "node index.js"
+    "start": "node index.js",
+    "build": "node scripts/build-gh-pages.js",
+    "verify": "node scripts/verify-build.js",
+    "deploy": "npm run build && npm run verify"
   },
   "dependencies": {
     "express": "^4.18.2",
