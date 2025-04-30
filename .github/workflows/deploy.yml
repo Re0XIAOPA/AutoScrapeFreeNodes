@@ -4,40 +4,36 @@ on:
   push:
     branches: [ main, master ]
   workflow_dispatch:
-    inputs:
-      force_deploy:
-        description: '强制部署（即使没有更改）'
-        required: false
-        default: false
-        type: boolean
   schedule:
     # 每天UTC时间16:30 (对应北京时间00:30)
     - cron: '30 16 * * *'
 
+# 设置必要的权限
 permissions:
   contents: read
   pages: write
   id-token: write
 
+# 允许一次只运行一个部署
 concurrency:
   group: "pages"
-  cancel-in-progress: false
+  cancel-in-progress: true
 
 jobs:
+  # 构建工作
   build:
     runs-on: ubuntu-latest
     steps:
       - name: 检出代码
         uses: actions/checkout@v2
       
-      - name: 设置Node.js环境
+      - name: 设置Node.js
         uses: actions/setup-node@v2
         with:
           node-version: '16'
-          cache: 'npm'
       
       - name: 安装依赖
-        run: npm ci
+        run: npm install
       
       - name: 构建静态网站
         run: |
@@ -48,13 +44,14 @@ jobs:
         run: node scripts/verify-build.js
       
       - name: 设置Pages
-        uses: actions/configure-pages@v2
+        uses: actions/configure-pages@v1
       
-      - name: 上传构建结果
+      - name: 上传Pages构建结果
         uses: actions/upload-pages-artifact@v1
         with:
-          path: './dist'
+          path: ./dist
 
+  # 部署工作
   deploy:
     environment:
       name: github-pages
