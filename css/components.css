@@ -1,31 +1,90 @@
 /* 页面标题 */
 .page-header {
-  background: linear-gradient(135deg, #007bff, #4361ee);
-  color: white;
+  background: linear-gradient(135deg, #f8f9fa, #ffffff);
+  color: #333;
   padding: 30px 0;
   border-radius: 10px;
   margin-bottom: 30px;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+  border-bottom: 3px solid #4361ee;
+  position: relative;
+  overflow: hidden;
+}
+
+.page-header::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-image: url("data:image/svg+xml,%3Csvg width='100' height='100' viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M11 18c3.866 0 7-3.134 7-7s-3.134-7-7-7-7 3.134-7 7 3.134 7 7 7zm48 25c3.866 0 7-3.134 7-7s-3.134-7-7-7-7 3.134-7 7 3.134 7 7 7zm-43-7c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zm63 31c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zM34 90c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zm56-76c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zM12 86c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm28-65c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm23-11c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm-6 60c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm29 22c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zM32 63c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm57-13c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm-9-21c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM60 91c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM35 41c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM12 60c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2z' fill='%234361ee' fill-opacity='0.03' fill-rule='evenodd'/%3E%3C/svg%3E");
+  opacity: 0.8;
+  z-index: 0;
 }
 
 .page-header h1 {
   font-weight: 700;
   margin-bottom: 10px;
+  color: #4361ee;
+  position: relative;
+  z-index: 1;
 }
 
 .page-header .lead {
   font-size: 1.2rem;
-  opacity: 0.9;
+  color: #6c757d;
+  position: relative;
+  z-index: 1;
 }
 
+/* 系统状态样式 */
+#last-updated {
+  background-color: #ffc107 !important; /* 警告黄色 */
+  color: #212529 !important;
+  font-weight: 600;
+}
+
+#last-updated.outdated {
+  background-color: #dc3545 !important; /* 过期红色 */
+  color: #fff !important;
+}
+
+/* 为了使页面整体更协调，也为下次更新时间添加警告色 */
 .next-refresh {
   font-size: 0.95rem;
-  color: rgba(255, 255, 255, 0.9);
+  color: #212529;
   margin-top: 15px;
-  background-color: rgba(255, 255, 255, 0.2);
+  background-color: rgba(255, 193, 7, 0.2); /* 警告黄色的透明版本 */
   display: inline-block;
   padding: 5px 15px;
   border-radius: 20px;
+  position: relative;
+  z-index: 1;
+  border: 1px solid rgba(255, 193, 7, 0.3);
+  transition: all 0.3s ease;
+}
+
+/* 下次更新时间的状态样式 */
+.next-refresh.next-refresh-delayed {
+  background-color: rgba(220, 53, 69, 0.2); /* 红色警告 */
+  border: 1px solid rgba(220, 53, 69, 0.3);
+}
+
+.next-refresh-imminent {
+  animation: pulse 1.5s infinite;
+}
+
+@keyframes pulse {
+  0% {
+    box-shadow: 0 0 0 0 rgba(255, 193, 7, 0.4);
+  }
+  70% {
+    box-shadow: 0 0 0 6px rgba(255, 193, 7, 0);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(255, 193, 7, 0);
+  }
 }
 
 /* 站点卡片 */
@@ -57,6 +116,12 @@
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
   border: 1px solid #eaeaea;
   overflow: hidden;
+  transition: all 0.3s ease;
+}
+
+.article-card:hover {
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+  transform: translateY(-3px);
 }
 
 .article-header {
@@ -72,7 +137,8 @@
   background-color: white;
   padding: 20px;
   border-radius: 10px;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+  border: none;
 }
 
 /* 配置区域 */
@@ -81,24 +147,26 @@
   border: none;
   border-radius: 10px;
   overflow: hidden;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
 }
 
 .config-toggle {
   cursor: pointer;
   user-select: none;
-  background: linear-gradient(90deg, #4cc9f0, #4895ef);
-  color: white;
+  background: linear-gradient(90deg, #f8f9fa, #ffffff);
+  border-bottom: 2px solid #4361ee;
+  color: #4361ee;
+  padding: 15px 20px;
 }
 
 /* 统计信息 */
 #stats-container {
   border-radius: 10px;
   padding: 15px 20px;
-  background-color: #e7f5ff;
+  background-color: #f8f9fa;
   border-left: 5px solid #4361ee;
   margin-bottom: 25px;
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
 }
 
 /* 站点列表 */
@@ -107,6 +175,7 @@
   overflow-y: auto;
   border-radius: 5px;
   border: 1px solid #eaeaea;
+  background-color: #ffffff;
 }
 
 .site-item {

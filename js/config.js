@@ -10,39 +10,28 @@ const CONFIG = {
   // 生产环境API基础URL（使用相对路径）
   production: {
     API_BASE_URL: ''
+  },
+  
+  // 静态文件测试环境
+  static_test: {
+    API_BASE_URL: ''
   }
 };
 
 // 根据当前环境选择配置
-// 如果是在本地开发服务器（如 127.0.0.1:5500），则使用开发环境配置
-// 否则使用生产环境配置
-const currentEnv = window.location.hostname === '127.0.0.1' || 
-                   window.location.hostname === 'localhost' ? 
-                   'development' : 'production';
+let currentEnv = 'production';
+
+// 如果是在本地开发服务器
+if (window.location.hostname === '127.0.0.1' || window.location.hostname === 'localhost') {
+  // 检查端口，如果是8080，则是静态测试模式
+  if (window.location.port === '8080') {
+    currentEnv = 'static_test';
+  } else {
+    currentEnv = 'development';
+  }
+}
+
+console.log('当前环境:', currentEnv);
 
 // 导出当前环境的配置
-const ENV_CONFIG = CONFIG[currentEnv];
-
-// 应用配置
-const APP_CONFIG = {
-  // API基础URL - 自动检测环境
-  apiBaseUrl: window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' 
-    ? '' // 本地开发环境
-    : '.', // GitHub Pages环境 - 使用相对路径，从当前目录开始
-  
-  // 更新频率（分钟）
-  refreshInterval: 15,
-  
-  // 是否启用调试模式
-  debug: false,
-  
-  // 订阅类型颜色映射
-  typeColors: {
-    'Clash': '#3861FB',
-    'V2ray': '#F95F62',
-    'Shadowrocket': '#FF9500',
-    'Sing-Box': '#6236FF',
-    'Quantumult': '#34C759',
-    '通用': '#8E8E93'
-  }
-}; 
+const ENV_CONFIG = CONFIG[currentEnv]; 
