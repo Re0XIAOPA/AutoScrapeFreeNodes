@@ -3,15 +3,8 @@
   "version": "1.0.0",
   "description": "自动抓取免费节点并展示",
   "main": "index.js",
-  "engines": {
-    "node": ">=18.0.0"
-  },
   "scripts": {
-    "start": "node index.js",
-    "generate": "node generate-static.js",
-    "test-static": "node test-static.js",
-    "predeploy": "npm run generate",
-    "deploy": "gh-pages -d dist"
+    "start": "node index.js"
   },
   "dependencies": {
     "express": "^4.18.2",
@@ -19,8 +12,5 @@
     "cheerio": "^1.0.0-rc.12",
     "cron": "^3.1.6",
     "fs-extra": "^11.2.0"
-  },
-  "devDependencies": {
-    "gh-pages": "^6.0.0"
   }
 } 

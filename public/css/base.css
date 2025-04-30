@@ -36,7 +36,6 @@ body {
 .loading .spinner-border {
   width: 3rem;
   height: 3rem;
-  color: #4361ee;
 }
 
 /* 时间戳样式 */
@@ -47,38 +46,34 @@ body {
 
 /* 按钮美化 */
 .btn-primary {
+  background: linear-gradient(90deg, #4361ee, #3a0ca3);
   border: none;
   box-shadow: 0 2px 5px rgba(67, 97, 238, 0.3);
-  transition: all 0.3s ease;
 }
 
 .btn-primary:hover {
+  background: linear-gradient(90deg, #3a0ca3, #3f37c9);
   box-shadow: 0 4px 8px rgba(67, 97, 238, 0.4);
-  transform: translateY(-2px);
 }
 
 .btn-outline-primary {
   color: #4361ee;
   border-color: #4361ee;
-  transition: all 0.3s ease;
 }
 
 .btn-outline-primary:hover, .btn-outline-primary.active {
   background-color: #4361ee;
   border-color: #4361ee;
-  transform: translateY(-2px);
 }
 
 .btn-outline-success {
   color: #38b000;
   border-color: #38b000;
-  transition: all 0.3s ease;
 }
 
 .btn-outline-success:hover {
   background-color: #38b000;
   border-color: #38b000;
-  transform: translateY(-2px);
 }
 
 .copy-btn {
@@ -87,16 +82,4 @@ body {
 
 .view-toggle-btn {
   cursor: pointer;
-}
-
-/* 卡片和容器阴影效果 */
-.card, .container-card {
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
-  border: none;
-  border-radius: 10px;
-  transition: all 0.3s ease;
-}
-
-.card:hover, .container-card:hover {
-  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.08);
 }

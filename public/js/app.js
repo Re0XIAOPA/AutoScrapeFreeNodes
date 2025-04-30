@@ -7,21 +7,6 @@ let currentView = 'normal'; // 'normal' or 'detailed'
 // API基础URL - 从环境配置中获取
 const API_BASE_URL = ENV_CONFIG.API_BASE_URL;
 
-// 自定义模态框显示函数
-function showInfoModal(message) {
-  const infoModalText = document.getElementById('infoModalText');
-  infoModalText.textContent = message;
-  const infoModal = new bootstrap.Modal(document.getElementById('infoModal'));
-  infoModal.show();
-}
-
-function showErrorModal(message) {
-  const errorModalText = document.getElementById('errorModalText');
-  errorModalText.textContent = message;
-  const errorModal = new bootstrap.Modal(document.getElementById('errorModal'));
-  errorModal.show();
-}
-
 // 文档加载完成后执行
 document.addEventListener('DOMContentLoaded', function() {
   // DOM元素
@@ -85,124 +70,55 @@ document.addEventListener('DOMContentLoaded', function() {
     refreshBtn.disabled = true;
     refreshBtn.innerHTML = `<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> 刷新中...`;
     
-    try {
-      // 首先尝试通过fetch获取数据（适用于服务器环境）
-      if (window.location.protocol.includes('http')) {
-        fetch(`${API_BASE_URL}/api/refresh/index.json`, {
-          method: 'GET'
-        })
-          .then(response => response.json())
-          .then(data => {
-            if (data.success) {
-              loadSubscriptions();
-              loadConfig(); // 同时刷新配置信息
-            } else {
-              showErrorModal('刷新失败: ' + (data.error || data.message || '未知错误'));
-            }
-          })
-          .catch(error => {
-            console.warn('通过fetch请求刷新失败，尝试使用内联数据:', error);
-            // 如果fetch失败，使用内联响应
-            if (typeof REFRESH_RESPONSE !== 'undefined') {
-              showInfoModal(REFRESH_RESPONSE.message);
-            } else {
-              showErrorModal('刷新请求失败: ' + (error.message || '未知错误'));
-            }
-          })
-          .finally(() => {
-            refreshBtn.disabled = false;
-            refreshBtn.innerHTML = '<i class="bi bi-arrow-repeat me-1"></i> 刷新数据';
-          });
-      } else {
-        // 本地文件系统环境，使用内联响应
-        console.log('检测到本地文件系统环境，使用内联刷新响应');
-        if (typeof REFRESH_RESPONSE !== 'undefined') {
-          setTimeout(() => {
-            showInfoModal(REFRESH_RESPONSE.message);
-            refreshBtn.disabled = false;
-            refreshBtn.innerHTML = '<i class="bi bi-arrow-repeat me-1"></i> 刷新数据';
-          }, 500);
+    fetch(`${API_BASE_URL}/api/refresh`, {
+      method: 'POST'
+    })
+      .then(response => response.json())
+      .then(data => {
+        if (data.success) {
+          loadSubscriptions();
+          loadConfig(); // 同时刷新配置信息
         } else {
-          showErrorModal('内联数据不可用，请使用HTTP服务器或重新生成静态文件');
-          refreshBtn.disabled = false;
-          refreshBtn.innerHTML = '<i class="bi bi-arrow-repeat me-1"></i> 刷新数据';
+          alert('刷新失败: ' + (data.error || '未知错误'));
         }
-      }
-    } catch (error) {
-      console.error('刷新请求失败:', error);
-      showErrorModal('刷新请求失败: ' + (error.message || '未知错误'));
-      refreshBtn.disabled = false;
-      refreshBtn.innerHTML = '<i class="bi bi-arrow-repeat me-1"></i> 刷新数据';
-    }
+      })
+      .catch(error => {
+        console.error('刷新请求失败:', error);
+        alert('刷新请求失败，请检查控制台');
+      })
+      .finally(() => {
+        refreshBtn.disabled = false;
+        refreshBtn.innerHTML = '<i class="bi bi-arrow-repeat me-1"></i> 刷新数据';
+      });
   });
   
-  // 更新下一次刷新时间的显示 - 基于GitHub Actions固定调度时间
+  // 更新下一次刷新时间的显示 - 精确计算15分钟间隔的更新时间
   function updateNextRefreshTime() {
     const nextRefreshTimeEl = document.getElementById('next-refresh-time');
     
-    // 获取当前时间（客户端时间）
+    if (!configData.settings || !configData.settings.updateInterval) {
+      nextRefreshTimeEl.innerHTML = '<i class="bi bi-clock"></i> 下次更新: 计算中...';
+      return;
+    }
+    
+    const interval = parseInt(configData.settings.updateInterval) || 15;
+    const lastUpdated = new Date(configData.settings.lastUpdated);
     const now = new Date();
     
-    // 计算今天的北京时间00:30（GitHub Actions构建时间）
-    const todayBuildTime = new Date(now);
-    todayBuildTime.setHours(0);
-    todayBuildTime.setMinutes(30);
-    todayBuildTime.setSeconds(0);
-    todayBuildTime.setMilliseconds(0);
+    // 计算上次更新后的完整周期数
+    const minutesSinceUpdate = Math.floor((now - lastUpdated) / (1000 * 60));
+    const cycles = Math.floor(minutesSinceUpdate / interval);
     
-    // 如果当前时间已经过了今天的构建时间，则下次构建时间为明天同一时间
-    const nextBuildTime = new Date(todayBuildTime);
-    if (now > todayBuildTime) {
-      nextBuildTime.setDate(nextBuildTime.getDate() + 1);
-    }
+    // 下一个更新时间 = 上次更新时间 + (周期数+1) * 更新间隔
+    const nextRefresh = new Date(lastUpdated);
+    nextRefresh.setMinutes(lastUpdated.getMinutes() + ((cycles + 1) * interval));
     
-    // 计算距离下次更新的时间（以小时和分钟表示）
-    const diffMs = nextBuildTime - now;
-    const diffHours = Math.floor(diffMs / (1000 * 60 * 60));
-    const diffMinutes = Math.floor((diffMs % (1000 * 60 * 60)) / (1000 * 60));
+    // 计算剩余分钟
+    const timeLeft = Math.max(1, Math.ceil((nextRefresh - now) / (1000 * 60)));
     
-    // 格式化时间显示
-    const formattedTime = nextBuildTime.toLocaleTimeString([], {hour: '2-digit', minute: '2-digit'});
-    const timeDisplay = diffHours > 0 
-      ? `${diffHours}小时${diffMinutes}分钟后` 
-      : `${diffMinutes}分钟后`;
-    
-    // 增加针对等待时间的视觉提示
-    let timerClass = 'next-refresh-normal';
-    let timerIcon = 'bi-clock';
-    
-    if (diffHours === 0) {
-      if (diffMinutes <= 10) {
-        timerClass = 'next-refresh-imminent';
-        timerIcon = 'bi-clock-fill';
-      } else if (diffMinutes <= 30) {
-        timerClass = 'next-refresh-soon';
-        timerIcon = 'bi-clock-history';
-      }
-    }
-    
-    // 重置元素类名，然后添加基础类和状态类
-    nextRefreshTimeEl.className = 'next-refresh';
-    nextRefreshTimeEl.classList.add(timerClass);
-    nextRefreshTimeEl.innerHTML = `<i class="bi ${timerIcon}"></i> 下次更新: <strong>${formattedTime}</strong> (约${timeDisplay})`;
-    
-    // 重置延迟类，防止之前的状态残留
-    nextRefreshTimeEl.classList.remove('next-refresh-delayed');
-    
-    // 获取上次更新时间，并添加警告
-    if (configData && configData.settings && configData.settings.lastUpdated) {
-      const lastUpdated = new Date(configData.settings.lastUpdated);
-      const hoursSinceUpdate = Math.floor((now - lastUpdated) / (1000 * 60 * 60));
-      
-      if (hoursSinceUpdate >= 48) {
-        nextRefreshTimeEl.classList.add('next-refresh-delayed');
-        nextRefreshTimeEl.title = `上次更新已超过${hoursSinceUpdate}小时，可能存在同步问题`;
-      } else if (hoursSinceUpdate >= 24) {
-        nextRefreshTimeEl.title = `上次更新在${hoursSinceUpdate}小时前`;
-      } else {
-        nextRefreshTimeEl.title = '';
-      }
-    }
+    // 更新显示
+    const formattedTime = nextRefresh.toLocaleTimeString([], {hour: '2-digit', minute: '2-digit'});
+    nextRefreshTimeEl.innerHTML = `<i class="bi bi-clock"></i> 下次更新: <strong>${formattedTime}</strong> (约${timeLeft}分钟后)`;
   }
   
   // 开启定时更新时间显示
@@ -212,98 +128,46 @@ document.addEventListener('DOMContentLoaded', function() {
 
 // 加载配置信息
 function loadConfig() {
-  try {
-    // 首先尝试通过fetch获取数据（适用于服务器环境）
-    if (window.location.protocol.includes('http')) {
-      fetch(`${API_BASE_URL}/api/config.json`)
-        .then(response => {
-          if (!response.ok) {
-            throw new Error(`服务器响应错误: ${response.status}`);
-          }
-          return response.json();
-        })
-        .then(data => {
-          processConfigData(data);
-        })
-        .catch(error => {
-          console.warn('通过fetch加载配置失败，尝试使用内联数据:', error);
-          // 如果fetch失败，尝试使用内联数据
-          if (typeof INLINE_CONFIG !== 'undefined') {
-            processConfigData(INLINE_CONFIG);
-          } else {
-            handleConfigError(error);
-          }
-        });
-    } else {
-      // 本地文件系统环境，直接使用内联数据
-      console.log('检测到本地文件系统环境，使用内联数据');
-      if (typeof INLINE_CONFIG !== 'undefined') {
-        processConfigData(INLINE_CONFIG);
-      } else {
-        throw new Error('内联数据不可用，请使用HTTP服务器或重新生成静态文件');
+  fetch(`${API_BASE_URL}/api/config`)
+    .then(response => {
+      if (!response.ok) {
+        throw new Error(`服务器响应错误: ${response.status}`);
       }
-    }
-  } catch (error) {
-    handleConfigError(error);
-  }
-}
-
-// 处理配置数据
-function processConfigData(data) {
-  configData = data;
-  
-  // 更新配置显示
-  document.getElementById('update-interval').textContent = `${data.settings.updateInterval} 分钟`;
-  document.getElementById('max-articles').textContent = `${data.settings.maxArticlesPerSite} 篇`;
-  
-  // 处理最后更新时间
-  const lastUpdatedEl = document.getElementById('last-updated');
-  const lastUpdated = new Date(data.settings.lastUpdated);
-  const now = new Date();
-  const hoursSinceUpdate = Math.floor((now - lastUpdated) / (1000 * 60 * 60));
-  
-  // 设置时间文本
-  lastUpdatedEl.textContent = lastUpdated.toLocaleString();
-  
-  // 根据更新时间设置样式
-  if (hoursSinceUpdate >= 24) {
-    // 超过24小时显示为严重过期
-    lastUpdatedEl.classList.add('outdated');
-    lastUpdatedEl.title = `数据已过期 ${hoursSinceUpdate} 小时`;
-  } else if (hoursSinceUpdate >= 12) {
-    // 超过12小时仍使用警告色，但添加提示
-    lastUpdatedEl.title = `上次更新在 ${hoursSinceUpdate} 小时前`;
-  } else {
-    // 12小时内，正常警告色
-    lastUpdatedEl.title = `上次更新在 ${hoursSinceUpdate} 小时前`;
-  }
-  
-  // 更新站点列表
-  let siteListHTML = '';
-  if (data.sites && data.sites.length > 0) {
-    data.sites.forEach(site => {
-      siteListHTML += `
-        <div class="site-item">
-          <div class="site-url" title="${site.description || site.url}">${site.url}</div>
-          <div class="site-status ${site.enabled ? 'site-enabled' : 'site-disabled'}">
-            ${site.enabled ? '已启用' : '已禁用'}
-          </div>
-        </div>
-      `;
+      return response.json();
+    })
+    .then(data => {
+      configData = data;
+      
+      // 更新配置显示
+      document.getElementById('update-interval').textContent = `${data.settings.updateInterval} 分钟`;
+      document.getElementById('max-articles').textContent = `${data.settings.maxArticlesPerSite} 篇`;
+      document.getElementById('last-updated').textContent = new Date(data.settings.lastUpdated).toLocaleString();
+      
+      // 更新站点列表
+      let siteListHTML = '';
+      if (data.sites && data.sites.length > 0) {
+        data.sites.forEach(site => {
+          siteListHTML += `
+            <div class="site-item">
+              <div class="site-url" title="${site.description || site.url}">${site.url}</div>
+              <div class="site-status ${site.enabled ? 'site-enabled' : 'site-disabled'}">
+                ${site.enabled ? '已启用' : '已禁用'}
+              </div>
+            </div>
+          `;
+        });
+      } else {
+        siteListHTML = '<div class="text-center">没有配置站点</div>';
+      }
+      document.getElementById('site-list').innerHTML = siteListHTML;
+    })
+    .catch(error => {
+      console.error('加载配置失败:', error);
+      document.getElementById('update-interval').textContent = '加载失败';
+      document.getElementById('max-articles').textContent = '加载失败';
+      document.getElementById('last-updated').textContent = '加载失败';
+      document.getElementById('site-list').innerHTML = '<div class="text-center text-danger">加载站点列表失败</div>';
     });
-  } else {
-    siteListHTML = '<div class="text-center">没有配置站点</div>';
-  }
-  document.getElementById('site-list').innerHTML = siteListHTML;
-}
-
-// 处理配置加载错误
-function handleConfigError(error) {
-  console.error('加载配置失败:', error);
-  document.getElementById('update-interval').textContent = '加载失败';
-  document.getElementById('max-articles').textContent = '加载失败';
-  document.getElementById('last-updated').textContent = '加载失败';
-  document.getElementById('site-list').innerHTML = '<div class="text-center text-danger">加载站点列表失败</div>';
 }
 
 // 加载订阅数据
@@ -318,74 +182,41 @@ function loadSubscriptions() {
     </div>
   `;
   
-  try {
-    // 首先尝试通过fetch获取数据（适用于服务器环境）
-    if (window.location.protocol.includes('http')) {
-      // 获取简洁视图数据
-      fetch(`${API_BASE_URL}/api/subscriptions.json`)
-        .then(response => {
-          if (!response.ok) {
-            throw new Error(`服务器响应错误: ${response.status}`);
-          }
-          return response.json();
-        })
-        .then(data => {
-          allSubscriptions = data;
-          updateStats(data);
-          
-          // 获取详细视图数据
-          return fetch(`${API_BASE_URL}/api/sites.json`);
-        })
-        .then(response => {
-          if (!response.ok) {
-            throw new Error(`服务器响应错误: ${response.status}`);
-          }
-          return response.json();
-        })
-        .then(data => {
-          detailedData = data;
-          renderSubscriptions();
-        })
-        .catch(error => {
-          console.warn('通过fetch加载数据失败，尝试使用内联数据:', error);
-          // 如果fetch失败，尝试使用内联数据
-          if (typeof INLINE_SUBSCRIPTIONS !== 'undefined' && typeof INLINE_SITES !== 'undefined') {
-            allSubscriptions = INLINE_SUBSCRIPTIONS;
-            updateStats(INLINE_SUBSCRIPTIONS);
-            detailedData = INLINE_SITES;
-            renderSubscriptions();
-          } else {
-            handleSubscriptionsError(error);
-          }
-        });
-    } else {
-      // 本地文件系统环境，直接使用内联数据
-      console.log('检测到本地文件系统环境，使用内联数据');
-      if (typeof INLINE_SUBSCRIPTIONS !== 'undefined' && typeof INLINE_SITES !== 'undefined') {
-        allSubscriptions = INLINE_SUBSCRIPTIONS;
-        updateStats(INLINE_SUBSCRIPTIONS);
-        detailedData = INLINE_SITES;
-        renderSubscriptions();
-      } else {
-        throw new Error('内联数据不可用，请使用HTTP服务器或重新生成静态文件');
+  // 获取简洁视图数据
+  fetch(`${API_BASE_URL}/api/subscriptions`)
+    .then(response => {
+      if (!response.ok) {
+        throw new Error(`服务器响应错误: ${response.status}`);
       }
-    }
-  } catch (error) {
-    handleSubscriptionsError(error);
-  }
-}
-
-// 处理订阅加载错误
-function handleSubscriptionsError(error) {
-  console.error('加载订阅数据失败:', error);
-  const subscriptionsContainer = document.getElementById('subscriptions-container');
-  subscriptionsContainer.innerHTML = `
-    <div class="col-12">
-      <div class="alert alert-danger">
-        加载订阅数据失败: ${error.message || '未知错误'}
-      </div>
-    </div>
-  `;
+      return response.json();
+    })
+    .then(data => {
+      allSubscriptions = data;
+      updateStats(data);
+      
+      // 获取详细视图数据
+      return fetch(`${API_BASE_URL}/api/sites`);
+    })
+    .then(response => {
+      if (!response.ok) {
+        throw new Error(`服务器响应错误: ${response.status}`);
+      }
+      return response.json();
+    })
+    .then(data => {
+      detailedData = data;
+      renderSubscriptions();
+    })
+    .catch(error => {
+      console.error('加载订阅数据失败:', error);
+      subscriptionsContainer.innerHTML = `
+        <div class="col-12">
+          <div class="alert alert-danger">
+            加载订阅数据失败: ${error.message || '未知错误'}
+          </div>
+        </div>
+      `;
+    });
 }
 
 // 更新统计信息
@@ -478,7 +309,7 @@ function renderSubscriptions() {
         })
         .catch(err => {
           console.error('复制失败:', err);
-          showErrorModal('复制失败，请手动复制');
+          alert('复制失败，请手动复制');
         });
     });
   });
