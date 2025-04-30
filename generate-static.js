@@ -149,33 +149,37 @@ async function generateStaticSite() {
     // 写入简化的订阅数据
     fs.writeJsonSync(path.join(apiDir, 'subscriptions.json'), subscriptionsData);
     
+    // 创建内联数据文件，避免使用fetch
+    console.log('创建内联数据文件...');
+    const inlineDataJs = `
+// 内联数据 - 自动生成，请勿手动修改
+const INLINE_CONFIG = ${JSON.stringify(configData, null, 2)};
+const INLINE_SUBSCRIPTIONS = ${JSON.stringify(subscriptionsData, null, 2)};
+const INLINE_SITES = ${JSON.stringify(sitesData, null, 2)};
+const REFRESH_RESPONSE = ${JSON.stringify({ 
+  success: true, 
+  message: '静态站点不支持实时刷新功能。GitHub Pages站点数据会在每天北京时间00:30通过GitHub Actions自动更新，请查看页面上的"最后更新时间"了解数据状态。' 
+}, null, 2)};
+`;
+    
+    fs.writeFileSync(path.join(OUTPUT_DIR, 'js', 'inline-data.js'), inlineDataJs);
+    
     // 修改API地址，使其适应GitHub Pages
     console.log('修改前端配置...');
     const configJsPath = path.join(OUTPUT_DIR, 'js', 'config.js');
     let configJsContent = fs.readFileSync(configJsPath, 'utf8');
     
-    // 由于我们现在使用自动检测路径，无需替换配置中的URL
-    // 只需确保自动检测逻辑存在即可
-    
     // 检查是否已包含自动检测逻辑
-    if (!configJsContent.includes('自动检测基础路径')) {
+    if (!configJsContent.includes('使用相对路径访问API')) {
       // 如果没有自动检测逻辑，则添加
       const autoDetectCode = `
 // 自动检测基础路径（用于GitHub Pages或其他静态托管）
 if (currentEnv === 'production' || currentEnv === 'static_test') {
-  // 从当前URL路径提取基础路径
-  const pathSegments = window.location.pathname.split('/');
-  // 移除最后一个元素（如果是文件名或空）
-  if (pathSegments[pathSegments.length - 1].includes('.html') || pathSegments[pathSegments.length - 1] === '') {
-    pathSegments.pop();
-  }
-  // 创建基础路径（例如 /AutoScrapeFreeNodes 或 空字符串）
-  let basePath = pathSegments.join('/');
+  // 对于GitHub Pages和静态部署，我们总是使用相对路径
+  // 这样无论部署在哪里都能正确访问API
+  CONFIG[currentEnv].API_BASE_URL = '.';
   
-  // 如果在根目录，basePath将为空
-  CONFIG[currentEnv].API_BASE_URL = basePath;
-  
-  console.log('自动检测到基础路径:', basePath);
+  console.log('使用相对路径访问API');
 }
 `;
       
@@ -193,7 +197,7 @@ if (currentEnv === 'production' || currentEnv === 'static_test') {
     fs.ensureDirSync(path.join(apiDir, 'refresh'));
     fs.writeJsonSync(path.join(apiDir, 'refresh', 'index.json'), { 
       success: true, 
-      message: '静态站点不支持实时刷新，请查看GitHub Actions执行时间了解最后更新时间' 
+      message: '静态站点不支持实时刷新功能。GitHub Pages站点数据会在每天北京时间00:30通过GitHub Actions自动更新，请查看页面上的"最后更新时间"了解数据状态。'
     });
     
     // 复制.nojekyll文件到输出目录，确保GitHub Pages不会使用Jekyll处理
