@@ -30,6 +30,48 @@ function buildResourceUrl(path) {
   return `${API_BASE_URL}/${path}`;
 }
 
+// 计算下次自动更新时间（北京时间00:30）
+function getNextUpdateTime() {
+  const now = new Date();
+  const nextUpdate = new Date();
+  
+  // 设置为明天的00:30（北京时间）
+  nextUpdate.setDate(now.getDate() + 1);
+  nextUpdate.setHours(0);
+  nextUpdate.setMinutes(30);
+  nextUpdate.setSeconds(0);
+  
+  // 如果当前时间已经超过了今天的更新时间，那么下次更新时间是明天
+  // 如果当前时间还没到今天的更新时间，那么下次更新时间是今天
+  if (now.getHours() < 0 || (now.getHours() === 0 && now.getMinutes() < 30)) {
+    nextUpdate.setDate(now.getDate()); // 设置为今天
+  }
+  
+  // 计算时间差（分钟）
+  const diffMs = nextUpdate - now;
+  const diffMinutes = Math.floor(diffMs / (1000 * 60));
+  
+  // 转换为更人性化的描述
+  let timeDesc = '';
+  if (diffMinutes < 60) {
+    timeDesc = `${diffMinutes}分钟后`;
+  } else if (diffMinutes < 24 * 60) {
+    const hours = Math.floor(diffMinutes / 60);
+    const mins = diffMinutes % 60;
+    timeDesc = `${hours}小时${mins > 0 ? mins + '分钟' : ''}后`;
+  } else {
+    const days = Math.floor(diffMinutes / (24 * 60));
+    const hours = Math.floor((diffMinutes % (24 * 60)) / 60);
+    timeDesc = `${days}天${hours > 0 ? hours + '小时' : ''}后`;
+  }
+  
+  return {
+    time: nextUpdate,
+    formattedTime: nextUpdate.toLocaleTimeString([], {hour: '2-digit', minute: '2-digit'}),
+    description: timeDesc
+  };
+}
+
 // 文档加载完成后执行
 document.addEventListener('DOMContentLoaded', function() {
   // DOM元素
@@ -55,9 +97,11 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // 更新下次刷新时间显示
     const buildTime = ENV_CONFIG.buildTime ? new Date(ENV_CONFIG.buildTime) : new Date();
+    const nextUpdate = getNextUpdateTime();
+    
     nextRefreshTime.innerHTML = `
       <i class="bi bi-info-circle"></i> 静态构建于: <strong>${buildTime.toLocaleString()}</strong>
-      <span class="ms-2 badge bg-info">每天00:30自动更新</span>
+      <span class="ms-2 badge bg-info">下次更新: ${nextUpdate.formattedTime} (${nextUpdate.description})</span>
     `;
   }
   
