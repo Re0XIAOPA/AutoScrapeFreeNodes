@@ -1,83 +1,53 @@
-name: 部署到GitHub Pages
+name: 部署免费节点抓取工具到GitHub Pages
 
 on:
-  push:
-    branches: [ main, master ]
-  workflow_dispatch:
+  # 自动执行的时间，每4小时运行一次
   schedule:
-    # 每天UTC时间16:30 (对应北京时间00:30)
-    - cron: '30 16 * * *'
-
-# 设置必要的权限
-permissions:
-  contents: read
-  pages: write
-  id-token: write
-
-# 允许一次只运行一个部署
-concurrency:
-  group: "pages"
-  cancel-in-progress: true
+    - cron: '0 */4 * * *'
+  
+  # 当push到main分支时也执行
+  push:
+    branches: [ main ]
+  
+  # 允许手动触发工作流
+  workflow_dispatch:
 
 jobs:
-  # 构建工作
-  build:
+  build-and-deploy:
     runs-on: ubuntu-latest
+    
     steps:
+      # 检出仓库代码
       - name: 检出代码
-        uses: actions/checkout@v4
-      
+        uses: actions/checkout@v2
+        
+      # 设置Node.js环境
       - name: 设置Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v2
         with:
-          node-version: '20'
-      
+          node-version: '16'
+          
+      # 安装依赖
       - name: 安装依赖
         run: npm install
-      
-      - name: 构建静态网站
-        run: |
-          mkdir -p dist
-          node scripts/build-gh-pages.js
-      
-      - name: 验证构建
-        run: node scripts/verify-build.js
-      
-      - name: 确保所有必要文件都被包含
-        run: |
-          # 列出构建目录中的所有文件
-          echo "构建目录内容："
-          find ./dist -type f | sort
-          
-          # 确保data和json目录存在
-          echo "确保数据目录存在..."
-          mkdir -p ./dist/data
-          mkdir -p ./dist/json
-          
-          # 列出data目录文件
-          echo "data目录文件："
-          ls -la ./dist/data || echo "data目录为空"
-          
-          # 列出json目录文件
-          echo "json目录文件："
-          ls -la ./dist/json || echo "json目录为空"
-      
-      - name: 设置Pages
-        uses: actions/configure-pages@v4
-      
-      - name: 上传Pages构建结果
-        uses: actions/upload-pages-artifact@v3
-        with:
-          path: ./dist
-
-  # 部署工作
-  deploy:
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
-    runs-on: ubuntu-latest
-    needs: build
-    steps:
+        
+      # 执行抓取和生成静态网站
+      - name: 生成静态网站
+        run: node generate-static.js
+        
+      # 部署到GitHub Pages
       - name: 部署到GitHub Pages
-        id: deployment
-        uses: actions/deploy-pages@v4 
+        uses: JamesIves/github-pages-deploy-action@4.1.5
+        with:
+          branch: gh-pages  # 部署到gh-pages分支
+          folder: dist      # 使用dist目录作为源目录
+          clean: true       # 清理旧文件
+      
+      # 提交最新数据到主分支
+      - name: 提交最新数据
+        run: |
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+          git add data/*.json
+          git diff --quiet && git diff --staged --quiet || git commit -m "自动更新: 更新节点数据 [skip ci]"
+          git push 

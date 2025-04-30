@@ -5,9 +5,10 @@
   "main": "index.js",
   "scripts": {
     "start": "node index.js",
-    "build": "node scripts/build-gh-pages.js",
-    "verify": "node scripts/verify-build.js",
-    "deploy": "npm run build && npm run verify"
+    "generate": "node generate-static.js",
+    "test-static": "node test-static.js",
+    "predeploy": "npm run generate",
+    "deploy": "gh-pages -d dist"
   },
   "dependencies": {
     "express": "^4.18.2",
@@ -15,5 +16,8 @@
     "cheerio": "^1.0.0-rc.12",
     "cron": "^3.1.6",
     "fs-extra": "^11.2.0"
+  },
+  "devDependencies": {
+    "gh-pages": "^5.0.0"
   }
 } 

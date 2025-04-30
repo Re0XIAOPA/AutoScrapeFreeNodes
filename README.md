@@ -1,104 +1,53 @@
-# 免费节点订阅集合
+# 免费节点订阅抓取工具
 
-这是一个自动抓取和展示免费节点订阅链接的项目。该项目使用Node.js构建，可以定期从多个来源获取最新的免费节点订阅链接，并提供美观的用户界面进行展示。
+自动抓取多个网站的免费节点订阅链接并展示的工具，支持GitHub Pages静态部署。
 
-## 来源网站
+## 抓取的网站
 
-- https://clashnode.github.io/free-nodes/
-- https://clash-meta.github.io/free-nodes/
-- https://www.airportnode.com/category-1.html
+本工具会自动抓取以下网站的免费节点：
 
-## 功能特点
+https://clashnode.github.io/free-nodes/
 
-- 自动抓取多个来源的免费节点订阅链接
-- 定时更新，保持数据新鲜
-- 支持按类型过滤订阅链接（Clash、V2ray、Sing-Box等）
-- 支持搜索功能
-- 支持简洁视图和详细视图切换
-- 响应式设计，适配各种设备
-- 可部署为静态网站（GitHub Pages）或动态应用
+https://clash-meta.github.io/free-nodes/
 
-## 部署指南
+https://www.airportnode.com/category-1.html
 
-### 方法一：在GitHub Pages上部署（推荐）
+## 部署方式
 
-这个项目已经配置了GitHub Actions，可以自动构建并部署到GitHub Pages。**系统会每天北京时间凌晨00:30自动重新构建并更新数据。**
+### GitHub Pages 部署
 
-1. Fork这个仓库到你的GitHub账号
-2. 在仓库设置中启用GitHub Pages：
-   - 进入你fork的仓库
-   - 点击"Settings" -> "Pages"
-   - Source选择"GitHub Actions"
-3. 触发部署：
-   - 修改任意文件并提交到main分支，或者
-   - 在Actions标签页手动触发workflow
+本项目已配置自动化工作流，可直接部署到GitHub Pages：
 
-部署完成后，你可以通过`https://<你的GitHub用户名>.github.io/AutoScrapeFreeNodes`访问你的网站。
+1. Fork本仓库到你的GitHub账号
+2. 在仓库设置中启用GitHub Pages，选择`gh-pages`分支作为源
+3. GitHub Actions会自动构建并部署静态网站
+4. 访问`https://你的用户名.github.io/仓库名`查看网站
 
-### 方法二：本地或服务器部署
+工作流会：
+- 每4小时自动抓取一次最新节点
+- 生成静态网站并部署到GitHub Pages
+- 将最新数据提交回主分支
 
-#### 前提条件
-- Node.js 16+ 和npm
+### 本地开发
 
-#### 安装步骤
-
-1. 克隆仓库
 ```bash
-git clone https://github.com/你的用户名/AutoScrapeFreeNodes.git
-cd AutoScrapeFreeNodes
-```
-
-2. 安装依赖
-```bash
+# 安装依赖
 npm install
-```
 
-3. 启动应用
-```bash
+# 启动服务
 npm start
+
+# 生成静态网站
+node generate-static.js
 ```
 
-应用将在`http://localhost:3000`（或配置的端口）上运行。
+访问 http://localhost:3001 查看效果。
 
-#### 使用PM2进行生产环境部署
+## 自定义设置
 
-```bash
-npm install -g pm2
-pm2 start index.js --name "free-nodes"
-```
+如需修改抓取频率或添加新的节点源，可编辑以下文件：
 
-## 开发指南
+- `config.json`: 修改抓取站点和基本设置
+- `.github/workflows/deploy.yml`: 修改自动构建频率
 
-### 构建静态站点
-
-如果你想手动构建静态站点版本（不使用GitHub Actions）：
-
-```bash
-npm run build
-```
-
-静态站点文件将生成在`dist`目录中。
-
-### 验证构建
-
-```bash
-npm run verify
-```
-
-### 修改抓取配置
-
-编辑`config.json`文件以添加或修改抓取源、更新频率等设置。
-
-### 修改自动更新时间
-
-如果你想修改自动更新的时间，可以编辑`.github/workflows/deploy.yml`文件中的`cron`表达式：
-
-```yaml
-schedule:
-  # 格式: '分钟 小时 日 月 星期'
-  - cron: '30 16 * * *'  # UTC时间16:30，对应北京时间00:30
-```
-
-## 许可证
-
-[项目许可证信息]
+详细说明请参考 [使用说明.md](使用说明.md)

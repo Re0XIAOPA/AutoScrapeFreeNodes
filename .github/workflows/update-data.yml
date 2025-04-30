@@ -1,0 +1,41 @@
+name: 定期更新免费节点数据
+
+on:
+  # 自动执行的时间，每2小时更新一次数据
+  schedule:
+    - cron: '0 */2 * * *'
+  
+  # 允许手动触发工作流
+  workflow_dispatch:
+
+jobs:
+  update-data:
+    runs-on: ubuntu-latest
+    
+    steps:
+      # 检出仓库代码
+      - name: 检出代码
+        uses: actions/checkout@v2
+        
+      # 设置Node.js环境
+      - name: 设置Node.js
+        uses: actions/setup-node@v2
+        with:
+          node-version: '16'
+          
+      # 安装依赖
+      - name: 安装依赖
+        run: npm install
+        
+      # 仅执行抓取数据
+      - name: 抓取最新节点数据
+        run: node -e "require('./scraper').scrapeAllSites()"
+        
+      # 提交最新数据到主分支
+      - name: 提交最新数据
+        run: |
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+          git add data/*.json
+          git diff --quiet && git diff --staged --quiet || git commit -m "自动更新: 定期更新节点数据 [skip ci]"
+          git push 

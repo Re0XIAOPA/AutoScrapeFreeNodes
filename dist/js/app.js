@@ -118,32 +118,7 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // 更新显示
     const formattedTime = nextRefresh.toLocaleTimeString([], {hour: '2-digit', minute: '2-digit'});
-    
-    // 增加针对等待时间的视觉提示
-    let timerClass = '';
-    let timerIcon = 'bi-clock';
-    
-    if (timeLeft > 10) {
-      timerClass = 'next-refresh-normal';
-    } else if (timeLeft > 5) {
-      timerClass = 'next-refresh-soon';
-      timerIcon = 'bi-clock-history';
-    } else {
-      timerClass = 'next-refresh-imminent';
-      timerIcon = 'bi-clock-fill';
-    }
-    
-    nextRefreshTimeEl.innerHTML = `<i class="bi ${timerIcon}"></i> 下次更新: <strong>${formattedTime}</strong> (约${timeLeft}分钟后)`;
-    
-    // 更新时间较长时提供视觉警告
-    const hoursSinceUpdate = Math.floor((now - lastUpdated) / (1000 * 60 * 60));
-    if (hoursSinceUpdate >= 24) {
-      nextRefreshTimeEl.classList.add('next-refresh-delayed');
-      nextRefreshTimeEl.title = `上次更新已超过${hoursSinceUpdate}小时，可能存在同步问题`;
-    } else {
-      nextRefreshTimeEl.classList.remove('next-refresh-delayed');
-      nextRefreshTimeEl.title = '';
-    }
+    nextRefreshTimeEl.innerHTML = `<i class="bi bi-clock"></i> 下次更新: <strong>${formattedTime}</strong> (约${timeLeft}分钟后)`;
   }
   
   // 开启定时更新时间显示
@@ -166,28 +141,7 @@ function loadConfig() {
       // 更新配置显示
       document.getElementById('update-interval').textContent = `${data.settings.updateInterval} 分钟`;
       document.getElementById('max-articles').textContent = `${data.settings.maxArticlesPerSite} 篇`;
-      
-      // 处理最后更新时间
-      const lastUpdatedEl = document.getElementById('last-updated');
-      const lastUpdated = new Date(data.settings.lastUpdated);
-      const now = new Date();
-      const hoursSinceUpdate = Math.floor((now - lastUpdated) / (1000 * 60 * 60));
-      
-      // 设置时间文本
-      lastUpdatedEl.textContent = lastUpdated.toLocaleString();
-      
-      // 根据更新时间设置样式
-      if (hoursSinceUpdate >= 24) {
-        // 超过24小时显示为严重过期
-        lastUpdatedEl.classList.add('outdated');
-        lastUpdatedEl.title = `数据已过期 ${hoursSinceUpdate} 小时`;
-      } else if (hoursSinceUpdate >= 12) {
-        // 超过12小时仍使用警告色，但添加提示
-        lastUpdatedEl.title = `上次更新在 ${hoursSinceUpdate} 小时前`;
-      } else {
-        // 12小时内，正常警告色
-        lastUpdatedEl.title = `上次更新在 ${hoursSinceUpdate} 小时前`;
-      }
+      document.getElementById('last-updated').textContent = new Date(data.settings.lastUpdated).toLocaleString();
       
       // 更新站点列表
       let siteListHTML = '';

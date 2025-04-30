@@ -21,8 +21,9 @@ pids
 *.seed
 *.pid.lock
 
-# 构建目录
-dist/
+# 目录
+# 不忽略dist目录，以便GitHub Pages可以使用
+# dist/
 build/
 coverage/
 
@@ -47,17 +48,12 @@ Desktop.ini
 .settings/
 
 # 项目特定文件
-# 确保data目录存在并且可以提交
-!data/
-# 但可能会忽略某些特定的数据文件(如果有需要)
-# data/sensitive-*.json
-
+# 不再忽略数据文件，使其能够提交到仓库
+# data/*.json
 # 本地开发环境配置
 public/js/config.dev.js
-
 # 部署相关
 deploy/
-
 # 备份文件
 *.bak
 *-backup.*
