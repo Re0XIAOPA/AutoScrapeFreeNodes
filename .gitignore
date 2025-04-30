@@ -21,7 +21,7 @@ pids
 *.seed
 *.pid.lock
 
-# 目录
+# 构建目录
 dist/
 build/
 coverage/
@@ -47,13 +47,17 @@ Desktop.ini
 .settings/
 
 # 项目特定文件
-# 抓取的数据文件，但保留目录
-data/*.json
+# 确保data目录存在并且可以提交
+!data/
+# 但可能会忽略某些特定的数据文件(如果有需要)
+# data/sensitive-*.json
+
 # 本地开发环境配置
 public/js/config.dev.js
-dist/
+
 # 部署相关
 deploy/
+
 # 备份文件
 *.bak
 *-backup.*

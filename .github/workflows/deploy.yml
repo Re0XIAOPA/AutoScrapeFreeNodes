@@ -43,6 +43,25 @@ jobs:
       - name: 验证构建
         run: node scripts/verify-build.js
       
+      - name: 确保所有必要文件都被包含
+        run: |
+          # 列出构建目录中的所有文件
+          echo "构建目录内容："
+          find ./dist -type f | sort
+          
+          # 确保data和json目录存在
+          echo "确保数据目录存在..."
+          mkdir -p ./dist/data
+          mkdir -p ./dist/json
+          
+          # 列出data目录文件
+          echo "data目录文件："
+          ls -la ./dist/data || echo "data目录为空"
+          
+          # 列出json目录文件
+          echo "json目录文件："
+          ls -la ./dist/json || echo "json目录为空"
+      
       - name: 设置Pages
         uses: actions/configure-pages@v4
       
