@@ -4,6 +4,7 @@ const http = require('http');
 const express = require('express');
 
 const DIST_DIR = path.join(__dirname, 'dist');
+const BASE_PATH = '/AutoScrapeFreeNodes'; // 模拟GitHub Pages部署路径
 
 // 测试静态网站生成和服务
 async function testStaticSite() {
@@ -25,13 +26,18 @@ async function testStaticSite() {
       next();
     });
     
-    // 配置静态文件服务
-    app.use(express.static(DIST_DIR));
+    // 将根路径重定向到BASE_PATH
+    app.get('/', (req, res) => {
+      res.redirect(BASE_PATH);
+    });
+    
+    // 设置静态文件服务，使用BASE_PATH
+    app.use(BASE_PATH, express.static(DIST_DIR));
     
     // 确保API请求被正确路由到对应的JSON文件
-    app.get('/api/*', (req, res, next) => {
-      // 尝试匹配到dist/api目录下的对应JSON文件
-      const apiPath = req.path.replace(/^\/api\//, '');
+    app.get(`${BASE_PATH}/api/*`, (req, res, next) => {
+      // 从请求路径中提取API路径
+      const apiPath = req.path.replace(new RegExp(`^${BASE_PATH}/api/`), '');
       const jsonFilePath = path.join(DIST_DIR, 'api', `${apiPath}.json`);
       const indexJsonPath = path.join(DIST_DIR, 'api', apiPath, 'index.json');
       
@@ -52,7 +58,7 @@ async function testStaticSite() {
     });
     
     // 处理刷新请求
-    app.post('/api/refresh', (req, res) => {
+    app.post(`${BASE_PATH}/api/refresh`, (req, res) => {
       console.log('收到刷新请求');
       res.json({ 
         success: true, 
@@ -60,9 +66,18 @@ async function testStaticSite() {
       });
     });
     
-    // 对于SPA应用，所有未匹配的路由都返回index.html
-    app.use('*', (req, res) => {
+    // 对于SPA应用，所有未匹配的BASE_PATH路由都返回index.html
+    app.use(`${BASE_PATH}/*`, (req, res) => {
       res.sendFile(path.join(DIST_DIR, 'index.html'));
+    });
+    
+    // 处理404 - 当访问BASE_PATH下不存在的文件时返回404
+    app.use((req, res) => {
+      if (req.path.startsWith(BASE_PATH)) {
+        res.status(404).send(`404 - 文件不存在: ${req.path}`);
+      } else {
+        res.status(404).send('404 - 页面不存在，请访问 ' + BASE_PATH);
+      }
     });
     
     // 启动服务器
@@ -70,10 +85,9 @@ async function testStaticSite() {
     const server = http.createServer(app);
     
     server.listen(PORT, () => {
-      console.log(`静态网站测试服务器运行在 http://localhost:${PORT}`);
-      console.log(`- 该服务器可以提供完整的静态网站体验，包括API请求`);
-      console.log(`- 确保你已经运行过 npm run generate 生成最新的静态文件`);
-      console.log('按 Ctrl+C 停止服务器');
+      console.log(`测试服务器运行在: http://localhost:${PORT}${BASE_PATH}`);
+      console.log('提示: 这是一个模拟GitHub Pages的静态服务器环境');
+      console.log('      如果需要实时更新数据功能，请使用 npm start 运行动态服务器');
     });
     
     // 捕获Ctrl+C信号

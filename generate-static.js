@@ -154,11 +154,37 @@ async function generateStaticSite() {
     const configJsPath = path.join(OUTPUT_DIR, 'js', 'config.js');
     let configJsContent = fs.readFileSync(configJsPath, 'utf8');
     
-    // 更新生产环境配置，使用相对路径访问API
-    configJsContent = configJsContent.replace(
-      /production: \{\s*API_BASE_URL: ['"].*['"]\s*\}/,
-      `production: {\n    API_BASE_URL: ''\n  }`
-    );
+    // 由于我们现在使用自动检测路径，无需替换配置中的URL
+    // 只需确保自动检测逻辑存在即可
+    
+    // 检查是否已包含自动检测逻辑
+    if (!configJsContent.includes('自动检测基础路径')) {
+      // 如果没有自动检测逻辑，则添加
+      const autoDetectCode = `
+// 自动检测基础路径（用于GitHub Pages或其他静态托管）
+if (currentEnv === 'production' || currentEnv === 'static_test') {
+  // 从当前URL路径提取基础路径
+  const pathSegments = window.location.pathname.split('/');
+  // 移除最后一个元素（如果是文件名或空）
+  if (pathSegments[pathSegments.length - 1].includes('.html') || pathSegments[pathSegments.length - 1] === '') {
+    pathSegments.pop();
+  }
+  // 创建基础路径（例如 /AutoScrapeFreeNodes 或 空字符串）
+  let basePath = pathSegments.join('/');
+  
+  // 如果在根目录，basePath将为空
+  CONFIG[currentEnv].API_BASE_URL = basePath;
+  
+  console.log('自动检测到基础路径:', basePath);
+}
+`;
+      
+      // 在"导出当前环境的配置"前插入自动检测代码
+      configJsContent = configJsContent.replace(
+        /console\.log\('当前环境:',\s*currentEnv\);/,
+        `console.log('当前环境:', currentEnv);\n${autoDetectCode}`
+      );
+    }
     
     fs.writeFileSync(configJsPath, configJsContent);
     
