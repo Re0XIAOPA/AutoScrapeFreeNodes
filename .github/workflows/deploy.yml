@@ -47,7 +47,7 @@ jobs:
         uses: actions/configure-pages@v4
       
       - name: 上传Pages构建结果
-        uses: actions/upload-pages-artifact@v4
+        uses: actions/upload-pages-artifact@v3
         with:
           path: ./dist
 
