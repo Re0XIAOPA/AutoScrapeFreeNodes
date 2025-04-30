@@ -8,6 +8,28 @@ let currentView = 'normal'; // 'normal' or 'detailed'
 const API_BASE_URL = ENV_CONFIG.API_BASE_URL;
 const IS_STATIC_MODE = ENV_CONFIG.isStaticMode || false;
 
+// 获取基础URL路径（适用于GitHub Pages）
+function getBasePath() {
+  if (!IS_STATIC_MODE) return '';
+  
+  // 获取当前页面的路径
+  const fullPath = window.location.pathname;
+  // 去除文件名，只保留目录
+  const dirPath = fullPath.substring(0, fullPath.lastIndexOf('/') + 1);
+  return dirPath;
+}
+
+// 构建完整的资源URL
+function buildResourceUrl(path) {
+  if (IS_STATIC_MODE) {
+    const basePath = getBasePath();
+    // 如果path已经以/开头，则删除开头的/
+    const cleanPath = path.startsWith('/') ? path.substring(1) : path;
+    return `${basePath}${cleanPath}`;
+  }
+  return `${API_BASE_URL}/${path}`;
+}
+
 // 文档加载完成后执行
 document.addEventListener('DOMContentLoaded', function() {
   // DOM元素
@@ -151,17 +173,21 @@ document.addEventListener('DOMContentLoaded', function() {
 
 // 加载配置信息
 function loadConfig() {
-  let url = `${API_BASE_URL}/api/config`;
+  let url;
   
   // 如果是静态模式，直接从数据目录读取配置文件
   if (IS_STATIC_MODE) {
-    url = `${API_BASE_URL}/config.json`;
+    url = buildResourceUrl(`${API_BASE_URL}/config.json`);
+  } else {
+    url = `${API_BASE_URL}/api/config`;
   }
+  
+  console.log('加载配置文件:', url);
   
   fetch(url)
     .then(response => {
       if (!response.ok) {
-        throw new Error(`服务器响应错误: ${response.status}`);
+        throw new Error(`数据加载失败，服务器返回: ${response.status}`);
       }
       return response.json();
     })
@@ -196,7 +222,7 @@ function loadConfig() {
       document.getElementById('update-interval').textContent = '加载失败';
       document.getElementById('max-articles').textContent = '加载失败';
       document.getElementById('last-updated').textContent = '加载失败';
-      document.getElementById('site-list').innerHTML = '<div class="text-center text-danger">加载站点列表失败</div>';
+      document.getElementById('site-list').innerHTML = `<div class="text-center text-danger">加载站点列表失败: ${error.message}</div>`;
     });
 }
 
@@ -219,11 +245,18 @@ function loadSubscriptions() {
   // 如果是静态模式，从JSON文件中读取数据
   if (IS_STATIC_MODE) {
     // 列出所有站点文件
-    const sitePromises = [];
     
     // 首先获取目录列表（在静态模式下，无法获取目录列表，需要通过config获取站点列表）
-    fetch(`${API_BASE_URL}/config.json`)
-      .then(response => response.json())
+    const configUrl = buildResourceUrl(`${API_BASE_URL}/config.json`);
+    console.log('加载配置文件(订阅):', configUrl);
+    
+    fetch(configUrl)
+      .then(response => {
+        if (!response.ok) {
+          throw new Error(`数据加载失败，服务器返回: ${response.status}`);
+        }
+        return response.json();
+      })
       .then(config => {
         if (!config.sites || config.sites.length === 0) {
           throw new Error('找不到站点配置');
@@ -239,11 +272,14 @@ function loadSubscriptions() {
           .map(site => {
             // 从URL中提取站点标识符
             const siteId = site.url.replace(/^https?:\/\//, '').replace(/[^\w]/g, '_');
+            const siteDataUrl = buildResourceUrl(`${API_BASE_URL}/${siteId}.json`);
             
-            return fetch(`${API_BASE_URL}/${siteId}.json`)
+            console.log('加载站点数据:', siteDataUrl);
+            
+            return fetch(siteDataUrl)
               .then(response => {
                 if (!response.ok) {
-                  console.warn(`无法加载站点数据: ${siteId}`);
+                  console.warn(`无法加载站点数据: ${siteId}, 状态码: ${response.status}`);
                   return null;
                 }
                 return response.json();
@@ -278,6 +314,10 @@ function loadSubscriptions() {
                 }
                 
                 subscriptionsData[siteId] = processedData;
+              })
+              .catch(error => {
+                console.error(`处理站点 ${siteId} 时出错:`, error);
+                return null;
               });
           });
         

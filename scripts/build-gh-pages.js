@@ -71,7 +71,7 @@ async function build() {
 // 静态部署配置
 window.APP_CONFIG = {
   isStaticMode: true,
-  apiBaseUrl: './data', // 指向静态数据文件夹
+  apiBaseUrl: 'data', // 使用相对路径，不使用./data，因为在GitHub Pages中可能会有问题
   buildTime: "${new Date().toISOString()}"
 };
 `;
