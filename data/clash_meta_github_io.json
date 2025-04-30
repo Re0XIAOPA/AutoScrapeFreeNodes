@@ -1,0 +1,66 @@
+{
+  "url": "https://clash-meta.github.io/",
+  "siteName": "clash-meta.github.io",
+  "scrapedAt": "2025-04-30T22:00:57.206Z",
+  "articles": [
+    {
+      "url": "https://clash-meta.github.io/newly-discovered-nodes/index.html?date=2025-04-30",
+      "title": "04月30日更新21.5M/S，2025年最新高速Clash/V2ray订阅链接免费节点地址分享",
+      "scrapedAt": "2025-04-30T22:00:57.206Z",
+      "subscriptionCount": 10,
+      "subscriptions": [
+        {
+          "type": "Clash",
+          "url": "https://node.freeclashnode.com/uploads/2025/04/0-20250430.yaml",
+          "description": "Clash订阅链接"
+        },
+        {
+          "type": "Clash",
+          "url": "https://node.freeclashnode.com/uploads/2025/04/1-20250430.yaml",
+          "description": "Clash订阅链接"
+        },
+        {
+          "type": "Clash",
+          "url": "https://node.freeclashnode.com/uploads/2025/04/2-20250430.yaml",
+          "description": "Clash订阅链接"
+        },
+        {
+          "type": "Clash",
+          "url": "https://node.freeclashnode.com/uploads/2025/04/3-20250430.yaml",
+          "description": "Clash订阅链接"
+        },
+        {
+          "type": "Clash",
+          "url": "https://node.freeclashnode.com/uploads/2025/04/4-20250430.yaml",
+          "description": "Clash订阅链接"
+        },
+        {
+          "type": "V2ray",
+          "url": "https://node.freeclashnode.com/uploads/2025/04/0-20250430.txt",
+          "description": "V2ray订阅链接"
+        },
+        {
+          "type": "V2ray",
+          "url": "https://node.freeclashnode.com/uploads/2025/04/1-20250430.txt",
+          "description": "V2ray订阅链接"
+        },
+        {
+          "type": "V2ray",
+          "url": "https://node.freeclashnode.com/uploads/2025/04/2-20250430.txt",
+          "description": "V2ray订阅链接"
+        },
+        {
+          "type": "V2ray",
+          "url": "https://node.freeclashnode.com/uploads/2025/04/3-20250430.txt",
+          "description": "V2ray订阅链接"
+        },
+        {
+          "type": "Sing-Box",
+          "url": "https://node.freeclashnode.com/uploads/2025/04/20250430.json",
+          "description": "Sing-Box订阅链接"
+        }
+      ]
+    }
+  ],
+  "totalSubscriptions": 10
+}
