@@ -183,7 +183,7 @@
   justify-content: space-between;
   padding: 10px 15px;
   border-bottom: 1px solid #eee;
-  transition: background-color 0.2s;
+  transition: all 0.3s ease;
 }
 
 .site-item:hover {
@@ -207,10 +207,40 @@
 
 .site-enabled {
   color: #28a745;
+  background-color: rgba(40, 167, 69, 0.15);
+  padding: 3px 8px;
+  border-radius: 12px;
+  font-size: 0.85rem;
+  font-weight: bold;
+  display: inline-block;
+  border: 1px solid rgba(40, 167, 69, 0.3);
+}
+
+.site-enabled i {
+  animation: pulse-success 2s infinite;
 }
 
 .site-disabled {
   color: #dc3545;
+  background-color: rgba(220, 53, 69, 0.15);
+  padding: 3px 8px;
+  border-radius: 12px;
+  font-size: 0.85rem;
+  font-weight: bold;
+  display: inline-block;
+  border: 1px solid rgba(220, 53, 69, 0.3);
+}
+
+@keyframes pulse-success {
+  0% {
+    opacity: 0.6;
+  }
+  50% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0.6;
+  }
 }
 
 /* 模态框样式定制 */

@@ -17,7 +17,7 @@
     }
   ],
   "settings": {
-    "updateInterval": 15,
+    "updateInterval": 1440,
     "maxArticlesPerSite": 20,
     "cleanOldDataOnUpdate": true,
     "port": 3001,
