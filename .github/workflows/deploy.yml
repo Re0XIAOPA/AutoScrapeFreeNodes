@@ -28,12 +28,12 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: 检出代码
-        uses: actions/checkout@v3
+        uses: actions/checkout@v2
       
       - name: 设置Node.js环境
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v2
         with:
-          node-version: '18'
+          node-version: '16'
           cache: 'npm'
       
       - name: 安装依赖
@@ -48,10 +48,10 @@ jobs:
         run: node scripts/verify-build.js
       
       - name: 设置Pages
-        uses: actions/configure-pages@v3
+        uses: actions/configure-pages@v2
       
       - name: 上传构建结果
-        uses: actions/upload-pages-artifact@v2
+        uses: actions/upload-pages-artifact@v1
         with:
           path: './dist'
 
@@ -64,4 +64,4 @@ jobs:
     steps:
       - name: 部署到GitHub Pages
         id: deployment
-        uses: actions/deploy-pages@v2 
+        uses: actions/deploy-pages@v1 
