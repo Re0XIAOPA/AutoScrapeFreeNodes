@@ -1,0 +1,103 @@
+/* 订阅项样式 */
+.subscription-item {
+  background-color: #f8f9fa;
+  padding: 15px;
+  margin-bottom: 15px;
+  border-radius: 8px;
+  word-break: break-all;
+  border-left: 4px solid #4361ee;
+  transition: all 0.2s ease;
+}
+
+.subscription-item:hover {
+  background-color: #f1f4f9;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+.subscription-tag {
+  display: inline-block;
+  margin-right: 5px;
+  margin-bottom: 5px;
+}
+
+/* 订阅描述 */
+.subscription-description {
+  font-size: 0.9rem;
+  color: #6c757d;
+  margin-top: 8px;
+  line-height: 1.5;
+}
+
+/* 订阅项 - 简洁版 */
+.subscription-item-simple {
+  background-color: #fff;
+  padding: 10px 15px;
+  margin-bottom: 10px;
+  border-radius: 6px;
+  border: 1px solid #eaeaea;
+  transition: all 0.2s ease;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.subscription-item-simple:hover {
+  background-color: #f8f9fa;
+  border-color: #4361ee;
+}
+
+.subscription-item-simple .sub-url {
+  font-size: 0.9rem;
+  color: #555;
+  word-break: break-all;
+  margin-right: 10px;
+  flex: 1;
+}
+
+.subscription-item-simple .sub-type {
+  white-space: nowrap;
+  margin-right: 10px;
+}
+
+.subscription-item-simple .sub-actions {
+  white-space: nowrap;
+}
+
+/* 详细视图优化 */
+.detailed-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 15px;
+  margin-top: 15px;
+}
+
+.detailed-item {
+  background-color: #fff;
+  border-radius: 6px;
+  border: 1px solid #eaeaea;
+  overflow: hidden;
+}
+
+.detailed-item-header {
+  padding: 10px 15px;
+  background-color: #f8f9fa;
+  border-bottom: 1px solid #eaeaea;
+  font-weight: 500;
+}
+
+.detailed-item-body {
+  padding: 15px;
+}
+
+.detailed-item-url {
+  word-break: break-all;
+  font-size: 0.9rem;
+  margin-bottom: 10px;
+}
+
+.detailed-item-actions {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 10px;
+}

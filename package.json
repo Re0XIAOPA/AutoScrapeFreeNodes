@@ -4,7 +4,12 @@
   "description": "自动抓取免费节点并展示",
   "main": "index.js",
   "scripts": {
-    "start": "node index.js"
+    "start": "node index.js",
+    "build": "node scripts/build-gh-pages.js",
+    "verify": "node scripts/verify-build.js",
+    "predeploy": "npm run build && npm run verify",
+    "deploy": "gh-pages -d dist",
+    "scrape-only": "node index.js --scrape-only"
   },
   "dependencies": {
     "express": "^4.18.2",
@@ -12,5 +17,8 @@
     "cheerio": "^1.0.0-rc.12",
     "cron": "^3.1.6",
     "fs-extra": "^11.2.0"
+  },
+  "devDependencies": {
+    "gh-pages": "^6.1.0"
   }
-} 
+}
