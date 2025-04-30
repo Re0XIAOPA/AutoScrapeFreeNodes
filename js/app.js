@@ -253,8 +253,10 @@ function processConfigData(data) {
   configData = data;
   
   // 更新配置显示
-  document.getElementById('update-interval').textContent = `${data.settings.updateInterval} 分钟`;
-  document.getElementById('max-articles').textContent = `${data.settings.maxArticlesPerSite} 篇`;
+  // 将分钟转换为小时显示，并格式化为整数
+  const updateIntervalHours = Math.floor(data.settings.updateInterval / 60);
+  document.getElementById('update-interval').textContent = `${updateIntervalHours} 小时`;
+  document.getElementById('max-articles').textContent = `${data.sites.length} 站点`;
   
   // 处理最后更新时间
   const lastUpdatedEl = document.getElementById('last-updated');
@@ -286,7 +288,7 @@ function processConfigData(data) {
         <div class="site-item">
           <div class="site-url" title="${site.description || site.url}">${site.url}</div>
           <div class="site-status ${site.enabled ? 'site-enabled' : 'site-disabled'}">
-            ${site.enabled ? '已启用' : '已禁用'}
+            <i class="bi ${site.enabled ? 'bi-check-circle' : 'bi-x-circle'}"></i> ${site.enabled ? '已启用' : '已禁用'}
           </div>
         </div>
       `;
