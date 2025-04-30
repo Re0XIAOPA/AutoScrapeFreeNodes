@@ -54,16 +54,6 @@ jobs:
         uses: actions/upload-pages-artifact@v2
         with:
           path: './dist'
-      
-      - name: 上传构建日志
-        uses: actions/upload-artifact@v2
-        with:
-          name: build-logs
-          path: |
-            npm-debug.log*
-            yarn-debug.log*
-            yarn-error.log*
-          retention-days: 3
 
   deploy:
     environment:
