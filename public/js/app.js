@@ -6,6 +6,7 @@ let currentView = 'normal'; // 'normal' or 'detailed'
 
 // API基础URL - 从环境配置中获取
 const API_BASE_URL = ENV_CONFIG.API_BASE_URL;
+const JSON_BASE_URL = ENV_CONFIG.jsonBaseUrl || 'json'; // 合并数据文件的目录
 const IS_STATIC_MODE = ENV_CONFIG.isStaticMode || false;
 
 // 获取基础URL路径（适用于GitHub Pages）
@@ -288,109 +289,43 @@ function loadSubscriptions() {
   
   // 如果是静态模式，从JSON文件中读取数据
   if (IS_STATIC_MODE) {
-    // 列出所有站点文件
+    // 在静态模式下，直接从json目录加载合并的数据文件
+    const subscriptionsJsonUrl = buildResourceUrl(`${JSON_BASE_URL}/subscriptions.json`);
+    const sitesJsonUrl = buildResourceUrl(`${JSON_BASE_URL}/sites.json`);
     
-    // 首先获取目录列表（在静态模式下，无法获取目录列表，需要通过config获取站点列表）
-    const configUrl = buildResourceUrl(`${API_BASE_URL}/config.json`);
-    console.log('加载配置文件(订阅):', configUrl);
+    console.log('加载合并订阅数据:', subscriptionsJsonUrl);
+    console.log('加载合并站点数据:', sitesJsonUrl);
     
-    fetch(configUrl)
+    // 首先加载合并的订阅数据
+    fetch(subscriptionsJsonUrl)
       .then(response => {
         if (!response.ok) {
-          throw new Error(`数据加载失败，服务器返回: ${response.status}`);
+          throw new Error(`订阅数据加载失败，服务器返回: ${response.status}, URL: ${subscriptionsJsonUrl}`);
         }
         return response.json();
       })
-      .then(config => {
-        if (!config.sites || config.sites.length === 0) {
-          throw new Error('找不到站点配置');
+      .then(data => {
+        allSubscriptions = data;
+        updateStats(data);
+        
+        // 然后加载合并的站点详细数据
+        return fetch(sitesJsonUrl);
+      })
+      .then(response => {
+        if (!response.ok) {
+          throw new Error(`站点数据加载失败，服务器返回: ${response.status}, URL: ${sitesJsonUrl}`);
         }
-        
-        // 模拟subscriptions API返回的数据结构
-        const subscriptionsData = {};
-        const detailedSitesData = {};
-        
-        // 为每个站点创建一个Promise
-        const promises = config.sites
-          .filter(site => site.enabled)
-          .map(site => {
-            // 从URL中提取站点标识符
-            const siteId = site.url.replace(/^https?:\/\//, '').replace(/[^\w]/g, '_');
-            const siteDataUrl = buildResourceUrl(`${API_BASE_URL}/${siteId}.json`);
-            
-            console.log('加载站点数据:', siteDataUrl);
-            
-            return fetch(siteDataUrl)
-              .then(response => {
-                if (!response.ok) {
-                  console.warn(`无法加载站点数据: ${siteId}, 状态码: ${response.status}`);
-                  return null;
-                }
-                return response.json();
-              })
-              .then(siteData => {
-                if (!siteData) return;
-                
-                detailedSitesData[siteId] = siteData;
-                
-                // 处理新的数据结构，与api/subscriptions返回的格式一致
-                const processedData = {
-                  url: siteData.url,
-                  siteName: siteData.siteName,
-                  scrapedAt: siteData.scrapedAt,
-                  subscriptionCount: siteData.totalSubscriptions || 0,
-                  subscriptions: []
-                };
-                
-                // 从所有文章中收集订阅链接
-                if (siteData.articles && Array.isArray(siteData.articles)) {
-                  siteData.articles.forEach(article => {
-                    if (article.subscriptions && Array.isArray(article.subscriptions)) {
-                      processedData.subscriptions = processedData.subscriptions.concat(
-                        article.subscriptions.map(sub => ({
-                          ...sub,
-                          articleTitle: article.title,
-                          articleUrl: article.url
-                        }))
-                      );
-                    }
-                  });
-                }
-                
-                subscriptionsData[siteId] = processedData;
-              })
-              .catch(error => {
-                console.error(`处理站点 ${siteId} 时出错:`, error);
-                return null;
-              });
-          });
-        
-        Promise.all(promises)
-          .then(() => {
-            // 处理订阅数据
-            allSubscriptions = subscriptionsData;
-            updateStats(subscriptionsData);
-            
-            // 处理详细数据
-            detailedData = detailedSitesData;
-            
-            // 渲染数据
-            renderSubscriptions();
-          })
-          .catch(error => {
-            console.error('加载站点数据失败:', error);
-            subscriptionsContainer.innerHTML = `
-              <div class="alert alert-danger">
-                <i class="bi bi-exclamation-triangle"></i> 加载数据失败: ${error.message}
-              </div>
-            `;
-          });
+        return response.json();
+      })
+      .then(data => {
+        detailedData = data;
+        renderSubscriptions();
       })
       .catch(error => {
-        console.error('加载配置失败:', error);
+        console.error('加载数据失败:', error);
         subscriptionsContainer.innerHTML = `
           <div class="alert alert-danger">
-            <i class="bi bi-exclamation-triangle"></i> 加载配置失败: ${error.message}
+            <i class="bi bi-exclamation-triangle"></i> 加载数据失败: ${error.message}
           </div>
         `;
       });

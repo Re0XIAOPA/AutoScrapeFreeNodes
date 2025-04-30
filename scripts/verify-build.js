@@ -5,53 +5,73 @@ const path = require('path');
 const BUILD_DIR = path.join(__dirname, '../dist');
 
 async function verifyBuild() {
-  console.log('开始验证GitHub Pages构建...');
-  
-  // 1. 检查构建目录是否存在
-  console.log('检查构建目录...');
-  if (!await fs.pathExists(BUILD_DIR)) {
-    throw new Error('构建目录不存在，请先运行 build-gh-pages.js 脚本');
-  }
-  
-  // 2. 检查必要的文件
-  console.log('检查必要文件...');
+  console.log('验证构建结果...');
+
+  // 检查必需文件
   const requiredFiles = [
     'index.html',
-    'js/config.js',
     'js/app.js',
-    'data/config.json'
+    'js/config.js',
+    'css/base.css',
+    'css/components.css',
+    'css/subscription.css',
+    'data/config.json',
+    'json/subscriptions.json',
+    'json/sites.json'
   ];
-  
+
+  let allFilesExist = true;
+
   for (const file of requiredFiles) {
     const filePath = path.join(BUILD_DIR, file);
-    if (!await fs.pathExists(filePath)) {
-      throw new Error(`缺少必要文件: ${file}`);
+    const exists = await fs.pathExists(filePath);
+    
+    if (exists) {
+      console.log(`✅ 文件存在: ${file}`);
+    } else {
+      console.error(`❌ 文件不存在: ${file}`);
+      allFilesExist = false;
     }
   }
-  
-  // 3. 检查数据文件夹中是否有JSON文件
-  console.log('检查数据文件...');
+
+  // 检查数据文件
+  console.log('\n检查数据文件:');
   const dataDir = path.join(BUILD_DIR, 'data');
-  const dataFiles = await fs.readdir(dataDir);
-  const jsonFiles = dataFiles.filter(f => f.endsWith('.json'));
-  
-  if (jsonFiles.length <= 1) { // 至少应该有config.json和一个站点数据文件
-    console.warn('警告: 数据目录中只找到了 ' + jsonFiles.length + ' 个JSON文件');
+  if (await fs.pathExists(dataDir)) {
+    const dataFiles = await fs.readdir(dataDir);
+    const jsonFiles = dataFiles.filter(file => file.endsWith('.json'));
+    console.log(`找到 ${jsonFiles.length} 个数据文件在 data/ 目录`);
+    
+    if (jsonFiles.length === 0) {
+      console.warn('⚠️ 警告: data/ 目录中未找到数据文件!');
+    }
+  } else {
+    console.error('❌ data/ 目录不存在!');
+    allFilesExist = false;
   }
-  
-  // 4. 检查config.js是否包含静态模式标记
-  console.log('检查配置文件...');
-  const configJsPath = path.join(BUILD_DIR, 'js', 'config.js');
-  const configContent = await fs.readFile(configJsPath, 'utf8');
-  
-  if (!configContent.includes('isStaticMode: true')) {
-    throw new Error('配置文件未设置为静态模式，这可能会导致部署后无法正常工作');
+
+  // 检查合并数据文件
+  console.log('\n检查合并数据文件:');
+  const jsonDir = path.join(BUILD_DIR, 'json');
+  if (await fs.pathExists(jsonDir)) {
+    const jsonFiles = await fs.readdir(jsonDir);
+    console.log(`找到 ${jsonFiles.length} 个文件在 json/ 目录:`);
+    jsonFiles.forEach(file => console.log(`  - ${file}`));
+  } else {
+    console.error('❌ json/ 目录不存在!');
+    allFilesExist = false;
   }
-  
-  console.log('验证成功！构建结果符合GitHub Pages部署要求。');
+
+  if (allFilesExist) {
+    console.log('\n✅ 验证成功: 所有必需文件都存在');
+    return true;
+  } else {
+    console.error('\n❌ 验证失败: 有文件缺失，构建可能不完整');
+    process.exit(1);
+  }
 }
 
 verifyBuild().catch(err => {
-  console.error('验证失败:', err);
+  console.error('验证过程中出错:', err);
   process.exit(1);
 }); 

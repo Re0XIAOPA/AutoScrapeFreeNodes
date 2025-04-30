@@ -5,12 +5,14 @@ const CONFIG = {
   // 开发环境API基础URL
   development: {
     API_BASE_URL: 'http://localhost:3001',
+    jsonBaseUrl: 'json',
     isStaticMode: false
   },
   
   // 生产环境API基础URL（使用相对路径）
   production: {
     API_BASE_URL: '',
+    jsonBaseUrl: 'json',
     isStaticMode: false
   }
 };
@@ -20,6 +22,7 @@ if (window.APP_CONFIG && window.APP_CONFIG.isStaticMode) {
   // 如果是静态模式，使用静态配置
   var ENV_CONFIG = {
     API_BASE_URL: window.APP_CONFIG.apiBaseUrl || './data',
+    jsonBaseUrl: window.APP_CONFIG.jsonBaseUrl || './json',
     isStaticMode: true,
     buildTime: window.APP_CONFIG.buildTime
   };
