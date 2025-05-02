@@ -63,3 +63,9 @@ npm run test-static
 
 - `config.json`: 修改抓取站点和基本设置
 - `.github/workflows/deploy.yml`: 修改自动构建频率
+
+### 使用自定义域名
+
+如果你使用自定义域名部署GitHub Pages，且发现域名在每次自动构建后失效，请参考[部署说明.md](部署说明.md#解决自定义域名被覆盖问题)中的解决方案。
+
+## 贡献

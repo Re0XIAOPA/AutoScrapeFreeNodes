@@ -44,6 +44,26 @@ jobs:
       # 执行抓取和生成静态网站
       - name: 生成静态网站
         run: node generate-static.js
+      
+      # 检查是否有CNAME文件在gh-pages分支
+      - name: 检查gh-pages分支CNAME文件
+        id: check_cname
+        continue-on-error: true
+        run: |
+          if git ls-remote --heads origin gh-pages; then
+            git fetch origin gh-pages
+            if git show origin/gh-pages:CNAME > /dev/null 2>&1; then
+              echo "CNAME文件存在于gh-pages分支"
+              git show origin/gh-pages:CNAME > dist/CNAME
+              echo "has_cname=true" >> $GITHUB_OUTPUT
+            else
+              echo "CNAME文件不存在于gh-pages分支"
+              echo "has_cname=false" >> $GITHUB_OUTPUT
+            fi
+          else
+            echo "gh-pages分支不存在"
+            echo "has_cname=false" >> $GITHUB_OUTPUT
+          fi
         
       # 部署到GitHub Pages
       - name: 部署到GitHub Pages
@@ -52,6 +72,8 @@ jobs:
           folder: dist      # 使用dist目录作为源目录
           branch: gh-pages  # 部署到gh-pages分支
           clean: true       # 清理旧文件
+          clean-exclude: |  # 排除CNAME文件不被清理
+            CNAME
           token: ${{ secrets.GITHUB_TOKEN }}
       
       # 提交最新数据到主分支

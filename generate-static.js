@@ -20,20 +20,20 @@ const DATA_DIR = path.join(__dirname, config.settings.dataDir || 'data');
 async function generateStaticSite() {
   try {
     console.log('开始生成静态网站...');
-    
+
     // 确保输出目录存在并清空
     console.log(`清空输出目录: ${OUTPUT_DIR}`);
     fs.ensureDirSync(OUTPUT_DIR);
     fs.emptyDirSync(OUTPUT_DIR);
-    
+
     // 复制所有静态资源
     console.log('复制静态资源...');
     fs.copySync('public', OUTPUT_DIR);
-    
+
     // 创建API数据目录
     const apiDir = path.join(OUTPUT_DIR, 'api');
     fs.ensureDirSync(apiDir);
-    
+
     // 生成配置数据
     console.log('生成配置数据...');
     const configData = {
@@ -48,12 +48,12 @@ async function generateStaticSite() {
         lastUpdated: new Date().toISOString()
       }
     };
-    
+
     fs.writeJsonSync(path.join(apiDir, 'config.json'), configData);
-    
+
     // 确保数据目录存在
     fs.ensureDirSync(DATA_DIR);
-    
+
     try {
       // 执行一次抓取更新数据
       console.log('执行数据抓取...');
@@ -63,16 +63,16 @@ async function generateStaticSite() {
       console.error('数据抓取过程中发生错误:', scraperError);
       console.log('继续生成静态站点，将使用现有数据...');
     }
-    
+
     // 复制数据文件
     console.log('复制数据文件...');
-    
+
     // 获取所有站点数据并合并为一个文件
     const sitesData = {};
     const subscriptionsData = {};
-    
+
     const siteFiles = fs.readdirSync(DATA_DIR).filter(file => file.endsWith('.json'));
-    
+
     if (siteFiles.length === 0) {
       console.log('警告: 没有找到任何数据文件。创建示例数据...');
       // 创建示例数据以便于测试
@@ -104,15 +104,15 @@ async function generateStaticSite() {
       fs.writeJsonSync(path.join(DATA_DIR, 'example.json'), exampleData);
       siteFiles.push('example.json');
     }
-    
+
     siteFiles.forEach(file => {
       try {
         const siteData = fs.readJsonSync(path.join(DATA_DIR, file));
         const siteName = file.replace('.json', '');
-        
+
         // 详细数据
         sitesData[siteName] = siteData;
-        
+
         // 简化的订阅数据
         const processedData = {
           url: siteData.url,
@@ -121,7 +121,7 @@ async function generateStaticSite() {
           subscriptionCount: siteData.totalSubscriptions || 0,
           subscriptions: []
         };
-        
+
         if (siteData.articles && Array.isArray(siteData.articles)) {
           siteData.articles.forEach(article => {
             if (article.subscriptions && Array.isArray(article.subscriptions)) {
@@ -135,20 +135,20 @@ async function generateStaticSite() {
             }
           });
         }
-        
+
         subscriptionsData[siteName] = processedData;
       } catch (fileError) {
         console.error(`处理文件 ${file} 时出错:`, fileError);
         console.log(`跳过此文件，继续处理其他文件...`);
       }
     });
-    
+
     // 写入站点详细数据
     fs.writeJsonSync(path.join(apiDir, 'sites.json'), sitesData);
-    
+
     // 写入简化的订阅数据
     fs.writeJsonSync(path.join(apiDir, 'subscriptions.json'), subscriptionsData);
-    
+
     // 创建内联数据文件，避免使用fetch
     console.log('创建内联数据文件...');
     const inlineDataJs = `
@@ -156,19 +156,19 @@ async function generateStaticSite() {
 const INLINE_CONFIG = ${JSON.stringify(configData, null, 2)};
 const INLINE_SUBSCRIPTIONS = ${JSON.stringify(subscriptionsData, null, 2)};
 const INLINE_SITES = ${JSON.stringify(sitesData, null, 2)};
-const REFRESH_RESPONSE = ${JSON.stringify({ 
-  success: true, 
-  message: '静态站点不支持实时刷新功能。GitHub Pages站点数据会在每天北京时间00:30通过GitHub Actions自动更新，请查看页面上的"最后更新时间"了解数据状态。' 
-}, null, 2)};
+const REFRESH_RESPONSE = ${JSON.stringify({
+      success: true,
+      message: '静态站点不支持实时刷新功能。GitHub Pages站点数据会在每天北京时间00:30通过GitHub Actions自动更新，请查看页面上的"最后更新时间"了解数据状态。'
+    }, null, 2)};
 `;
-    
+
     fs.writeFileSync(path.join(OUTPUT_DIR, 'js', 'inline-data.js'), inlineDataJs);
-    
+
     // 修改API地址，使其适应GitHub Pages
     console.log('修改前端配置...');
     const configJsPath = path.join(OUTPUT_DIR, 'js', 'config.js');
     let configJsContent = fs.readFileSync(configJsPath, 'utf8');
-    
+
     // 检查是否已包含自动检测逻辑
     if (!configJsContent.includes('使用相对路径访问API')) {
       // 如果没有自动检测逻辑，则添加
@@ -182,32 +182,42 @@ if (currentEnv === 'production' || currentEnv === 'static_test') {
   console.log('使用相对路径访问API');
 }
 `;
-      
+
       // 在"导出当前环境的配置"前插入自动检测代码
       configJsContent = configJsContent.replace(
         /console\.log\('当前环境:',\s*currentEnv\);/,
         `console.log('当前环境:', currentEnv);\n${autoDetectCode}`
       );
     }
-    
+
     fs.writeFileSync(configJsPath, configJsContent);
-    
+
     console.log('创建mock的refresh API...');
     // 创建mock的refresh API，返回成功但不执行任何操作
     fs.ensureDirSync(path.join(apiDir, 'refresh'));
-    fs.writeJsonSync(path.join(apiDir, 'refresh', 'index.json'), { 
-      success: true, 
+    fs.writeJsonSync(path.join(apiDir, 'refresh', 'index.json'), {
+      success: true,
       message: '静态站点不支持实时刷新功能。GitHub Pages站点数据会在每天北京时间00:30通过GitHub Actions自动更新，请查看页面上的"最后更新时间"了解数据状态。'
     });
-    
+
     // 复制.nojekyll文件到输出目录，确保GitHub Pages不会使用Jekyll处理
     fs.copySync('.nojekyll', path.join(OUTPUT_DIR, '.nojekyll'));
-    
+
     // 如果有自定义域名，复制CNAME文件
-    if (fs.existsSync('CNAME') && fs.readFileSync('CNAME', 'utf8').trim() !== '') {
-      fs.copySync('CNAME', path.join(OUTPUT_DIR, 'CNAME'));
+    if (fs.existsSync('CNAME')) {
+      const cnameContent = fs.readFileSync('CNAME', 'utf8');
+      // 检查CNAME文件内容是否是注释或空行
+      const domainName = cnameContent.split('\n')
+        .map(line => line.trim())
+        .filter(line => line && !line.startsWith('#'))[0];
+
+      if (domainName) {
+        // 只保存实际域名到输出目录的CNAME文件
+        fs.writeFileSync(path.join(OUTPUT_DIR, 'CNAME'), domainName);
+        console.log(`已保存自定义域名: ${domainName}`);
+      }
     }
-    
+
     console.log('静态网站生成完成！');
     return true;
   } catch (error) {
