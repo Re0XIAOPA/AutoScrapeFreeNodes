@@ -2,55 +2,59 @@
  * 环境配置
  */
 const CONFIG = {
-  // 开发环境API基础URL
-  development: {
-    API_BASE_URL: 'http://localhost:3001'
+  // 开发环境配置
+  'development': {
+    API_BASE_URL: 'http://localhost:3001',
+    DEBUG: true
   },
   
-  // 生产环境API基础URL
-  production: {
-    API_BASE_URL: ''  // 会自动检测并填充
+  // 测试环境配置
+  'static_test': {
+    API_BASE_URL: '.',
+    DEBUG: true
   },
   
-  // 静态文件测试环境
-  static_test: {
-    API_BASE_URL: ''  // 会自动检测并填充
+  // 生产环境配置
+  'production': {
+    API_BASE_URL: '.',
+    DEBUG: false
   }
 };
 
-// 根据当前环境选择配置
-let currentEnv = 'production';
-
-// 确定环境
-if (window.location.hostname === '127.0.0.1' || window.location.hostname === 'localhost') {
-  // 检查端口，如果是8080，则是静态测试模式
-  if (window.location.port === '8080') {
-    currentEnv = 'static_test';
+// 根据当前URL确定环境
+function determineEnvironment() {
+  const hostname = window.location.hostname;
+  const protocol = window.location.protocol;
+  
+  if (hostname === 'localhost' || hostname === '127.0.0.1') {
+    // 本地开发环境
+    // 检查是否使用Live Server或其他静态服务器（端口不是3001）
+    if (window.location.port !== '3001') {
+      return 'static_test';
+    }
+    return 'development';
+  } else if (hostname.includes('github.io')) {
+    // GitHub Pages环境
+    return 'production';
+  } else if (protocol === 'file:') {
+    // 本地文件系统
+    return 'static_test';
   } else {
-    currentEnv = 'development';
+    // 默认生产环境
+    return 'production';
   }
 }
 
-// 自动设置API基础URL
-if (currentEnv === 'production' || currentEnv === 'static_test') {
-  // 获取当前页面的基础URL
-  const baseUrl = window.location.origin + window.location.pathname.replace(/\/[^/]*$/, '');
-  
-  // 检查是否在GitHub Pages环境
-  const isGitHubPages = window.location.hostname.includes('github.io');
-  
-  if (isGitHubPages) {
-    // GitHub Pages环境，使用根路径
-    CONFIG[currentEnv].API_BASE_URL = baseUrl;
-    console.log('GitHub Pages环境，使用绝对路径:', baseUrl);
-  } else {
-    // 其他静态部署环境，使用相对路径
-    CONFIG[currentEnv].API_BASE_URL = '.';
-    console.log('使用相对路径访问API');
-  }
-}
-
+// 获取当前环境
+const currentEnv = determineEnvironment();
 console.log('当前环境:', currentEnv);
+
+// 自动检测基础路径（用于静态部署）
+if (currentEnv === 'production' || currentEnv === 'static_test') {
+  // 对于GitHub Pages和静态部署，使用相对路径
+  CONFIG[currentEnv].API_BASE_URL = '.';
+  console.log('使用相对路径访问API');
+}
 
 // 导出当前环境的配置
 const ENV_CONFIG = CONFIG[currentEnv]; 
