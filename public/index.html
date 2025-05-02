@@ -113,43 +113,31 @@
   </div>
 
   <!-- 信息提示模态框 -->
-  <div class="modal fade" id="infoModal" tabindex="-1" aria-labelledby="infoModalLabel" aria-hidden="true">
+  <div class="modal fade custom-modal" id="infoModal" tabindex="-1" aria-labelledby="infoModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
       <div class="modal-content">
-        <div class="modal-header">
-          <h5 class="modal-title" id="infoModalLabel"><i class="bi bi-info-circle me-2"></i>提示信息</h5>
-          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
-        </div>
-        <div class="modal-body" id="infoModalBody">
-          <div class="d-flex align-items-center">
-            <div class="icon-container">
-              <i class="bi bi-exclamation-circle"></i>
-            </div>
-            <p class="mb-0" id="infoModalText"></p>
+        <div class="modal-body">
+          <div class="icon-wrapper">
+            <i class="bi bi-info-circle"></i>
           </div>
+          <div class="modal-message" id="infoModalText"></div>
         </div>
         <div class="modal-footer">
-          <button type="button" class="btn btn-primary" data-bs-dismiss="modal">确定</button>
+          <button type="button" class="btn btn-primary" data-bs-dismiss="modal">我知道了</button>
         </div>
       </div>
     </div>
   </div>
 
   <!-- 错误提示模态框 -->
-  <div class="modal fade" id="errorModal" tabindex="-1" aria-labelledby="errorModalLabel" aria-hidden="true">
+  <div class="modal fade custom-modal" id="errorModal" tabindex="-1" aria-labelledby="errorModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
       <div class="modal-content">
-        <div class="modal-header">
-          <h5 class="modal-title" id="errorModalLabel"><i class="bi bi-exclamation-triangle me-2"></i>错误提示</h5>
-          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
-        </div>
-        <div class="modal-body" id="errorModalBody">
-          <div class="d-flex align-items-center">
-            <div class="icon-container">
-              <i class="bi bi-x-circle"></i>
-            </div>
-            <p class="mb-0" id="errorModalText"></p>
+        <div class="modal-body">
+          <div class="icon-wrapper">
+            <i class="bi bi-x-circle-fill"></i>
           </div>
+          <div class="modal-message" id="errorModalText"></div>
         </div>
         <div class="modal-footer">
           <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">关闭</button>

@@ -11,15 +11,37 @@ const API_BASE_URL = ENV_CONFIG.API_BASE_URL;
 function showInfoModal(message) {
   const infoModalText = document.getElementById('infoModalText');
   infoModalText.textContent = message;
-  const infoModal = new bootstrap.Modal(document.getElementById('infoModal'));
-  infoModal.show();
+  const infoModalEl = document.getElementById('infoModal');
+  
+  // 确保模态框正确创建
+  if (!bootstrap.Modal.getInstance(infoModalEl)) {
+    const infoModal = new bootstrap.Modal(infoModalEl, {
+      backdrop: 'static', // 防止点击背景关闭模态框
+      keyboard: true,
+      focus: true
+    });
+    infoModal.show();
+  } else {
+    bootstrap.Modal.getInstance(infoModalEl).show();
+  }
 }
 
 function showErrorModal(message) {
   const errorModalText = document.getElementById('errorModalText');
   errorModalText.textContent = message;
-  const errorModal = new bootstrap.Modal(document.getElementById('errorModal'));
-  errorModal.show();
+  const errorModalEl = document.getElementById('errorModal');
+  
+  // 确保模态框正确创建
+  if (!bootstrap.Modal.getInstance(errorModalEl)) {
+    const errorModal = new bootstrap.Modal(errorModalEl, {
+      backdrop: 'static', // 防止点击背景关闭模态框
+      keyboard: true,
+      focus: true
+    });
+    errorModal.show();
+  } else {
+    bootstrap.Modal.getInstance(errorModalEl).show();
+  }
 }
 
 // 文档加载完成后执行

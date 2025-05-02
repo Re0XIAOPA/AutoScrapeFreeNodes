@@ -243,132 +243,240 @@
   }
 }
 
-/* 模态框样式定制 */
-.modal-content {
-  border-radius: 10px;
-  box-shadow: 0 5px 15px rgba(67, 97, 238, 0.15);
-  border: none;
-  overflow: hidden;
-  background: linear-gradient(to bottom right, #ffffff, #f8f9fa);
-}
-
-.modal-header {
-  border-top-left-radius: 10px;
-  border-top-right-radius: 10px;
-  padding: 1.25rem 1.5rem;
-  border-bottom: none;
-}
-
-.modal-footer {
-  border-bottom-left-radius: 10px;
-  border-bottom-right-radius: 10px;
-  padding: 1.25rem 1.5rem;
-  border-top: 1px solid rgba(67, 97, 238, 0.1);
-  background-color: rgba(67, 97, 238, 0.03);
-}
-
-.modal-body {
-  padding: 2rem;
-}
-
-.modal-dialog {
-  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
-}
-
-.modal-backdrop.show {
-  opacity: 0.7;
-}
-
-/* 信息提示模态框 */
-#infoModal .modal-header {
-  background: linear-gradient(90deg, #4361ee, #3f37c9);
-  color: white;
-}
-
-#infoModal .btn-primary {
-  background: linear-gradient(90deg, #4361ee, #3f37c9);
-  border-color: #3f37c9;
-  transition: all 0.3s ease;
-}
-
-#infoModal .btn-primary:hover {
-  background: linear-gradient(90deg, #3f37c9, #3a0ca3);
-  border-color: #3a0ca3;
-  transform: translateY(-2px);
-  box-shadow: 0 5px 15px rgba(67, 97, 238, 0.2);
-}
-
-#infoModal .modal-body {
-  position: relative;
-}
-
-#infoModal .modal-body::after {
-  content: "";
-  position: absolute;
+/* ======== 模态框样式优化 ======== */
+.modal {
+  position: fixed;
   top: 0;
-  right: 0;
-  width: 150px;
-  height: 150px;
-  background-image: url("data:image/svg+xml,%3Csvg width='100' height='100' viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M11 18c3.866 0 7-3.134 7-7s-3.134-7-7-7-7 3.134-7 7 3.134 7 7 7zm48 25c3.866 0 7-3.134 7-7s-3.134-7-7-7-7 3.134-7 7 3.134 7 7 7zm-43-7c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zm63 31c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zM34 90c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zm56-76c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zM12 86c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm28-65c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm23-11c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm-6 60c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm29 22c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zM32 63c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm57-13c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm-9-21c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM60 91c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM35 41c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM12 60c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2z' fill='%234361ee' fill-opacity='0.03' fill-rule='evenodd'/%3E%3C/svg%3E");
-  opacity: 0.6;
-  z-index: 0;
+  left: 0;
+  z-index: 1055;
+  width: 100%;
+  height: 100%;
+  overflow-x: hidden;
+  overflow-y: auto;
+  outline: 0;
+}
+
+.modal-backdrop {
+  position: fixed !important;
+  top: 0 !important;
+  left: 0 !important;
+  width: 100% !important;
+  height: 100% !important;
+  background-color: rgba(0, 0, 0, 0.6) !important;
+  backdrop-filter: blur(6px);
+  z-index: 1050 !important;
+  opacity: 1 !important;
+}
+
+.custom-modal .modal-dialog {
+  position: relative;
+  width: auto;
+  margin: 1.75rem auto;
+  max-width: 450px;
   pointer-events: none;
+  transform-origin: center;
 }
 
-/* 错误提示模态框 */
-#errorModal .modal-header {
-  background: linear-gradient(90deg, #dc3545, #c81e2b);
-  color: white;
+.custom-modal .modal-dialog-centered {
+  display: flex;
+  align-items: center;
+  min-height: calc(100% - 3.5rem);
+  height: 100%;
 }
 
-#errorModal .btn-secondary {
-  background-color: #6c757d;
-  border-color: #6c757d;
-  transition: all 0.3s ease;
+.custom-modal .modal-content {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  pointer-events: auto;
+  background-color: #fff;
+  border: none;
+  border-radius: 24px;
+  box-shadow: 0 15px 50px rgba(0, 0, 0, 0.2);
+  outline: 0;
+  overflow: hidden;
+  z-index: 1056;
+  transform: translateY(0);
+  transition: transform 0.3s ease;
 }
 
-#errorModal .btn-secondary:hover {
-  background-color: #5a6268;
-  border-color: #545b62;
-  transform: translateY(-2px);
-  box-shadow: 0 5px 15px rgba(108, 117, 125, 0.2);
+.custom-modal .modal-body {
+  position: relative;
+  padding: 2.5rem 2rem 1.5rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  background-color: transparent;
+  z-index: 2;
 }
 
-/* 模态框图标样式 */
-.modal-body .icon-container {
-  width: 60px;
-  height: 60px;
-  background-color: rgba(255, 255, 255, 0.9);
+.custom-modal .modal-footer {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 1rem 1.75rem 2rem;
+  border: none;
+  background-color: transparent;
+}
+
+/* 图标样式 */
+.custom-modal .icon-wrapper {
+  width: 85px;
+  height: 85px;
   border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
-  margin-right: 1.5rem;
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-  flex-shrink: 0;
+  margin-bottom: 1.5rem;
+  position: relative;
 }
 
-.modal-body i.bi {
-  font-size: 2rem;
+.custom-modal .icon-wrapper::after {
+  content: '';
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  z-index: -1;
+  animation: pulse-animation 2s infinite;
 }
 
-#infoModal .icon-container {
-  border: 2px solid rgba(67, 97, 238, 0.2);
+@keyframes pulse-animation {
+  0% {
+    box-shadow: 0 0 0 0 rgba(67, 97, 238, 0.3);
+  }
+  70% {
+    box-shadow: 0 0 0 15px rgba(67, 97, 238, 0);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(67, 97, 238, 0);
+  }
 }
 
-#infoModal .bi-exclamation-circle {
+/* 信息模态框样式 */
+#infoModal .icon-wrapper {
+  background-color: rgba(67, 97, 238, 0.1);
+}
+
+#infoModal .icon-wrapper::after {
+  animation-name: info-pulse-animation;
+}
+
+@keyframes info-pulse-animation {
+  0% {
+    box-shadow: 0 0 0 0 rgba(67, 97, 238, 0.4);
+  }
+  70% {
+    box-shadow: 0 0 0 15px rgba(67, 97, 238, 0);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(67, 97, 238, 0);
+  }
+}
+
+#infoModal .icon-wrapper i {
   color: #4361ee;
+  font-size: 3rem;
 }
 
-#errorModal .icon-container {
-  border: 2px solid rgba(220, 53, 69, 0.2);
+.custom-modal .modal-message {
+  font-size: 1.2rem;
+  color: #333;
+  line-height: 1.6;
+  margin-bottom: 1.5rem;
+  max-width: 90%;
+  font-weight: 500;
 }
 
-#errorModal .bi-x-circle {
-  color: #dc3545;
+#infoModal .btn-primary {
+  padding: 0.7rem 2.5rem;
+  background: #4361ee;
+  border: none;
+  border-radius: 50px;
+  font-weight: 500;
+  font-size: 1rem;
+  letter-spacing: 0.5px;
+  transition: all 0.3s;
+  box-shadow: 0 4px 15px rgba(67, 97, 238, 0.3);
 }
 
-#infoModalText, #errorModalText {
-  font-size: 1.1rem;
-  line-height: 1.5;
+#infoModal .btn-primary:hover,
+#infoModal .btn-primary:focus {
+  background: #3a0ca3;
+  transform: translateY(-3px);
+  box-shadow: 0 8px 20px rgba(67, 97, 238, 0.4);
+}
+
+/* 错误模态框样式 */
+#errorModal .icon-wrapper {
+  background-color: rgba(229, 56, 59, 0.1);
+}
+
+#errorModal .icon-wrapper::after {
+  animation-name: error-pulse-animation;
+}
+
+@keyframes error-pulse-animation {
+  0% {
+    box-shadow: 0 0 0 0 rgba(229, 56, 59, 0.4);
+  }
+  70% {
+    box-shadow: 0 0 0 15px rgba(229, 56, 59, 0);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(229, 56, 59, 0);
+  }
+}
+
+#errorModal .icon-wrapper i {
+  color: #e5383b;
+  font-size: 3rem;
+}
+
+#errorModal .btn-secondary {
+  padding: 0.7rem 2.5rem;
+  background: #e5383b;
+  color: white;
+  border: none;
+  border-radius: 50px;
+  font-weight: 500;
+  font-size: 1rem;
+  letter-spacing: 0.5px;
+  transition: all 0.3s;
+  box-shadow: 0 4px 15px rgba(229, 56, 59, 0.3);
+}
+
+#errorModal .btn-secondary:hover,
+#errorModal .btn-secondary:focus {
+  background: #ba181b;
+  transform: translateY(-3px);
+  box-shadow: 0 8px 20px rgba(229, 56, 59, 0.4);
+}
+
+/* 响应式调整 */
+@media (max-width: 576px) {
+  .custom-modal .modal-dialog {
+    margin: 1rem;
+    max-width: calc(100% - 2rem);
+  }
+  
+  .custom-modal .modal-body {
+    padding: 1.5rem 1rem;
+  }
+  
+  .custom-modal .icon-wrapper {
+    width: 70px;
+    height: 70px;
+    margin-bottom: 1.25rem;
+  }
+  
+  .custom-modal .icon-wrapper i {
+    font-size: 2.5rem !important;
+  }
+  
+  .custom-modal .modal-message {
+    font-size: 1.1rem;
+  }
 }
