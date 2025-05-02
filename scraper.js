@@ -16,12 +16,25 @@ const loadConfig = () => {
           maxArticlesPerSite: 20,
           cleanOldDataOnUpdate: true,
           port: 3000,
-          dataDir: 'data'
-        }
+          dataDir: 'data',
+          localFreeNodesCount: 0
+        },
+        subscriptions: []
       };
     }
     
     const config = fs.readJsonSync(configPath);
+    
+    // 确保subscriptions字段存在
+    if (!config.subscriptions) {
+      config.subscriptions = [];
+    }
+    
+    // 确保settings.localFreeNodesCount字段存在
+    if (!config.settings.localFreeNodesCount) {
+      config.settings.localFreeNodesCount = 0;
+    }
+    
     return config;
   } catch (error) {
     console.error('读取配置文件失败:', error);
@@ -32,8 +45,10 @@ const loadConfig = () => {
         maxArticlesPerSite: 20,
         cleanOldDataOnUpdate: true,
         port: 3000,
-        dataDir: 'data'
-      }
+        dataDir: 'data',
+        localFreeNodesCount: 0
+      },
+      subscriptions: []
     };
   }
 };

@@ -279,7 +279,7 @@ document.addEventListener('DOMContentLoaded', function() {
   
   // 检查是否在GitHub Pages环境
   const isGitHubPages = window.location.hostname.includes('github.io');
-  if (isGitHubPages) {
+  if (isGitHubPages && refreshBtn) {
     console.log('检测到GitHub Pages环境');
     // 修改刷新按钮的点击行为，在GitHub Pages环境中显示静态提示
     refreshBtn.addEventListener('click', function(e) {
@@ -290,7 +290,7 @@ document.addEventListener('DOMContentLoaded', function() {
       showInfoModal('GitHub Pages是静态部署环境，无法实时刷新数据。数据会在每天的定时构建中自动更新。');
       return false;
     });
-  } else {
+  } else if (refreshBtn) {
     // 非GitHub Pages环境的刷新按钮事件
     refreshBtn.addEventListener('click', function() {
       refreshBtn.disabled = true;
@@ -361,45 +361,57 @@ document.addEventListener('DOMContentLoaded', function() {
   loadSubscriptions();
   
   // 初始化配置区域的初始状态
-  document.getElementById('configCollapse').style.display = 'none';
+  const configCollapse = document.getElementById('configCollapse');
+  if (configCollapse) {
+    configCollapse.style.display = 'none';
+  }
   
   // 配置区域折叠/展开 - 修复Bootstrap的collapse功能
-  configToggle.addEventListener('click', function() {
-    const configCollapse = document.getElementById('configCollapse');
-    const icon = this.querySelector('.toggle-icon');
-    
-    // 使用原生方法代替Bootstrap的collapse
-    if (configCollapse.style.display === 'block') {
-      configCollapse.style.display = 'none';
-      icon.textContent = '▼';
-    } else {
-      configCollapse.style.display = 'block';
-      icon.textContent = '▲';
-    }
-  });
+  if (configToggle) {
+    configToggle.addEventListener('click', function() {
+      const configCollapse = document.getElementById('configCollapse');
+      const icon = this.querySelector('.toggle-icon');
+      
+      if (configCollapse) {
+        // 使用原生方法代替Bootstrap的collapse
+        if (configCollapse.style.display === 'block') {
+          configCollapse.style.display = 'none';
+          if (icon) icon.textContent = '▼';
+        } else {
+          configCollapse.style.display = 'block';
+          if (icon) icon.textContent = '▲';
+        }
+      }
+    });
+  }
   
   // 切换视图
-  normalViewBtn.addEventListener('click', function() {
-    currentView = 'normal';
-    normalViewBtn.classList.add('active');
-    detailedViewBtn.classList.remove('active');
-    renderSubscriptions();
-  });
+  if (normalViewBtn) {
+    normalViewBtn.addEventListener('click', function() {
+      currentView = 'normal';
+      normalViewBtn.classList.add('active');
+      if (detailedViewBtn) detailedViewBtn.classList.remove('active');
+      renderSubscriptions();
+    });
+  }
   
-  detailedViewBtn.addEventListener('click', function() {
-    currentView = 'detailed';
-    detailedViewBtn.classList.add('active');
-    normalViewBtn.classList.remove('active');
-    renderSubscriptions();
-  });
+  if (detailedViewBtn) {
+    detailedViewBtn.addEventListener('click', function() {
+      currentView = 'detailed';
+      detailedViewBtn.classList.add('active');
+      if (normalViewBtn) normalViewBtn.classList.remove('active');
+      renderSubscriptions();
+    });
+  }
   
   // 添加事件监听器
-  searchInput.addEventListener('input', renderSubscriptions);
-  typeFilter.addEventListener('change', renderSubscriptions);
+  if (searchInput) searchInput.addEventListener('input', renderSubscriptions);
+  if (typeFilter) typeFilter.addEventListener('change', renderSubscriptions);
   
   // 更新下一次刷新时间的显示 - 基于GitHub Actions固定调度时间
   function updateNextRefreshTime() {
     const nextRefreshTimeEl = document.getElementById('next-refresh-time');
+    if (!nextRefreshTimeEl) return;
     
     // 获取当前时间（客户端时间）
     const now = new Date();
@@ -428,35 +440,15 @@ document.addEventListener('DOMContentLoaded', function() {
       ? `${diffHours}小时${diffMinutes}分钟后` 
       : `${diffMinutes}分钟后`;
     
-    // 增加针对等待时间的视觉提示
-    let timerClass = 'next-refresh-normal';
-    let timerIcon = 'bi-clock';
+    // 更新显示内容
+    nextRefreshTimeEl.innerHTML = `<i class="bi bi-clock"></i> 下次更新: <strong>${formattedTime}</strong> (约${timeDisplay})`;
     
-    if (diffHours === 0) {
-      if (diffMinutes <= 10) {
-        timerClass = 'next-refresh-imminent';
-        timerIcon = 'bi-clock-fill';
-      } else if (diffMinutes <= 30) {
-        timerClass = 'next-refresh-soon';
-        timerIcon = 'bi-clock-history';
-      }
-    }
-    
-    // 重置元素类名，然后添加基础类和状态类
-    nextRefreshTimeEl.className = 'next-refresh';
-    nextRefreshTimeEl.classList.add(timerClass);
-    nextRefreshTimeEl.innerHTML = `<i class="bi ${timerIcon}"></i> 下次更新: <strong>${formattedTime}</strong> (约${timeDisplay})`;
-    
-    // 重置延迟类，防止之前的状态残留
-    nextRefreshTimeEl.classList.remove('next-refresh-delayed');
-    
-    // 获取上次更新时间，并添加警告
+    // 获取上次更新时间，添加提示
     if (configData && configData.settings && configData.settings.lastUpdated) {
       const lastUpdated = new Date(configData.settings.lastUpdated);
       const hoursSinceUpdate = Math.floor((now - lastUpdated) / (1000 * 60 * 60));
       
       if (hoursSinceUpdate >= 48) {
-        nextRefreshTimeEl.classList.add('next-refresh-delayed');
         nextRefreshTimeEl.title = `上次更新已超过${hoursSinceUpdate}小时，可能存在同步问题`;
       } else if (hoursSinceUpdate >= 24) {
         nextRefreshTimeEl.title = `上次更新在${hoursSinceUpdate}小时前`;
@@ -468,7 +460,10 @@ document.addEventListener('DOMContentLoaded', function() {
   
   // 开启定时更新时间显示
   updateNextRefreshTime();
-  setInterval(updateNextRefreshTime, 30000); // 每30秒更新一次显示
+  const nextRefreshTimeEl = document.getElementById('next-refresh-time');
+  if (nextRefreshTimeEl) {
+    setInterval(updateNextRefreshTime, 30000); // 每30秒更新一次显示
+  }
 });
 
 // 加载配置信息
@@ -542,35 +537,86 @@ function processConfigData(data) {
   // 更新配置显示
   // 将分钟转换为小时显示，并格式化为整数
   const updateIntervalHours = Math.floor(data.settings.updateInterval / 60);
-  document.getElementById('update-interval').textContent = `${updateIntervalHours} 小时`;
-  document.getElementById('max-articles').textContent = `${data.sites.length} 站点`;
+  
+  // 更新所有显示更新频率的元素
+  const updateIntervalEl = document.getElementById('update-interval');
+  const modalUpdateIntervalEl = document.getElementById('modal-update-interval');
+  const footerUpdateIntervalEl = document.getElementById('footer-update-interval');
+  
+  if (updateIntervalEl) updateIntervalEl.textContent = `${updateIntervalHours}h`;
+  if (modalUpdateIntervalEl) modalUpdateIntervalEl.textContent = `${updateIntervalHours} 小时`;
+  if (footerUpdateIntervalEl) footerUpdateIntervalEl.textContent = `${updateIntervalHours}小时`;
+  
+  // 显示站点数量
+  const totalSitesEl = document.getElementById('total-sites');
+  const modalMaxArticlesEl = document.getElementById('modal-max-articles');
+  const footerSiteCountEl = document.getElementById('footer-site-count');
+  
+  if (totalSitesEl) totalSitesEl.textContent = data.sites.length;
+  if (modalMaxArticlesEl) modalMaxArticlesEl.textContent = `${data.sites.length} 站点`;
+  if (footerSiteCountEl) footerSiteCountEl.textContent = `${data.sites.length}个站点`;
+  
+  // 显示本地免费节点数量
+  const localFreeNodesEl = document.getElementById('local-free-nodes');
+  if (localFreeNodesEl) {
+    let freeNodesCount = 0;
+    
+    // 优先使用settings中的localFreeNodesCount设置
+    if (data.settings && data.settings.localFreeNodesCount !== undefined) {
+      freeNodesCount = data.settings.localFreeNodesCount;
+    } 
+    // 如果没有设置或为0，则从subscriptions中统计
+    else if (data.subscriptions && Array.isArray(data.subscriptions)) {
+      // 计算订阅中包含"免费"的数量
+      freeNodesCount = data.subscriptions.filter(sub => 
+        (sub.description && sub.description.includes('免费')) || 
+        (sub.name && sub.name.includes('免费'))
+      ).length;
+    }
+    
+    localFreeNodesEl.textContent = freeNodesCount;
+  }
   
   // 处理最后更新时间
   const lastUpdatedEl = document.getElementById('last-updated');
-  const lastUpdated = new Date(data.settings.lastUpdated);
-  const now = new Date();
-  const hoursSinceUpdate = Math.floor((now - lastUpdated) / (1000 * 60 * 60));
+  const modalLastUpdatedEl = document.getElementById('modal-last-updated');
   
-  // 设置时间文本
-  lastUpdatedEl.textContent = lastUpdated.toLocaleString();
+  if (lastUpdatedEl && data.settings && data.settings.lastUpdated) {
+    const lastUpdated = new Date(data.settings.lastUpdated);
+    const now = new Date();
+    const hoursSinceUpdate = Math.floor((now - lastUpdated) / (1000 * 60 * 60));
+    
+    // 设置时间文本
+    lastUpdatedEl.innerHTML = `<i class="bi bi-clock"></i> ${lastUpdated.toLocaleString()}`;
+    
+    // 根据更新时间设置样式
+    if (hoursSinceUpdate >= 24) {
+      // 超过24小时显示为严重过期
+      lastUpdatedEl.classList.add('outdated');
+      lastUpdatedEl.title = `数据已过期 ${hoursSinceUpdate} 小时`;
+    } else if (hoursSinceUpdate >= 12) {
+      // 超过12小时仍使用警告色，但添加提示
+      lastUpdatedEl.title = `上次更新在 ${hoursSinceUpdate} 小时前`;
+    } else {
+      // 12小时内，正常警告色
+      lastUpdatedEl.title = `上次更新在 ${hoursSinceUpdate} 小时前`;
+    }
+  }
   
-  // 根据更新时间设置样式
-  if (hoursSinceUpdate >= 24) {
-    // 超过24小时显示为严重过期
-    lastUpdatedEl.classList.add('outdated');
-    lastUpdatedEl.title = `数据已过期 ${hoursSinceUpdate} 小时`;
-  } else if (hoursSinceUpdate >= 12) {
-    // 超过12小时仍使用警告色，但添加提示
-    lastUpdatedEl.title = `上次更新在 ${hoursSinceUpdate} 小时前`;
-  } else {
-    // 12小时内，正常警告色
-    lastUpdatedEl.title = `上次更新在 ${hoursSinceUpdate} 小时前`;
+  if (modalLastUpdatedEl && data.settings && data.settings.lastUpdated) {
+    const lastUpdated = new Date(data.settings.lastUpdated);
+    modalLastUpdatedEl.textContent = lastUpdated.toLocaleString();
   }
   
   // 更新站点列表
+  const siteListEl = document.getElementById('site-list');
+  const modalSiteListEl = document.getElementById('modal-site-list');
   let siteListHTML = '';
+  let modalSiteListHTML = '';
+  
   if (data.sites && data.sites.length > 0) {
     data.sites.forEach(site => {
+      // 主页面简洁站点列表
       siteListHTML += `
         <div class="site-item">
           <div class="site-url" title="${site.description || site.url}">${site.url}</div>
@@ -579,11 +625,24 @@ function processConfigData(data) {
           </div>
         </div>
       `;
+      
+      // 模态框中的详细站点列表
+      modalSiteListHTML += `
+        <div class="list-group-item d-flex justify-content-between align-items-center">
+          <span title="${site.description || site.url}" class="text-truncate" style="max-width: 70%">${site.url}</span>
+          <span class="badge ${site.enabled ? 'bg-success' : 'bg-danger'} rounded-pill">
+            ${site.enabled ? '已启用' : '已禁用'}
+          </span>
+        </div>
+      `;
     });
   } else {
     siteListHTML = '<div class="text-center">没有配置站点</div>';
+    modalSiteListHTML = '<div class="text-center">没有配置站点</div>';
   }
-  document.getElementById('site-list').innerHTML = siteListHTML;
+  
+  if (siteListEl) siteListEl.innerHTML = siteListHTML;
+  if (modalSiteListEl) modalSiteListEl.innerHTML = modalSiteListHTML;
 }
 
 // 处理配置加载错误
@@ -598,11 +657,11 @@ function handleConfigError(error) {
 // 加载订阅数据
 function loadSubscriptions() {
   const subscriptionsContainer = document.getElementById('subscriptions-container');
+  if (!subscriptionsContainer) return;
+  
   subscriptionsContainer.innerHTML = `
-    <div class="loading">
-      <div class="spinner-border text-primary" role="status">
-        <span class="visually-hidden">加载中...</span>
-      </div>
+    <div class="col-12 text-center py-5">
+      <div class="spinner-border text-primary" style="width: 3rem; height: 3rem;" role="status"></div>
       <div class="mt-3">加载订阅数据中...</div>
     </div>
   `;
@@ -616,8 +675,9 @@ function loadSubscriptions() {
       console.log('使用内联订阅数据');
       if (typeof INLINE_SUBSCRIPTIONS !== 'undefined' && typeof INLINE_SITES !== 'undefined') {
         setTimeout(() => {
-          allSubscriptions = INLINE_SUBSCRIPTIONS;
-          updateStats(INLINE_SUBSCRIPTIONS);
+          // 合并配置文件中的自定义订阅
+          allSubscriptions = mergeConfigSubscriptions(INLINE_SUBSCRIPTIONS);
+          updateStats(allSubscriptions);
           detailedData = INLINE_SITES;
           renderSubscriptions();
         }, 500); // 延迟一下，让用户看到加载动画
@@ -670,7 +730,9 @@ function loadSubscriptions() {
         };
         
         setTimeout(() => {
-          allSubscriptions = { "example": exampleSite };
+          const exampleSubscriptions = { "example": exampleSite };
+          // 合并配置文件中的自定义订阅
+          allSubscriptions = mergeConfigSubscriptions(exampleSubscriptions);
           updateStats(allSubscriptions);
           detailedData = { "example": exampleSiteDetailed };
           renderSubscriptions();
@@ -688,8 +750,9 @@ function loadSubscriptions() {
         return response.json();
       })
       .then(data => {
-        allSubscriptions = data;
-        updateStats(data);
+        // 合并配置文件中的自定义订阅
+        allSubscriptions = mergeConfigSubscriptions(data);
+        updateStats(allSubscriptions);
         
         // 获取详细视图数据
         return fetch(`${API_BASE_URL}/api/sites.json`);
@@ -708,8 +771,9 @@ function loadSubscriptions() {
         console.warn('通过fetch加载数据失败，尝试使用内联数据:', error);
         // 如果fetch失败，尝试使用内联数据
         if (typeof INLINE_SUBSCRIPTIONS !== 'undefined' && typeof INLINE_SITES !== 'undefined') {
-          allSubscriptions = INLINE_SUBSCRIPTIONS;
-          updateStats(INLINE_SUBSCRIPTIONS);
+          // 合并配置文件中的自定义订阅
+          allSubscriptions = mergeConfigSubscriptions(INLINE_SUBSCRIPTIONS);
+          updateStats(allSubscriptions);
           detailedData = INLINE_SITES;
           renderSubscriptions();
         } else {
@@ -760,7 +824,9 @@ function loadSubscriptions() {
             ]
           };
           
-          allSubscriptions = { "example": exampleSite };
+          const exampleSubscriptions = { "example": exampleSite };
+          // 合并配置文件中的自定义订阅
+          allSubscriptions = mergeConfigSubscriptions(exampleSubscriptions);
           updateStats(allSubscriptions);
           detailedData = { "example": exampleSiteDetailed };
           renderSubscriptions();
@@ -770,6 +836,35 @@ function loadSubscriptions() {
   } catch (error) {
     handleSubscriptionsError(error);
   }
+}
+
+/**
+ * 合并配置文件中的自定义订阅
+ * @param {Object} remoteSubscriptions 远程订阅数据
+ * @returns {Object} 合并后的订阅数据
+ */
+function mergeConfigSubscriptions(remoteSubscriptions) {
+  const result = JSON.parse(JSON.stringify(remoteSubscriptions)); // 深拷贝
+  
+  // 如果配置中有自定义订阅，添加到结果中
+  if (configData.subscriptions && configData.subscriptions.length > 0) {
+    // 创建自定义订阅站点
+    const customSite = {
+      url: "custom",
+      siteName: "自定义订阅",
+      scrapedAt: new Date().toISOString(),
+      subscriptionCount: configData.subscriptions.length,
+      subscriptions: configData.subscriptions.map(sub => ({
+        ...sub,
+        isCustom: true // 标记为自定义
+      }))
+    };
+    
+    // 添加到结果
+    result.custom = customSite;
+  }
+  
+  return result;
 }
 
 // 处理订阅加载错误
@@ -787,39 +882,70 @@ function handleSubscriptionsError(error) {
 
 // 更新统计信息
 function updateStats(data) {
-  const statsContainer = document.getElementById('stats-container');
+  // 统计总站点数和总订阅数
   let totalSubscriptions = 0;
   let totalSites = Object.keys(data).length;
+  
+  // 统计各类型订阅数量
   let typeCounts = {
     'Clash': 0,
     'V2ray': 0,
     'Sing-Box': 0,
     'Shadowrocket': 0,
     'Quantumult': 0,
-    '通用': 0
+    '通用': 0,
   };
   
+  // 遍历所有站点，统计数量
   Object.values(data).forEach(site => {
-    totalSubscriptions += site.subscriptionCount;
-    site.subscriptions.forEach(sub => {
-      if (typeCounts[sub.type] !== undefined) {
-        typeCounts[sub.type]++;
-      } else {
-        typeCounts['通用']++;
-      }
-    });
+    totalSubscriptions += site.subscriptionCount || 0;
+    
+    // 统计各类型数量
+    if (site.subscriptions && Array.isArray(site.subscriptions)) {
+      site.subscriptions.forEach(sub => {
+        // 只统计显示在筛选下拉菜单中的类型
+        if (typeCounts[sub.type] !== undefined) {
+          typeCounts[sub.type]++;
+        }
+      });
+    }
   });
   
-  statsContainer.innerHTML = `
-    <div>总共 <strong>${totalSites}</strong> 个站点，<strong>${totalSubscriptions}</strong> 个订阅链接</div>
-    <div class="mt-1">
-      ${Object.entries(typeCounts)
-        .filter(([_, count]) => count > 0)
-        .map(([type, count]) => 
-          `<span class="badge bg-${getTypeColor(type)} me-2">${type}: ${count}</span>`
-        ).join('')}
-    </div>
-  `;
+  // 更新总节点数显示
+  const totalNodesEl = document.getElementById('total-nodes');
+  if (totalNodesEl) {
+    totalNodesEl.textContent = totalSubscriptions;
+  }
+  
+  // 更新总站点数显示
+  const totalSitesEl = document.getElementById('total-sites');
+  if (totalSitesEl) {
+    totalSitesEl.textContent = totalSites;
+  }
+  
+  // 构建统计区域
+  const statsContainer = document.getElementById('stats-container');
+  if (statsContainer) {
+    // 构建统计HTML
+    let statsHtml = `
+      <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center">
+        <div>
+          <span>找到 <strong>${getFilteredSubscriptions().length}</strong> 个匹配的订阅链接</span>
+        </div>
+        <div class="mt-2 mt-md-0 filter-badges">
+          ${Object.entries(typeCounts)
+            .filter(([_, count]) => count > 0)
+            .map(([type, count]) => 
+              `<span class="badge bg-${getTypeColor(type)} me-1 mb-1">
+                <i class="${getTypeIcon(type)} me-1"></i>${type}: ${count}
+               </span>`
+            ).join('')}
+        </div>
+      </div>
+    `;
+    
+    statsContainer.innerHTML = statsHtml;
+  }
 }
 
 // 获取订阅类型的颜色
@@ -827,10 +953,9 @@ function getTypeColor(type) {
   const colorMap = {
     'Clash': 'primary',
     'V2ray': 'success',
-    'Sing-Box': 'info',
-    'Shadowrocket': 'danger',
-    'Quantumult': 'warning',
-    '通用': 'secondary'
+    'Sing-Box': 'secondary',
+    'Shadowrocket': 'dark',
+    'Quantumult': 'light'
   };
   return colorMap[type] || 'secondary';
 }
@@ -840,10 +965,9 @@ function getTypeIcon(type) {
   const iconMap = {
     'Clash': 'bi bi-shield-check',
     'V2ray': 'bi bi-hdd-network',
-    'Sing-Box': 'bi bi-box',
-    'Shadowrocket': 'bi bi-rocket',
-    'Quantumult': 'bi bi-diagram-3',
-    '通用': 'bi bi-link-45deg'
+    'Sing-Box': 'bi bi-link-45deg',
+    'Shadowrocket': 'bi bi-hdd-network',
+    'Quantumult': 'bi bi-diagram-3'
   };
   return iconMap[type] || 'bi bi-link-45deg';
 }
@@ -884,74 +1008,17 @@ function renderSubscriptions() {
 // 渲染订阅链接 - 简洁视图
 function renderNormalView() {
   const subscriptionsContainer = document.getElementById('subscriptions-container');
-  const searchTerm = document.getElementById('search-input').value.toLowerCase();
-  const selectedType = document.getElementById('type-filter').value;
+  const statsContainer = document.getElementById('stats-container');
+  if (!subscriptionsContainer) return;
+  
+  const filteredSubscriptions = getFilteredSubscriptions();
+  
+  // 更新统计
+  updateFilterStats(filteredSubscriptions);
   
   let html = '';
-  let filteredSites = 0;
   
-  for (const [siteName, siteData] of Object.entries(allSubscriptions)) {
-    let filteredSubscriptions = siteData.subscriptions;
-    
-    // 根据类型过滤
-    if (selectedType !== 'all') {
-      filteredSubscriptions = siteData.subscriptions.filter(sub => sub.type === selectedType);
-    }
-    
-    // 根据搜索词过滤
-    if (searchTerm) {
-      filteredSubscriptions = filteredSubscriptions.filter(sub => 
-        sub.url.toLowerCase().includes(searchTerm) || 
-        (sub.description && sub.description.toLowerCase().includes(searchTerm))
-      );
-    }
-    
-    if (filteredSubscriptions.length === 0) continue;
-    
-    filteredSites++;
-    
-    html += `
-      <div class="col-12 mb-4">
-        <div class="card site-card">
-          <div class="card-header d-flex justify-content-between align-items-center">
-            <h5 class="mb-0"><i class="bi bi-globe me-2"></i>${siteData.siteName}</h5>
-            <span class="badge bg-light text-dark"><i class="bi bi-link-45deg me-1"></i>${filteredSubscriptions.length} 个订阅</span>
-          </div>
-          <div class="card-body">
-            <div class="mb-3">
-              <small class="timestamp"><i class="bi bi-clock-history me-1"></i>抓取时间: ${new Date(siteData.scrapedAt).toLocaleString()}</small>
-              <a href="${siteData.url}" target="_blank" class="ms-2 small"><i class="bi bi-box-arrow-up-right me-1"></i>访问来源</a>
-            </div>
-            <div class="subscription-list">
-    `;
-    
-    filteredSubscriptions.forEach(subscription => {
-      const typeColor = getTypeColor(subscription.type);
-      const typeIcon = getTypeIcon(subscription.type);
-      
-      html += `
-        <div class="subscription-item-simple">
-          <span class="sub-type">
-            <span class="badge bg-${typeColor}"><i class="${typeIcon} me-1"></i>${subscription.type}</span>
-          </span>
-          <span class="sub-url">${subscription.url}</span>
-          <span class="sub-actions">
-            <a href="${subscription.url}" target="_blank" class="btn btn-sm btn-outline-success me-1"><i class="bi bi-box-arrow-up-right"></i></a>
-            <button class="btn btn-sm btn-outline-primary copy-btn" data-url="${subscription.url}"><i class="bi bi-clipboard"></i></button>
-          </span>
-        </div>
-      `;
-    });
-    
-    html += `
-            </div>
-          </div>
-        </div>
-      </div>
-    `;
-  }
-  
-  if (filteredSites === 0) {
+  if (filteredSubscriptions.length === 0) {
     html = `
       <div class="col-12">
         <div class="alert alert-warning">
@@ -959,124 +1026,352 @@ function renderNormalView() {
         </div>
       </div>
     `;
+    subscriptionsContainer.innerHTML = html;
+    return;
   }
   
+  // 渲染订阅链接
+  filteredSubscriptions.forEach(subscription => {
+    const typeColor = getTypeColor(subscription.type);
+    const typeIcon = getTypeIcon(subscription.type);
+    const isCustom = subscription.isCustom === true;
+    
+    html += `
+      <div class="col-lg-6 mb-3">
+        <div class="subscription-card ${isCustom ? 'local-subscription' : ''}">
+          <div class="d-flex justify-content-between align-items-center mb-3">
+            <span class="type-badge bg-${typeColor} text-white">
+              <i class="${typeIcon}"></i> ${subscription.type}
+              ${isCustom ? '<span class="ms-1 badge bg-warning">自定义</span>' : ''}
+            </span>
+            <div class="btn-group">
+              <button class="btn btn-action btn-copy me-2" data-url="${subscription.url}">
+                <i class="bi bi-clipboard"></i> 复制
+              </button>
+              <a href="${subscription.url}" target="_blank" class="btn btn-action btn-open">
+                <i class="bi bi-box-arrow-up-right"></i> 打开
+              </a>
+            </div>
+          </div>
+          <div class="subscription-url">${subscription.url}</div>
+          <div class="text-muted small">
+            <i class="bi bi-info-circle me-1"></i> 
+            ${subscription.description || `来自 ${subscription.siteName} 的${subscription.type}订阅`}
+          </div>
+          ${subscription.siteName ? `<div class="text-muted smaller mt-2"><i class="bi bi-globe2 me-1"></i> ${subscription.siteName}</div>` : ''}
+        </div>
+      </div>
+    `;
+  });
+  
   subscriptionsContainer.innerHTML = html;
+  
+  // 添加复制按钮事件监听器
+  document.querySelectorAll('.btn-copy').forEach(btn => {
+    btn.addEventListener('click', function() {
+      const url = this.dataset.url;
+      copyToClipboard(url);
+      showCopySuccess(this);
+    });
+  });
 }
 
-// 渲染订阅链接 - 详细视图（按文章分组）
+// 渲染订阅链接 - 详细视图（按类型分组）
 function renderDetailedView() {
   const subscriptionsContainer = document.getElementById('subscriptions-container');
-  const searchTerm = document.getElementById('search-input').value.toLowerCase();
-  const selectedType = document.getElementById('type-filter').value;
+  const statsContainer = document.getElementById('stats-container');
+  if (!subscriptionsContainer) return;
+  
+  const filteredSubscriptions = getFilteredSubscriptions();
+  
+  // 更新统计
+  updateFilterStats(filteredSubscriptions);
   
   let html = '';
-  let filteredSites = 0;
   
-  for (const [siteName, siteData] of Object.entries(detailedData)) {
-    if (!siteData.articles || siteData.articles.length === 0) continue;
-    
-    // 过滤文章
-    const filteredArticles = siteData.articles.filter(article => {
-      if (!article.subscriptions || article.subscriptions.length === 0) return false;
-      
-      let matchingSubscriptions = article.subscriptions;
-      
-      // 根据类型过滤
-      if (selectedType !== 'all') {
-        matchingSubscriptions = article.subscriptions.filter(sub => sub.type === selectedType);
-      }
-      
-      // 根据搜索词过滤
-      if (searchTerm) {
-        matchingSubscriptions = matchingSubscriptions.filter(sub => 
-          sub.url.toLowerCase().includes(searchTerm) || 
-          (sub.description && sub.description.toLowerCase().includes(searchTerm))
-        );
-      }
-      
-      // 保存过滤后的订阅到一个临时属性
-      article.filteredSubscriptions = matchingSubscriptions;
-      
-      return matchingSubscriptions.length > 0;
-    });
-    
-    if (filteredArticles.length === 0) continue;
-    
-    filteredSites++;
+  if (filteredSubscriptions.length === 0) {
+    html = `
+      <div class="col-12">
+        <div class="alert alert-warning">
+          <i class="bi bi-exclamation-triangle-fill me-2"></i>没有符合条件的订阅链接
+        </div>
+      </div>
+    `;
+    subscriptionsContainer.innerHTML = html;
+    return;
+  }
+  
+  // 获取每种类型的订阅链接
+  const subscriptionsByType = {};
+  
+  filteredSubscriptions.forEach(subscription => {
+    if (!subscriptionsByType[subscription.type]) {
+      subscriptionsByType[subscription.type] = [];
+    }
+    subscriptionsByType[subscription.type].push(subscription);
+  });
+  
+  // 按类型分组渲染
+  Object.keys(subscriptionsByType).forEach(type => {
+    const typeColor = getTypeColor(type);
+    const typeIcon = getTypeIcon(type);
+    const subscriptions = subscriptionsByType[type];
     
     html += `
       <div class="col-12 mb-4">
-        <div class="card site-card">
-          <div class="card-header d-flex justify-content-between align-items-center">
-            <h5 class="mb-0"><i class="bi bi-globe me-2"></i>${siteData.siteName}</h5>
-            <span class="badge bg-light text-dark"><i class="bi bi-link-45deg me-1"></i>${filteredArticles.reduce((sum, article) => sum + article.filteredSubscriptions.length, 0)} 个订阅</span>
-          </div>
-          <div class="card-body">
-            <div class="mb-3">
-              <small class="timestamp"><i class="bi bi-clock-history me-1"></i>抓取时间: ${new Date(siteData.scrapedAt).toLocaleString()}</small>
-              <a href="${siteData.url}" target="_blank" class="ms-2 small"><i class="bi bi-box-arrow-up-right me-1"></i>访问来源</a>
-            </div>
+        <h5 class="section-title">
+          <span class="badge bg-${typeColor} me-2">
+            <i class="${typeIcon} me-1"></i> ${type}
+          </span>
+          订阅链接 (${subscriptions.length})
+        </h5>
+        <div class="row">
     `;
     
-    // 渲染每篇文章
-    filteredArticles.forEach(article => {
-      html += `
-        <div class="article-card mb-3">
-          <div class="article-header d-flex justify-content-between align-items-center">
-            <h6 class="mb-0"><i class="bi bi-file-text me-2"></i>${article.title}</h6>
-            <span class="badge bg-secondary"><i class="bi bi-link-45deg me-1"></i>${article.filteredSubscriptions.length} 个订阅</span>
-          </div>
-          <div class="card-body">
-            <div class="mb-2">
-              <small class="timestamp"><i class="bi bi-link me-1"></i><a href="${article.url}" target="_blank">${article.url}</a></small>
-            </div>
-            <div class="detailed-list">
-      `;
+    subscriptions.forEach(subscription => {
+      const isCustom = subscription.isCustom === true;
+      const siteData = detailedData[subscription.url] || { total: '未知', valid: '未知', updated: '未知' };
+      const updatedDate = siteData.updated ? new Date(siteData.updated) : null;
+      const updatedText = updatedDate ? updatedDate.toLocaleString() : '未知';
       
-      article.filteredSubscriptions.forEach(subscription => {
-        const typeColor = getTypeColor(subscription.type);
-        const typeIcon = getTypeIcon(subscription.type);
-        
-        html += `
-          <div class="detailed-item">
-            <div class="detailed-item-header">
-              <span class="badge bg-${typeColor}"><i class="${typeIcon} me-1"></i>${subscription.type}</span>
+      html += `
+        <div class="col-lg-4 col-md-6 mb-3">
+          <div class="detailed-card ${isCustom ? 'local-subscription' : ''}">
+            <div class="detailed-card-header d-flex justify-content-between align-items-center">
+              <span><i class="${typeIcon} me-1"></i> ${type} 订阅</span>
+              ${isCustom ? '<span class="badge bg-warning">自定义</span>' : ''}
             </div>
-            <div class="detailed-item-body">
-              <div class="detailed-item-url"><i class="bi bi-link me-1"></i>${subscription.url}</div>
-              <div class="detailed-item-actions">
-                <a href="${subscription.url}" target="_blank" class="btn btn-sm btn-outline-success me-1"><i class="bi bi-box-arrow-up-right me-1"></i>访问</a>
-                <button class="btn btn-sm btn-outline-primary copy-btn" data-url="${subscription.url}"><i class="bi bi-clipboard me-1"></i>复制</button>
+            <div class="detailed-card-body">
+              <div class="subscription-url">${subscription.url}</div>
+              <div class="row mb-2">
+                <div class="col-6">
+                  <small class="text-muted">来源:</small>
+                  <div><strong>${subscription.siteName || '未知'}</strong></div>
+                </div>
+                <div class="col-6">
+                  <small class="text-muted">描述:</small>
+                  <div><strong>${subscription.name || '无'}</strong></div>
+                </div>
+              </div>
+              <div class="mb-2">
+                <small class="text-muted">添加时间:</small>
+                <div><strong>${updatedText}</strong></div>
+              </div>
+            </div>
+            <div class="detailed-card-footer">
+              <div class="d-flex justify-content-between">
+                <button class="btn btn-sm btn-action btn-copy" data-url="${subscription.url}">
+                  <i class="bi bi-clipboard"></i> 复制
+                </button>
+                <a href="${subscription.url}" target="_blank" class="btn btn-sm btn-action btn-open">
+                  <i class="bi bi-box-arrow-up-right"></i> 打开
+                </a>
               </div>
             </div>
           </div>
-        `;
-      });
-      
-      html += `
-            </div>
-          </div>
         </div>
       `;
     });
     
     html += `
-          </div>
         </div>
       </div>
     `;
-  }
-  
-  if (filteredSites === 0) {
-    html = `
-      <div class="col-12">
-        <div class="alert alert-warning">
-          <i class="bi bi-exclamation-triangle-fill me-2"></i>没有符合条件的订阅链接
-        </div>
-      </div>
-    `;
-  }
+  });
   
   subscriptionsContainer.innerHTML = html;
+  
+  // 添加复制按钮事件监听器
+  document.querySelectorAll('.btn-copy').forEach(btn => {
+    btn.addEventListener('click', function() {
+      const url = this.dataset.url;
+      copyToClipboard(url);
+      showCopySuccess(this);
+    });
+  });
+}
+
+/**
+ * 更新过滤后的统计信息
+ */
+function updateFilterStats(filteredSubscriptions) {
+  const statsContainer = document.getElementById('stats-container');
+  if (!statsContainer) return;
+  
+  // 计算本地订阅数量
+  const localSubscriptions = filteredSubscriptions.filter(sub => sub.isLocal === true);
+  // 计算本地免费节点订阅数量
+  const localFreeSubscriptions = filteredSubscriptions.filter(sub => 
+    (sub.isLocal === true) && 
+    (sub.description && (sub.description.includes('免费') || sub.name.includes('免费')))
+  );
+  
+  // 统计各类型订阅数量
+  let typeCounts = {
+    'Clash': 0,
+    'V2ray': 0,
+    'Sing-Box': 0,
+    'Shadowrocket': 0,
+    'Quantumult': 0
+  };
+  
+  // 统计各类型数量
+  filteredSubscriptions.forEach(sub => {
+    if (typeCounts[sub.type] !== undefined) {
+      typeCounts[sub.type]++;
+    }
+  });
+  
+  // 构建统计HTML
+  statsContainer.innerHTML = `
+    <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center">
+      <div>
+        <span>找到 <strong>${filteredSubscriptions.length}</strong> 个匹配的订阅链接</span>
+        ${localSubscriptions.length > 0 ? 
+          `<span class="badge bg-warning ms-2">包含 ${localSubscriptions.length} 个本地订阅</span>` : 
+          ''}
+        ${localFreeSubscriptions.length > 0 ? 
+          `<span class="badge bg-info ms-2">其中 ${localFreeSubscriptions.length} 个免费节点</span>` : 
+          ''}
+      </div>
+      <div class="mt-2 mt-md-0 filter-badges">
+        ${Object.entries(typeCounts)
+          .filter(([_, count]) => count > 0)
+          .map(([type, count]) => 
+            `<span class="badge bg-${getTypeColor(type)} me-1 mb-1">
+              <i class="${getTypeIcon(type)} me-1"></i>${type}: ${count}
+             </span>`
+          ).join('')}
+      </div>
+    </div>
+  `;
+}
+
+// 显示复制成功提示
+function showCopySuccess(button) {
+  const originalHTML = button.innerHTML;
+  button.innerHTML = '<i class="bi bi-check-lg"></i> 已复制';
+  button.classList.add('btn-success');
+  button.disabled = true;
+  
+  setTimeout(() => {
+    button.innerHTML = originalHTML;
+    button.classList.remove('btn-success');
+    button.disabled = false;
+  }, 2000);
+}
+
+// 获取经过过滤和去重的订阅列表
+function getFilteredSubscriptions() {
+  // 获取所有订阅并去重
+  const uniqueSubscriptions = getUniqueSubscriptions(allSubscriptions);
+  
+  const typeFilter = document.getElementById('type-filter');
+  
+  if (!typeFilter) {
+    return uniqueSubscriptions;
+  }
+  
+  const selectedType = typeFilter.value;
+  
+  // 应用过滤条件
+  return uniqueSubscriptions.filter(subscription => {
+    // 检查类型筛选条件
+    const typeMatch = selectedType === 'all' || subscription.type === selectedType;
+    
+    return typeMatch;
+  });
+}
+
+/**
+ * 获取所有订阅（去重后）
+ * @param {Object} allSubscriptions 所有订阅数据
+ * @returns {Array} 去重后的订阅数组
+ */
+function getUniqueSubscriptions(allSubscriptions) {
+  const urlMap = new Map(); // 用于检查URL是否重复
+  const uniqueSubscriptions = [];
+  
+  // 遍历所有站点的订阅
+  Object.values(allSubscriptions).forEach(site => {
+    if (!site.subscriptions) return;
+    
+    site.subscriptions.forEach(sub => {
+      const url = sub.url.trim();
+      // 如果URL不重复，添加到结果
+      if (!urlMap.has(url)) {
+        urlMap.set(url, true);
+        // 添加站点信息到订阅
+        uniqueSubscriptions.push({
+          ...sub,
+          siteName: site.siteName,
+          siteUrl: site.url
+        });
+      }
+    });
+  });
+  
+  return uniqueSubscriptions;
+}
+
+// 复制文本到剪贴板
+function copyToClipboard(text) {
+  // 首先尝试使用navigator.clipboard API (现代浏览器)
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    return navigator.clipboard.writeText(text)
+      .catch(err => {
+        console.error('Clipboard API失败:', err);
+        // 如果Clipboard API失败，回退到传统方法
+        return fallbackCopyToClipboard(text);
+      });
+  } else {
+    // 对于不支持Clipboard API的浏览器，使用传统方法
+    return fallbackCopyToClipboard(text);
+  }
+}
+
+// 传统的复制到剪贴板方法（创建临时文本区域）
+function fallbackCopyToClipboard(text) {
+  return new Promise((resolve, reject) => {
+    try {
+      // 创建临时文本区域
+      const textArea = document.createElement('textarea');
+      textArea.value = text;
+      textArea.style.position = 'fixed';  // 避免滚动到底部
+      textArea.style.left = '-999999px';
+      textArea.style.top = '-999999px';
+      document.body.appendChild(textArea);
+      textArea.focus();
+      textArea.select();
+      
+      // 执行复制命令
+      const successful = document.execCommand('copy');
+      document.body.removeChild(textArea);
+      
+      if (successful) {
+        resolve(text);
+      } else {
+        reject(new Error('复制失败'));
+      }
+    } catch (err) {
+      reject(err);
+    }
+  });
+}
+
+/**
+ * 格式化日期为友好格式
+ * @param {string} dateString 日期字符串
+ * @returns {string} 格式化后的日期
+ */
+function formatDate(dateString) {
+  if (!dateString) return '未知';
+  
+  try {
+    const date = new Date(dateString);
+    return date.toLocaleString();
+  } catch (error) {
+    console.error('日期格式化失败:', error);
+    return dateString;
+  }
 } 

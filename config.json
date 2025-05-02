@@ -17,10 +17,44 @@
     }
   ],
   "settings": {
-    "updateInterval": 1440,
-    "maxArticlesPerSite": 20,
+    "updateInterval": 720,
+    "maxArticlesPerSite": 10,
     "cleanOldDataOnUpdate": true,
     "port": 3001,
-    "dataDir": "data"
-  }
+    "dataDir": "data",
+    "lastUpdated": "2023-09-15T00:00:00.000Z",
+    "localFreeNodesCount": 5
+  },
+  "subscriptions": [
+    {
+      "type": "Shadowrocket",
+      "name": "Shadowrocket免费节点1",
+      "url": "https://sub.0664.net/ss/sub",
+      "description": "Shadowrocket免费节点订阅1"
+    },
+    {
+      "type": "Shadowrocket",
+      "name": "Shadowrocket免费节点2",
+      "url": "https://sub.0664.net/sip002/sub",
+      "description": "Shadowrocket免费节点订阅2"
+    },
+    {
+      "type": "Shadowrocket",
+      "name": "Shadowrocket免费节点3",
+      "url": "https://sub.0664.net/ssr/sub",
+      "description": "Shadowrocket免费节点订阅3"
+    },
+    {
+      "type": "V2Ray",
+      "name": "V2Ray免费节点4",
+      "url": "https://sub.0664.net/vmess/sub",
+      "description": "V2Ray免费节点订阅1"
+    },
+    {
+      "type": "通用",
+      "name": "通用免费节点5",
+      "url": "https://sub.0664.net/trojan/sub",
+      "description": "通用免费节点订阅1"
+    }
+  ]
 } 

@@ -3,11 +3,15 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>免费节点订阅集合</title>
+  <title>节点库 - 免费订阅节点集合</title>
   <link rel="icon" href="favicon.ico" type="image/x-icon">
   <link rel="shortcut icon" href="favicon.ico" type="image/x-icon">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
+  <!-- 添加Google字体 -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="css/base.css">
   <link rel="stylesheet" href="css/components.css">
   <link rel="stylesheet" href="css/subscription.css">
@@ -26,105 +30,643 @@
     }
   }));
   </script>
+  <style>
+    :root {
+      --primary-color: #4361ee;
+      --secondary-color: #3a0ca3;
+      --success-color: #38b000;
+      --bg-gradient: linear-gradient(135deg, #4361ee, #3a0ca3);
+      --card-shadow: 0 8px 30px rgba(0, 0, 0, 0.1);
+      --card-hover-shadow: 0 15px 60px rgba(67, 97, 238, 0.15);
+      --header-height: 64px;
+    }
+    
+    body {
+      font-family: 'Noto Sans SC', -apple-system, BlinkMacSystemFont, "Segoe UI", "Microsoft YaHei", sans-serif;
+      background-color: #f8f9fd;
+      color: #333;
+      line-height: 1.6;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+    
+    .app-header {
+      background: var(--bg-gradient);
+      color: white;
+      padding: 0;
+      position: sticky;
+      top: 0;
+      z-index: 1030;
+      height: var(--header-height);
+      box-shadow: 0 2px 15px rgba(0, 0, 0, 0.1);
+    }
+    
+    .app-header .navbar {
+      height: 100%;
+    }
+    
+    .app-header .navbar-brand {
+      font-weight: 700;
+      font-size: 1.5rem;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    
+    .app-logo {
+      background-color: white;
+      color: var(--primary-color);
+      width: 36px;
+      height: 36px;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.2rem;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    }
+    
+    .main-container {
+      flex: 1;
+      padding: 2rem 0;
+    }
+    
+    .stat-card {
+      background: white;
+      border-radius: 16px;
+      padding: 1.5rem;
+      margin-bottom: 1.5rem;
+      box-shadow: var(--card-shadow);
+      transition: all 0.3s ease;
+      border: none;
+      height: 100%;
+    }
+    
+    .stat-card:hover {
+      transform: translateY(-5px);
+      box-shadow: var(--card-hover-shadow);
+    }
+    
+    .stat-icon {
+      width: 55px;
+      height: 55px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.5rem;
+      margin-bottom: 1rem;
+    }
+    
+    .stat-icon.primary {
+      background: rgba(67, 97, 238, 0.1);
+      color: var(--primary-color);
+    }
+    
+    .stat-icon.success {
+      background: rgba(56, 176, 0, 0.1);
+      color: var(--success-color);
+    }
+    
+    .stat-icon.warning {
+      background: rgba(255, 193, 7, 0.1);
+      color: #ffc107;
+    }
+    
+    .stat-icon.info {
+      background: rgba(13, 202, 240, 0.1);
+      color: #0dcaf0;
+    }
+    
+    .stat-value {
+      font-size: 2rem;
+      font-weight: 700;
+      margin-bottom: 0.5rem;
+      color: #212529;
+    }
+    
+    .stat-label {
+      color: #6c757d;
+      font-size: 0.9rem;
+    }
+    
+    .action-bar {
+      background-color: white;
+      border-radius: 16px;
+      padding: 1.5rem;
+      margin-bottom: 1.5rem;
+      box-shadow: var(--card-shadow);
+    }
+    
+    .type-badge {
+      padding: 5px 12px;
+      border-radius: 10px;
+      font-weight: 500;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 0.85rem;
+    }
+    
+    .subscription-card {
+      background: white;
+      border-radius: 12px;
+      box-shadow: var(--card-shadow);
+      padding: 1.25rem;
+      margin-bottom: 1.25rem;
+      transition: all 0.3s ease;
+      border-left: 4px solid var(--primary-color);
+    }
+    
+    .subscription-card:hover {
+      transform: translateY(-5px);
+      box-shadow: var(--card-hover-shadow);
+    }
+    
+    .btn-action {
+      border-radius: 10px;
+      padding: 8px 16px;
+      font-weight: 500;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+    
+    .btn-copy {
+      background-color: rgba(67, 97, 238, 0.1);
+      color: var(--primary-color);
+      border: none;
+      transition: all 0.3s ease;
+    }
+    
+    .btn-copy:hover {
+      background-color: var(--primary-color);
+      color: white;
+    }
+    
+    .btn-open {
+      background-color: rgba(56, 176, 0, 0.1);
+      color: var(--success-color);
+      border: none;
+      transition: all 0.3s ease;
+    }
+    
+    .btn-open:hover {
+      background-color: var(--success-color);
+      color: white;
+    }
+    
+    .search-bar {
+      position: relative;
+    }
+    
+    .search-bar .form-control {
+      border-radius: 10px;
+      padding: 12px 20px;
+      padding-left: 45px;
+      border: 1px solid #e0e0e0;
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+    }
+    
+    .search-bar .search-icon {
+      position: absolute;
+      left: 15px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: #6c757d;
+    }
+    
+    .update-time {
+      background-color: rgba(255, 193, 7, 0.1);
+      color: #212529;
+      padding: 8px 16px;
+      border-radius: 50px;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 0.9rem;
+      font-weight: 500;
+    }
+    
+    .update-time.outdated {
+      background-color: rgba(220, 53, 69, 0.1);
+      color: #dc3545;
+    }
+    
+    .update-time i {
+      font-size: 1rem;
+    }
+    
+    .refresh-btn {
+      border-radius: 10px;
+      height: 48px;
+      font-weight: 500;
+      box-shadow: 0 4px 10px rgba(67, 97, 238, 0.2);
+    }
+    
+    .filter-dropdown {
+      border-radius: 10px;
+      height: 48px;
+    }
+    
+    .filter-dropdown .form-select {
+      border-radius: 10px;
+      height: 48px;
+      padding-left: 16px;
+      border: 1px solid #e0e0e0;
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+    }
+    
+    .section-title {
+      font-size: 1.3rem;
+      font-weight: 700;
+      margin-bottom: 1.5rem;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    
+    .section-title i {
+      color: var(--primary-color);
+    }
+    
+    .view-toggle .btn-outline-primary {
+      border-radius: 10px;
+      font-weight: 500;
+    }
+    
+    .detailed-card {
+      background: white;
+      border-radius: 12px;
+      box-shadow: var(--card-shadow);
+      overflow: hidden;
+      transition: all 0.3s ease;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+    }
+    
+    .detailed-card:hover {
+      transform: translateY(-5px);
+      box-shadow: var(--card-hover-shadow);
+    }
+    
+    .detailed-card-header {
+      background-color: #f8f9fa;
+      padding: 15px;
+      border-bottom: 1px solid #e9ecef;
+      font-weight: 600;
+    }
+    
+    .detailed-card-body {
+      padding: 15px;
+      flex: 1;
+    }
+    
+    .detailed-card-footer {
+      padding: 15px;
+      border-top: 1px solid #e9ecef;
+      background-color: #f8f9fa;
+    }
+    
+    .subscription-url {
+      font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+      background-color: #f8f9fa;
+      padding: 10px;
+      border-radius: 6px;
+      font-size: 0.85rem;
+      word-break: break-all;
+      margin-bottom: 15px;
+    }
+    
+    .footer {
+      background: white;
+      border-top: 1px solid #e9ecef;
+      padding: 2rem 0;
+      margin-top: 3rem;
+    }
+    
+    .footer p {
+      margin-bottom: 0;
+      color: #6c757d;
+    }
+    
+    /* Custom skeleton loading animation */
+    @keyframes skeleton-loading {
+      0% {
+        background-position: -200px 0;
+      }
+      100% {
+        background-position: calc(200px + 100%) 0;
+      }
+    }
+    
+    .skeleton {
+      animation: skeleton-loading 1.5s ease-in-out infinite;
+      background-color: #eee;
+      background-image: linear-gradient(90deg, #eee, #f5f5f5, #eee);
+      background-size: 200px 100%;
+      background-repeat: no-repeat;
+      border-radius: 4px;
+      display: inline-block;
+      height: 16px;
+      width: 100%;
+    }
+    
+    .skeleton.title {
+      height: 24px;
+      margin-bottom: 15px;
+      width: 60%;
+    }
+    
+    .skeleton.button {
+      height: 36px;
+      width: 100px;
+      border-radius: 10px;
+    }
+    
+    .skeleton.card {
+      height: 150px;
+      border-radius: 12px;
+      margin-bottom: 15px;
+    }
+    
+    /* 响应式调整 */
+    @media (max-width: 768px) {
+      .app-header {
+        height: auto;
+      }
+      
+      .stat-card {
+        margin-bottom: 1rem;
+      }
+      
+      .action-bar {
+        padding: 1rem;
+      }
+      
+      .search-bar .form-control,
+      .filter-dropdown .form-select,
+      .refresh-btn {
+        height: 42px;
+      }
+    }
+    
+    .next-refresh {
+      background-color: rgba(255, 193, 7, 0.15);
+      color: #212529;
+      padding: 12px 16px;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      width: 100%;
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+    }
+    
+    .next-refresh strong {
+      font-weight: 600;
+      margin: 0 3px;
+    }
+  </style>
 </head>
 <body>
-  <div class="container">
-    <div class="page-header py-4 text-center">
-      <h1 class="mb-3">免费节点订阅集合</h1>
-      <p class="lead">自动从各网站抓取的免费订阅链接</p>
-      <div class="next-refresh mt-2" id="next-refresh-time">
-        <i class="bi bi-clock"></i> 下次更新: 计算中...
+  <!-- 页面头部 -->
+  <header class="app-header">
+    <nav class="navbar navbar-expand-lg navbar-dark">
+      <div class="container">
+        <a class="navbar-brand" href="#">
+          <div class="app-logo"><i class="bi bi-globe"></i></div>
+          节点库
+        </a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+          <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+          <ul class="navbar-nav ms-auto">
+            <li class="nav-item">
+              <a class="nav-link active" href="#"><i class="bi bi-house-door me-1"></i> 首页</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="#" data-bs-toggle="modal" data-bs-target="#aboutModal">
+                <i class="bi bi-info-circle me-1"></i> 关于
+              </a>
+            </li>
+          </ul>
+        </div>
       </div>
-    </div>
+    </nav>
+  </header>
 
-    <div id="config-container" class="mb-4 card">
-      <div class="card-header config-toggle d-flex justify-content-between align-items-center">
-        <h5 class="mb-0"><i class="bi bi-gear-fill me-2"></i>配置信息</h5>
-        <span class="toggle-icon">▼</span>
-      </div>
-      <div id="configCollapse">
-        <div class="card-body">
-          <div class="row mb-3">
-            <div class="col-md-6">
-              <h6><i class="bi bi-sliders me-2"></i>信息显示</h6>
-              <ul class="list-group">
-                <li class="list-group-item d-flex justify-content-between align-items-center">
-                  <span><i class="bi bi-clock-history me-2"></i>更新频率</span>
-                  <span id="update-interval" class="badge bg-primary rounded-pill">加载中...</span>
-                </li>
-                <li class="list-group-item d-flex justify-content-between align-items-center">
-                  <span><i class="bi bi-file-text me-2"></i>抓取站点数量</span>
-                  <span id="max-articles" class="badge bg-primary rounded-pill">加载中...</span>
-                </li>
-                <li class="list-group-item d-flex justify-content-between align-items-center">
-                  <span><i class="bi bi-calendar-check me-2"></i>最后更新时间</span>
-                  <span id="last-updated" class="badge bg-secondary rounded-pill">加载中...</span>
-                </li>
-              </ul>
+  <!-- 主要内容区域 -->
+  <main class="main-container">
+    <div class="container">
+      <!-- 统计卡片区域 -->
+      <div class="row mb-4">
+        <div class="col-md-3 col-sm-6 mb-3 mb-md-0">
+          <div class="stat-card">
+            <div class="stat-icon primary">
+              <i class="bi bi-link-45deg"></i>
             </div>
-            <div class="col-md-6">
-              <h6><i class="bi bi-globe me-2"></i>抓取站点列表</h6>
-              <div class="site-list list-group shadow-sm" id="site-list">
-                <div class="text-center p-3">加载中...</div>
+            <div class="stat-value" id="total-nodes">-</div>
+            <div class="stat-label">总节点数</div>
+          </div>
+        </div>
+        <div class="col-md-3 col-sm-6 mb-3 mb-md-0">
+          <div class="stat-card">
+            <div class="stat-icon success">
+              <i class="bi bi-globe"></i>
+            </div>
+            <div class="stat-value" id="total-sites">-</div>
+            <div class="stat-label">抓取站点数</div>
+          </div>
+        </div>
+        <div class="col-md-3 col-sm-6 mb-3 mb-md-0">
+          <div class="stat-card">
+            <div class="stat-icon warning">
+              <i class="bi bi-clock-history"></i>
+            </div>
+            <div class="stat-value" id="update-interval">-</div>
+            <div class="stat-label">更新频率</div>
+          </div>
+        </div>
+        <div class="col-md-3 col-sm-6">
+          <div class="stat-card">
+            <div class="stat-icon info">
+              <i class="bi bi-calendar-check"></i>
+            </div>
+            <div class="update-time" id="last-updated">
+              <i class="bi bi-clock"></i> 正在加载...
+            </div>
+            <div class="stat-label">最后更新时间</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 操作控制区域 -->
+      <div class="action-bar mb-4">
+        <div class="row align-items-center">
+          <div class="col-lg-5 mb-3 mb-lg-0">
+            <div class="next-refresh update-time" id="next-refresh-time">
+              <i class="bi bi-clock"></i> 下次更新: 计算中...
+            </div>
+          </div>
+          <div class="col-lg-2 mb-3 mb-lg-0">
+            <div class="filter-dropdown">
+              <select id="type-filter" class="form-select">
+                <option value="all">所有类型</option>
+                <option value="Clash">Clash</option>
+                <option value="V2ray">V2ray</option>
+                <option value="Sing-Box">Sing-Box</option>
+                <option value="Shadowrocket">Shadowrocket</option>
+                <option value="Quantumult">Quantumult</option>
+                <option value="通用">通用</option>
+              </select>
+            </div>
+          </div>
+          <div class="col-lg-2 mb-3 mb-lg-0">
+            <div class="view-toggle">
+              <div class="btn-group w-100" role="group">
+                <button type="button" class="btn btn-outline-primary active" id="normal-view">
+                  <i class="bi bi-list"></i> 简洁
+                </button>
+                <button type="button" class="btn btn-outline-primary" id="detailed-view">
+                  <i class="bi bi-grid"></i> 详细
+                </button>
+              </div>
+            </div>
+          </div>
+          <div class="col-lg-3 mb-3 mb-lg-0">
+            <button id="refresh-btn" class="btn btn-primary w-100 refresh-btn">
+              <i class="bi bi-arrow-repeat me-1"></i> 刷新数据
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- 站点配置摘要 -->
+      <div class="action-bar mb-4">
+        <div class="row">
+          <div class="col-md-12 mb-3">
+            <div class="d-flex justify-content-between align-items-center">
+              <h5 class="section-title mb-0"><i class="bi bi-gear"></i> 配置信息</h5>
+              <button class="btn btn-outline-primary" data-bs-toggle="modal" data-bs-target="#configModal">
+                <i class="bi bi-sliders me-1"></i> 查看详细配置
+              </button>
+            </div>
+          </div>
+          <div class="col-12">
+            <div class="site-list" id="site-list" style="max-height:200px; overflow-y:auto;">
+              <div class="text-center py-3">
+                <div class="spinner-border spinner-border-sm text-primary me-2" role="status"></div>
+                加载站点列表中...
               </div>
             </div>
           </div>
         </div>
       </div>
-    </div>
-
-    <div id="filter-container" class="row mb-4">
-      <div class="col-md-6 mb-3">
-        <div class="input-group">
-          <span class="input-group-text"><i class="bi bi-search"></i></span>
-          <input type="text" id="search-input" class="form-control" placeholder="搜索订阅链接...">
+      
+      <!-- 节点列表标题 -->
+      <div class="d-flex justify-content-between align-items-center mb-3">
+        <h5 class="section-title mb-0"><i class="bi bi-diagram-3"></i> 订阅节点</h5>
+        <div id="stats-container" class="alert alert-primary mb-0 py-1 px-3">
+          <div class="spinner-border spinner-border-sm text-primary me-2" role="status"></div>
+          加载中...
         </div>
       </div>
-      <div class="col-md-3 mb-3">
-        <div class="input-group">
-          <span class="input-group-text"><i class="bi bi-filter"></i></span>
-          <select id="type-filter" class="form-select">
-            <option value="all">所有类型</option>
-            <option value="Clash">Clash</option>
-            <option value="V2ray">V2ray</option>
-            <option value="Sing-Box">Sing-Box</option>
-            <option value="Shadowrocket">Shadowrocket</option>
-            <option value="Quantumult">Quantumult</option>
-            <option value="通用">通用</option>
-          </select>
+
+      <!-- 节点列表内容 -->
+      <div id="subscriptions-container" class="row">
+        <div class="col-12 text-center py-5">
+          <div class="spinner-border text-primary" style="width: 3rem; height: 3rem;" role="status"></div>
+          <div class="mt-3">正在加载订阅数据...</div>
         </div>
       </div>
-      <div class="col-md-3 mb-3">
-        <button id="refresh-btn" class="btn btn-primary w-100">
-          <i class="bi bi-arrow-repeat me-1"></i> 刷新数据
-        </button>
-      </div>
     </div>
+  </main>
 
-    <div id="view-toggle" class="mb-3">
-      <div class="btn-group" role="group">
-        <button type="button" class="btn btn-outline-primary active" id="normal-view">
-          <i class="bi bi-list me-1"></i> 简洁视图
-        </button>
-        <button type="button" class="btn btn-outline-primary" id="detailed-view">
-          <i class="bi bi-card-list me-1"></i> 详细视图
-        </button>
-      </div>
-    </div>
-
-    <div id="stats-container" class="alert mb-4">
-      <div class="spinner-border spinner-border-sm text-primary me-2" role="status">
-        <span class="visually-hidden">加载中...</span>
-      </div>
-      加载中...
-    </div>
-
-    <div id="subscriptions-container" class="row">
-      <div class="loading">
-        <div class="spinner-border text-primary" role="status">
-          <span class="visually-hidden">加载中...</span>
+  <!-- 页脚 -->
+  <footer class="footer">
+    <div class="container">
+      <div class="row">
+        <div class="col-md-6">
+          <p>© 2023 节点库 - 自动抓取免费订阅节点</p>
         </div>
-        <div class="mt-3">加载订阅数据中...</div>
+        <div class="col-md-6 text-md-end">
+          <p>数据更新频率：<span id="footer-update-interval">加载中</span> | 站点总数：<span id="footer-site-count">加载中</span></p>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <!-- 关于模态框 -->
+  <div class="modal fade" id="aboutModal" tabindex="-1" aria-labelledby="aboutModalLabel">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="aboutModalLabel">关于节点库</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="关闭"></button>
+        </div>
+        <div class="modal-body">
+          <h6 class="mb-3">自动抓取免费节点订阅</h6>
+          <p>节点库是一个自动从互联网上收集免费节点订阅链接的工具，它会定期更新数据，确保您获取的是最新的可用节点。</p>
+          <p>使用方法：</p>
+          <ul>
+            <li>点击"复制"按钮复制订阅链接</li>
+            <li>在您的客户端软件中添加该订阅链接</li>
+            <li>客户端将自动获取节点信息</li>
+          </ul>
+          <p class="text-muted mt-4">请注意：所有节点均来自互联网收集，我们不对节点质量和稳定性做任何保证。</p>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-primary" data-bs-dismiss="modal">我知道了</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 配置详情模态框 -->
+  <div class="modal fade" id="configModal" tabindex="-1" aria-labelledby="configModalLabel">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="configModalLabel">配置详情</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="关闭"></button>
+        </div>
+        <div class="modal-body">
+          <div class="row mb-3">
+            <div class="col-md-6">
+              <h6><i class="bi bi-sliders me-2"></i>系统设置</h6>
+              <ul class="list-group">
+                <li class="list-group-item d-flex justify-content-between align-items-center">
+                  <span><i class="bi bi-clock-history me-2"></i>更新频率</span>
+                  <span id="modal-update-interval" class="badge bg-primary rounded-pill">加载中...</span>
+                </li>
+                <li class="list-group-item d-flex justify-content-between align-items-center">
+                  <span><i class="bi bi-file-text me-2"></i>抓取站点数量</span>
+                  <span id="modal-max-articles" class="badge bg-primary rounded-pill">加载中...</span>
+                </li>
+                <li class="list-group-item d-flex justify-content-between align-items-center">
+                  <span><i class="bi bi-calendar-check me-2"></i>最后更新时间</span>
+                  <span id="modal-last-updated" class="badge bg-secondary rounded-pill">加载中...</span>
+                </li>
+                <li class="list-group-item d-flex justify-content-between align-items-center">
+                  <span><i class="bi bi-bookmark me-2"></i>本地免费节点数量</span>
+                  <span id="local-free-nodes" class="badge bg-info rounded-pill">0</span>
+                </li>
+              </ul>
+            </div>
+            <div class="col-md-6">
+              <h6><i class="bi bi-globe me-2"></i>抓取站点状态</h6>
+              <div class="site-list-detail list-group shadow-sm" id="modal-site-list">
+                <div class="text-center p-3">加载中...</div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">关闭</button>
+        </div>
       </div>
     </div>
   </div>
@@ -177,6 +719,8 @@
   <script src="js/config.js"></script>
   <!-- 内联数据 - 解决本地文件系统访问问题 -->
   <script src="js/inline-data.js"></script>
+  <!-- 订阅管理器 -->
+  <script src="js/subscription-manager.js"></script>
   <!-- 应用程序JS -->
   <script src="js/app.js"></script>
 </body>

@@ -3,6 +3,7 @@ const fs = require('fs-extra');
 const path = require('path');
 const { CronJob } = require('cron');
 const scraper = require('./scraper');
+const cors = require('cors');
 
 // 获取配置
 const config = scraper.getConfig();
@@ -44,7 +45,8 @@ app.get('/api/config', (req, res) => {
       settings: {
         updateInterval: settings.updateInterval,
         maxArticlesPerSite: settings.maxArticlesPerSite,
-        lastUpdated: new Date().toISOString()
+        lastUpdated: new Date().toISOString(),
+        localFreeNodesCount: settings.localFreeNodesCount || 0
       }
     };
     res.json(publicConfig);
@@ -101,6 +103,22 @@ app.get('/api/subscriptions', (req, res) => {
         // 继续处理其他站点
       }
     });
+    
+    // 添加config.json中的自定义订阅
+    if (config.subscriptions && Array.isArray(config.subscriptions) && config.subscriptions.length > 0) {
+      const customSite = {
+        url: "custom",
+        siteName: "自定义订阅",
+        scrapedAt: new Date().toISOString(),
+        subscriptionCount: config.subscriptions.length,
+        subscriptions: config.subscriptions.map(sub => ({
+          ...sub,
+          isCustom: true // 标记为自定义
+        }))
+      };
+      
+      subscriptionsData.custom = customSite;
+    }
     
     res.json(subscriptionsData);
   } catch (error) {

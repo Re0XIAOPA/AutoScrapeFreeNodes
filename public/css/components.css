@@ -1,12 +1,11 @@
 /* 页面标题 */
 .page-header {
-  background: linear-gradient(135deg, #f8f9fa, #ffffff);
-  color: #333;
+  background: linear-gradient(135deg, #4361ee, #3a0ca3);
+  color: white;
   padding: 30px 0;
   border-radius: 10px;
   margin-bottom: 30px;
   box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
-  border-bottom: 3px solid #4361ee;
   position: relative;
   overflow: hidden;
 }
@@ -18,7 +17,7 @@
   left: 0;
   width: 100%;
   height: 100%;
-  background-image: url("data:image/svg+xml,%3Csvg width='100' height='100' viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M11 18c3.866 0 7-3.134 7-7s-3.134-7-7-7-7 3.134-7 7 3.134 7 7 7zm48 25c3.866 0 7-3.134 7-7s-3.134-7-7-7-7 3.134-7 7 3.134 7 7 7zm-43-7c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zm63 31c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zM34 90c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zm56-76c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zM12 86c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm28-65c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm23-11c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm-6 60c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm29 22c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zM32 63c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm57-13c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm-9-21c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM60 91c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM35 41c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM12 60c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2z' fill='%234361ee' fill-opacity='0.03' fill-rule='evenodd'/%3E%3C/svg%3E");
+  background-image: url("data:image/svg+xml,%3Csvg width='100' height='100' viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M11 18c3.866 0 7-3.134 7-7s-3.134-7-7-7-7 3.134-7 7 3.134 7 7 7zm48 25c3.866 0 7-3.134 7-7s-3.134-7-7-7-7 3.134-7 7 3.134 7 7 7zm-43-7c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zm63 31c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zM34 90c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zm56-76c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zM12 86c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm28-65c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm23-11c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm-6 60c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm29 22c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zM32 63c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm57-13c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm-9-21c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM60 91c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM35 41c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM12 60c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2z' fill='%23ffffff' fill-opacity='0.1' fill-rule='evenodd'/%3E%3C/svg%3E");
   opacity: 0.8;
   z-index: 0;
 }
@@ -26,14 +25,14 @@
 .page-header h1 {
   font-weight: 700;
   margin-bottom: 10px;
-  color: #4361ee;
+  color: white;
   position: relative;
   z-index: 1;
 }
 
 .page-header .lead {
   font-size: 1.2rem;
-  color: #6c757d;
+  color: rgba(255, 255, 255, 0.9);
   position: relative;
   z-index: 1;
 }
@@ -90,7 +89,7 @@
 /* 站点卡片 */
 .site-card {
   margin-bottom: 25px;
-  border-radius: 10px;
+  border-radius: 16px;
   border: none;
   box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
   transition: transform 0.3s ease, box-shadow 0.3s ease;
@@ -103,15 +102,15 @@
 }
 
 .card-header {
-  background: linear-gradient(90deg, #4361ee, #3f37c9);
+  background: linear-gradient(90deg, #4361ee, #3a0ca3);
   color: white;
-  border-radius: 10px 10px 0 0 !important;
+  border-radius: 16px 16px 0 0 !important;
   padding: 15px 20px;
   border: none;
 }
 
 .article-card {
-  border-radius: 8px;
+  border-radius: 12px;
   margin-bottom: 20px;
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
   border: 1px solid #eaeaea;
@@ -127,7 +126,7 @@
 .article-header {
   background-color: #f8f9fa;
   padding: 12px 15px;
-  border-radius: 8px 8px 0 0;
+  border-radius: 12px 12px 0 0;
   border-bottom: 1px solid #dee2e6;
 }
 
@@ -136,7 +135,7 @@
   margin-bottom: 25px;
   background-color: white;
   padding: 20px;
-  border-radius: 10px;
+  border-radius: 16px;
   box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
   border: none;
 }
@@ -145,7 +144,7 @@
 #config-container {
   margin-bottom: 25px;
   border: none;
-  border-radius: 10px;
+  border-radius: 16px;
   overflow: hidden;
   box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
 }
@@ -161,19 +160,20 @@
 
 /* 统计信息 */
 #stats-container {
-  border-radius: 10px;
-  padding: 15px 20px;
-  background-color: #f8f9fa;
-  border-left: 5px solid #4361ee;
+  border-radius: 50px;
+  padding: 5px 15px;
+  background-color: rgba(67, 97, 238, 0.1);
+  color: #4361ee;
+  font-weight: 500;
   margin-bottom: 25px;
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+  border: none;
 }
 
 /* 站点列表 */
 .site-list {
   max-height: 300px;
   overflow-y: auto;
-  border-radius: 5px;
+  border-radius: 12px;
   border: 1px solid #eaeaea;
   background-color: #ffffff;
 }
@@ -500,4 +500,88 @@
   .custom-modal .modal-message {
     font-size: 1.1rem;
   }
+}
+
+/* 使用现代强制色彩模式标准 */
+@media (forced-colors: active) {
+  /* 使动画在高对比度模式下能够正常显示 */
+  .custom-modal .icon-wrapper::after,
+  .next-refresh-imminent {
+    animation: none !important;
+  }
+  
+  /* 确保模态框的可访问性 */
+  .modal-backdrop {
+    background-color: Canvas !important;
+  }
+  
+  .custom-modal .modal-content {
+    border: 2px solid CanvasText;
+    box-shadow: none;
+  }
+  
+  /* 修复按钮样式 */
+  .btn-primary, .btn-secondary, .btn-outline-primary, .btn-outline-success {
+    border: 1px solid ButtonText;
+    background-color: ButtonFace;
+    color: ButtonText;
+    box-shadow: none;
+  }
+  
+  /* 确保图标可见 */
+  .icon-wrapper i, .bi {
+    color: CanvasText;
+  }
+  
+  /* 确保卡片边框可见 */
+  .card, .site-card, .article-card {
+    border: 1px solid CanvasText;
+    box-shadow: none;
+  }
+  
+  /* 确保阴影效果在高对比度模式下不显示 */
+  .box-shadow, [class*="shadow"] {
+    box-shadow: none !important;
+  }
+}
+
+/* 本地订阅样式 */
+.local-subscription {
+  border-left: 4px solid #ffc107 !important;
+  background-color: rgba(255, 193, 7, 0.05);
+}
+
+.local-subscription:hover {
+  background-color: rgba(255, 193, 7, 0.1);
+}
+
+.smaller {
+  font-size: 0.8rem;
+}
+
+.badge-corner {
+  position: absolute;
+  top: -5px;
+  right: -5px;
+  padding: 5px 8px;
+  border-radius: 50%;
+  font-size: 0.7rem;
+  z-index: 2;
+}
+
+.has-badge {
+  position: relative;
+}
+
+/* 删除按钮样式 */
+.btn-danger {
+  background-color: rgba(220, 53, 69, 0.1);
+  color: #dc3545;
+  border: none;
+  transition: all 0.3s ease;
+}
+
+.btn-danger:hover {
+  background-color: #dc3545;
+  color: white;
 }

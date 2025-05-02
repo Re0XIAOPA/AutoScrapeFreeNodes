@@ -45,7 +45,8 @@ async function generateStaticSite() {
       settings: {
         updateInterval: config.settings.updateInterval,
         maxArticlesPerSite: config.settings.maxArticlesPerSite,
-        lastUpdated: new Date().toISOString()
+        lastUpdated: new Date().toISOString(),
+        localFreeNodesCount: config.settings.localFreeNodesCount || 0
       }
     };
 
@@ -146,7 +147,23 @@ async function generateStaticSite() {
     // 写入站点详细数据
     fs.writeJsonSync(path.join(apiDir, 'sites.json'), sitesData);
 
-    // 写入简化的订阅数据
+    // 添加配置文件中的自定义订阅
+    if (config.subscriptions && Array.isArray(config.subscriptions) && config.subscriptions.length > 0) {
+      const customSite = {
+        url: "custom",
+        siteName: "自定义订阅",
+        scrapedAt: new Date().toISOString(),
+        subscriptionCount: config.subscriptions.length,
+        subscriptions: config.subscriptions.map(sub => ({
+          ...sub,
+          isCustom: true // 标记为自定义
+        }))
+      };
+      
+      subscriptionsData.custom = customSite;
+    }
+
+    // 写入简化的订阅数据（包含自定义订阅）
     fs.writeJsonSync(path.join(apiDir, 'subscriptions.json'), subscriptionsData);
 
     // 创建内联数据文件，避免使用fetch
@@ -241,4 +258,58 @@ generateStaticSite().then(success => {
     console.error('静态网站生成失败');
     process.exit(1);
   }
-}); 
+});
+
+/**
+ * 生成内联数据，用于处理本地文件系统访问限制
+ * @param {Object} subscriptionsData 所有订阅数据 
+ * @param {Object} sitesData 所有站点数据
+ * @param {Object} configData 配置数据
+ */
+async function generateInlineData(subscriptionsData, sitesData, configData) {
+  console.log('正在生成内联数据...');
+  
+  // 添加configData中的自定义订阅
+  if (configData.subscriptions && Array.isArray(configData.subscriptions) && configData.subscriptions.length > 0) {
+    const customSite = {
+      url: "custom",
+      siteName: "自定义订阅",
+      scrapedAt: new Date().toISOString(),
+      subscriptionCount: configData.subscriptions.length,
+      subscriptions: configData.subscriptions.map(sub => ({
+        ...sub,
+        isCustom: true // 标记为自定义
+      }))
+    };
+    
+    subscriptionsData.custom = customSite;
+  }
+  
+  const inlineDataContent = `
+  // 内联数据 - 用于本地文件系统环境，解决直接访问JSON文件的限制
+  // 更新于: ${new Date().toLocaleString()}
+  
+  // 订阅数据
+  const INLINE_SUBSCRIPTIONS = ${JSON.stringify(subscriptionsData, null, 2)};
+  
+  // 站点详细数据
+  const INLINE_SITES = ${JSON.stringify(sitesData, null, 2)};
+  
+  // 配置数据
+  const INLINE_CONFIG = ${JSON.stringify(configData, null, 2)};
+  
+  // 刷新响应数据
+  const REFRESH_RESPONSE = {
+    success: true,
+    message: "数据已是最新，无需刷新（静态环境下刷新功能不可用）"
+  };
+  `;
+  
+  try {
+    fs.writeFileSync(path.join(PUBLIC_DIR, 'js', 'inline-data.js'), inlineDataContent);
+    console.log('内联数据生成成功');
+  } catch (error) {
+    console.error('生成内联数据失败:', error);
+    throw error;
+  }
+} 
