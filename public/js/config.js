@@ -4,7 +4,7 @@
 const CONFIG = {
   // 开发环境配置
   'development': {
-    API_BASE_URL: 'http://localhost:3001',
+    API_BASE_URL: '',  // 会在下面自动设置
     DEBUG: true
   },
   
@@ -54,6 +54,11 @@ if (currentEnv === 'production' || currentEnv === 'static_test') {
   // 对于GitHub Pages和静态部署，使用相对路径
   CONFIG[currentEnv].API_BASE_URL = '.';
   console.log('使用相对路径访问API');
+} else if (currentEnv === 'development') {
+  // 开发环境，使用当前主机
+  const port = '3001'; // 后端服务端口
+  CONFIG[currentEnv].API_BASE_URL = window.location.protocol + '//' + window.location.hostname + ':' + port;
+  console.log('使用开发服务器:', CONFIG[currentEnv].API_BASE_URL);
 }
 
 // 导出当前环境的配置

@@ -1,0 +1,27 @@
+{
+  "example": {
+    "url": "https://example.com",
+    "siteName": "示例站点",
+    "scrapedAt": "2023-09-12T00:30:00Z",
+    "totalSubscriptions": 2,
+    "articles": [
+      {
+        "title": "示例文章",
+        "url": "https://example.com/article1",
+        "publishedAt": "2023-09-11T15:30:00Z",
+        "subscriptions": [
+          {
+            "type": "Clash",
+            "name": "示例订阅1",
+            "url": "https://example.com/sub1"
+          },
+          {
+            "type": "V2ray",
+            "name": "示例订阅2",
+            "url": "https://example.com/sub2"
+          }
+        ]
+      }
+    ]
+  }
+} 

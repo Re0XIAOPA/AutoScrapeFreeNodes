@@ -1,0 +1,14 @@
+{
+  "sites": [
+    {
+      "url": "https://example.com",
+      "description": "示例站点",
+      "enabled": true
+    }
+  ],
+  "settings": {
+    "updateInterval": 720,
+    "maxArticlesPerSite": 10,
+    "lastUpdated": "2023-09-12T00:30:00Z"
+  }
+} 
