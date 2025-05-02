@@ -9,69 +9,155 @@ const API_BASE_URL = ENV_CONFIG.API_BASE_URL;
 
 // 自定义模态框显示函数
 function showInfoModal(message) {
+  console.log('尝试显示信息模态框:', message); // 调试日志
+  
+  // 检查DOM是否已加载
+  if (!document.getElementById('infoModalText')) {
+    console.warn('模态框元素不存在，使用alert代替');
+    alert(message);
+    return;
+  }
+  
+  // 设置模态框内容
   const infoModalText = document.getElementById('infoModalText');
   infoModalText.textContent = message;
   
-  console.log('显示信息模态框:', message); // 调试日志
-  
   try {
     // 尝试使用Bootstrap的模态框
-    const infoModal = new bootstrap.Modal(document.getElementById('infoModal'));
+    if (typeof bootstrap === 'undefined') {
+      throw new Error('Bootstrap未加载');
+    }
+    
+    const infoModal = new bootstrap.Modal(document.getElementById('infoModal'), {
+      backdrop: true,
+      keyboard: true,
+      focus: true
+    });
     infoModal.show();
   } catch (error) {
-    console.error('模态框显示失败:', error);
+    console.error('Bootstrap模态框显示失败，使用备用方法:', error);
     
-    // 尝试直接设置模态框的显示属性
+    // 尝试直接操作DOM显示模态框
     try {
       const modalElement = document.getElementById('infoModal');
-      modalElement.classList.add('show');
+      
+      // 清除可能存在的模态框背景
+      document.querySelectorAll('.modal-backdrop').forEach(el => el.remove());
+      document.body.classList.remove('modal-open');
+      
+      // 设置模态框为显示状态
       modalElement.style.display = 'block';
-      document.body.classList.add('modal-open');
+      modalElement.classList.add('show');
+      modalElement.setAttribute('aria-modal', 'true');
+      modalElement.removeAttribute('aria-hidden');
       
       // 添加背景遮罩
-      if (document.getElementsByClassName('modal-backdrop').length === 0) {
-        const backdrop = document.createElement('div');
-        backdrop.className = 'modal-backdrop fade show';
-        document.body.appendChild(backdrop);
-      }
+      const backdrop = document.createElement('div');
+      backdrop.className = 'modal-backdrop fade show';
+      document.body.appendChild(backdrop);
+      
+      // 设置body样式
+      document.body.classList.add('modal-open');
+      document.body.style.overflow = 'hidden';
+      document.body.style.paddingRight = '15px';
+      
+      // 添加关闭事件
+      const closeButtons = modalElement.querySelectorAll('[data-bs-dismiss="modal"]');
+      closeButtons.forEach(btn => {
+        btn.addEventListener('click', function() {
+          modalElement.style.display = 'none';
+          modalElement.classList.remove('show');
+          modalElement.setAttribute('aria-hidden', 'true');
+          modalElement.removeAttribute('aria-modal');
+          
+          // 移除背景
+          document.querySelectorAll('.modal-backdrop').forEach(el => el.remove());
+          document.body.classList.remove('modal-open');
+          document.body.style.overflow = '';
+          document.body.style.paddingRight = '';
+        });
+      });
     } catch (innerError) {
-      console.error('直接设置模态框也失败:', innerError);
-      // 如果实在不行，使用alert作为最后的备选方案
+      console.error('直接操作DOM显示模态框失败:', innerError);
+      // 最后的备选方案，使用alert
       alert(message);
     }
   }
 }
 
 function showErrorModal(message) {
+  console.log('尝试显示错误模态框:', message); // 调试日志
+  
+  // 检查DOM是否已加载
+  if (!document.getElementById('errorModalText')) {
+    console.warn('模态框元素不存在，使用alert代替');
+    alert('错误: ' + message);
+    return;
+  }
+  
+  // 设置模态框内容
   const errorModalText = document.getElementById('errorModalText');
   errorModalText.textContent = message;
   
-  console.log('显示错误模态框:', message); // 调试日志
-  
   try {
     // 尝试使用Bootstrap的模态框
-    const errorModal = new bootstrap.Modal(document.getElementById('errorModal'));
+    if (typeof bootstrap === 'undefined') {
+      throw new Error('Bootstrap未加载');
+    }
+    
+    const errorModal = new bootstrap.Modal(document.getElementById('errorModal'), {
+      backdrop: true,
+      keyboard: true,
+      focus: true
+    });
     errorModal.show();
   } catch (error) {
-    console.error('模态框显示失败:', error);
+    console.error('Bootstrap模态框显示失败，使用备用方法:', error);
     
-    // 尝试直接设置模态框的显示属性
+    // 尝试直接操作DOM显示模态框
     try {
       const modalElement = document.getElementById('errorModal');
-      modalElement.classList.add('show');
+      
+      // 清除可能存在的模态框背景
+      document.querySelectorAll('.modal-backdrop').forEach(el => el.remove());
+      document.body.classList.remove('modal-open');
+      
+      // 设置模态框为显示状态
       modalElement.style.display = 'block';
-      document.body.classList.add('modal-open');
+      modalElement.classList.add('show');
+      modalElement.setAttribute('aria-modal', 'true');
+      modalElement.removeAttribute('aria-hidden');
       
       // 添加背景遮罩
-      if (document.getElementsByClassName('modal-backdrop').length === 0) {
-        const backdrop = document.createElement('div');
-        backdrop.className = 'modal-backdrop fade show';
-        document.body.appendChild(backdrop);
-      }
+      const backdrop = document.createElement('div');
+      backdrop.className = 'modal-backdrop fade show';
+      document.body.appendChild(backdrop);
+      
+      // 设置body样式
+      document.body.classList.add('modal-open');
+      document.body.style.overflow = 'hidden';
+      document.body.style.paddingRight = '15px';
+      
+      // 添加关闭事件
+      const closeButtons = modalElement.querySelectorAll('[data-bs-dismiss="modal"]');
+      closeButtons.forEach(btn => {
+        btn.addEventListener('click', function() {
+          modalElement.style.display = 'none';
+          modalElement.classList.remove('show');
+          modalElement.setAttribute('aria-hidden', 'true');
+          modalElement.removeAttribute('aria-modal');
+          
+          // 移除背景
+          document.querySelectorAll('.modal-backdrop').forEach(el => el.remove());
+          document.body.classList.remove('modal-open');
+          document.body.style.overflow = '';
+          document.body.style.paddingRight = '';
+        });
+      });
     } catch (innerError) {
-      console.error('直接设置模态框也失败:', innerError);
-      // 如果实在不行，使用alert作为最后的备选方案
-      alert(message);
+      console.error('直接操作DOM显示模态框失败:', innerError);
+      // 最后的备选方案，使用alert
+      alert('错误: ' + message);
     }
   }
 }
@@ -92,6 +178,78 @@ document.addEventListener('DOMContentLoaded', function() {
   const maxArticlesEl = document.getElementById('max-articles');
   const lastUpdatedEl = document.getElementById('last-updated');
   const siteListEl = document.getElementById('site-list');
+  
+  // 检查是否在GitHub Pages环境
+  const isGitHubPages = window.location.hostname.includes('github.io');
+  if (isGitHubPages) {
+    console.log('检测到GitHub Pages环境');
+    // 修改刷新按钮的点击行为，在GitHub Pages环境中显示静态提示
+    refreshBtn.addEventListener('click', function(e) {
+      e.preventDefault(); // 防止默认行为
+      e.stopPropagation(); // 防止事件冒泡
+      
+      console.log('GitHub Pages环境，显示静态提示');
+      showInfoModal('GitHub Pages是静态部署环境，无法实时刷新数据。数据会在每天的定时构建中自动更新。');
+      return false;
+    });
+  } else {
+    // 非GitHub Pages环境的刷新按钮事件
+    refreshBtn.addEventListener('click', function() {
+      refreshBtn.disabled = true;
+      refreshBtn.innerHTML = `<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> 刷新中...`;
+      
+      try {
+        // 首先尝试通过fetch获取数据（适用于服务器环境）
+        if (window.location.protocol.includes('http')) {
+          // 正常服务器环境
+          fetch(`${API_BASE_URL}/api/refresh/index.json`, {
+            method: 'GET'
+          })
+            .then(response => response.json())
+            .then(data => {
+              if (data.success) {
+                loadSubscriptions();
+                loadConfig(); // 同时刷新配置信息
+              } else {
+                showErrorModal('刷新失败: ' + (data.error || data.message || '未知错误'));
+              }
+            })
+            .catch(error => {
+              console.warn('通过fetch请求刷新失败，尝试使用内联数据:', error);
+              // 如果fetch失败，使用内联响应
+              if (typeof REFRESH_RESPONSE !== 'undefined') {
+                showInfoModal(REFRESH_RESPONSE.message);
+              } else {
+                showErrorModal('刷新请求失败: ' + (error.message || '未知错误'));
+              }
+            })
+            .finally(() => {
+              refreshBtn.disabled = false;
+              refreshBtn.innerHTML = '<i class="bi bi-arrow-repeat me-1"></i> 刷新数据';
+            });
+        } else {
+          // 本地文件系统环境，使用内联响应
+          console.log('检测到本地文件系统环境，使用内联刷新响应');
+          if (typeof REFRESH_RESPONSE !== 'undefined') {
+            setTimeout(() => {
+              showInfoModal(REFRESH_RESPONSE.message);
+              refreshBtn.disabled = false;
+              refreshBtn.innerHTML = '<i class="bi bi-arrow-repeat me-1"></i> 刷新数据';
+            }, 1000);
+          } else {
+            showErrorModal('内联数据不可用，请使用HTTP服务器或重新生成静态文件');
+            refreshBtn.disabled = false;
+            refreshBtn.innerHTML = '<i class="bi bi-arrow-repeat me-1"></i> 刷新数据';
+          }
+        }
+      } catch (error) {
+        console.error('刷新请求失败:', error);
+        showErrorModal('刷新请求失败: ' + (error.message || '未知错误'));
+        refreshBtn.disabled = false;
+        refreshBtn.innerHTML = '<i class="bi bi-arrow-repeat me-1"></i> 刷新数据';
+      }
+    });
+  }
   
   // 初始化页面
   loadConfig();
@@ -133,77 +291,6 @@ document.addEventListener('DOMContentLoaded', function() {
   // 添加事件监听器
   searchInput.addEventListener('input', renderSubscriptions);
   typeFilter.addEventListener('change', renderSubscriptions);
-  
-  // 手动刷新按钮事件
-  refreshBtn.addEventListener('click', function() {
-    refreshBtn.disabled = true;
-    refreshBtn.innerHTML = `<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> 刷新中...`;
-    
-    try {
-      // 检查是否在GitHub Pages环境
-      const isGitHubPages = window.location.hostname.includes('github.io');
-      
-      // 首先尝试通过fetch获取数据（适用于服务器环境）
-      if (window.location.protocol.includes('http')) {
-        if (isGitHubPages) {
-          // GitHub Pages静态环境，显示提示信息
-          setTimeout(() => {
-            console.log('GitHub Pages环境，显示静态提示');
-            showInfoModal('GitHub Pages是静态部署环境，无法实时刷新数据。数据会在每天的定时构建中自动更新。');
-            refreshBtn.disabled = false;
-            refreshBtn.innerHTML = '<i class="bi bi-arrow-repeat me-1"></i> 刷新数据';
-          }, 1000);
-          return;
-        }
-        
-        // 正常服务器环境
-        fetch(`${API_BASE_URL}/api/refresh/index.json`, {
-          method: 'GET'
-        })
-          .then(response => response.json())
-          .then(data => {
-            if (data.success) {
-              loadSubscriptions();
-              loadConfig(); // 同时刷新配置信息
-            } else {
-              showErrorModal('刷新失败: ' + (data.error || data.message || '未知错误'));
-            }
-          })
-          .catch(error => {
-            console.warn('通过fetch请求刷新失败，尝试使用内联数据:', error);
-            // 如果fetch失败，使用内联响应
-            if (typeof REFRESH_RESPONSE !== 'undefined') {
-              showInfoModal(REFRESH_RESPONSE.message);
-            } else {
-              showErrorModal('刷新请求失败: ' + (error.message || '未知错误'));
-            }
-          })
-          .finally(() => {
-            refreshBtn.disabled = false;
-            refreshBtn.innerHTML = '<i class="bi bi-arrow-repeat me-1"></i> 刷新数据';
-          });
-      } else {
-        // 本地文件系统环境，使用内联响应
-        console.log('检测到本地文件系统环境，使用内联刷新响应');
-        if (typeof REFRESH_RESPONSE !== 'undefined') {
-          setTimeout(() => {
-            showInfoModal(REFRESH_RESPONSE.message);
-            refreshBtn.disabled = false;
-            refreshBtn.innerHTML = '<i class="bi bi-arrow-repeat me-1"></i> 刷新数据';
-          }, 500);
-        } else {
-          showErrorModal('内联数据不可用，请使用HTTP服务器或重新生成静态文件');
-          refreshBtn.disabled = false;
-          refreshBtn.innerHTML = '<i class="bi bi-arrow-repeat me-1"></i> 刷新数据';
-        }
-      }
-    } catch (error) {
-      console.error('刷新请求失败:', error);
-      showErrorModal('刷新请求失败: ' + (error.message || '未知错误'));
-      refreshBtn.disabled = false;
-      refreshBtn.innerHTML = '<i class="bi bi-arrow-repeat me-1"></i> 刷新数据';
-    }
-  });
   
   // 更新下一次刷新时间的显示 - 基于GitHub Actions固定调度时间
   function updateNextRefreshTime() {
@@ -282,36 +369,40 @@ document.addEventListener('DOMContentLoaded', function() {
 // 加载配置信息
 function loadConfig() {
   try {
-    // 首先尝试通过fetch获取数据（适用于服务器环境）
-    if (window.location.protocol.includes('http')) {
-      fetch(`${API_BASE_URL}/api/config.json`)
-        .then(response => {
-          if (!response.ok) {
-            throw new Error(`服务器响应错误: ${response.status}`);
-          }
-          return response.json();
-        })
-        .then(data => {
-          processConfigData(data);
-        })
-        .catch(error => {
-          console.warn('通过fetch加载配置失败，尝试使用内联数据:', error);
-          // 如果fetch失败，尝试使用内联数据
-          if (typeof INLINE_CONFIG !== 'undefined') {
-            processConfigData(INLINE_CONFIG);
-          } else {
-            handleConfigError(error);
-          }
-        });
-    } else {
-      // 本地文件系统环境，直接使用内联数据
-      console.log('检测到本地文件系统环境，使用内联数据');
+    // 检查是否在GitHub Pages环境
+    const isGitHubPages = window.location.hostname.includes('github.io');
+    
+    // 本地文件系统环境或GitHub Pages，直接使用内联数据
+    if (!window.location.protocol.includes('http') || isGitHubPages) {
+      console.log('使用内联配置数据');
       if (typeof INLINE_CONFIG !== 'undefined') {
         processConfigData(INLINE_CONFIG);
       } else {
         throw new Error('内联数据不可用，请使用HTTP服务器或重新生成静态文件');
       }
+      return;
     }
+    
+    // 正常HTTP服务器环境，使用fetch
+    fetch(`${API_BASE_URL}/api/config.json`)
+      .then(response => {
+        if (!response.ok) {
+          throw new Error(`服务器响应错误: ${response.status}`);
+        }
+        return response.json();
+      })
+      .then(data => {
+        processConfigData(data);
+      })
+      .catch(error => {
+        console.warn('通过fetch加载配置失败，尝试使用内联数据:', error);
+        // 如果fetch失败，尝试使用内联数据
+        if (typeof INLINE_CONFIG !== 'undefined') {
+          processConfigData(INLINE_CONFIG);
+        } else {
+          handleConfigError(error);
+        }
+      });
   } catch (error) {
     handleConfigError(error);
   }
@@ -390,57 +481,62 @@ function loadSubscriptions() {
   `;
   
   try {
-    // 首先尝试通过fetch获取数据（适用于服务器环境）
-    if (window.location.protocol.includes('http')) {
-      // 获取简洁视图数据
-      fetch(`${API_BASE_URL}/api/subscriptions.json`)
-        .then(response => {
-          if (!response.ok) {
-            throw new Error(`服务器响应错误: ${response.status}`);
-          }
-          return response.json();
-        })
-        .then(data => {
-          allSubscriptions = data;
-          updateStats(data);
-          
-          // 获取详细视图数据
-          return fetch(`${API_BASE_URL}/api/sites.json`);
-        })
-        .then(response => {
-          if (!response.ok) {
-            throw new Error(`服务器响应错误: ${response.status}`);
-          }
-          return response.json();
-        })
-        .then(data => {
-          detailedData = data;
-          renderSubscriptions();
-        })
-        .catch(error => {
-          console.warn('通过fetch加载数据失败，尝试使用内联数据:', error);
-          // 如果fetch失败，尝试使用内联数据
-          if (typeof INLINE_SUBSCRIPTIONS !== 'undefined' && typeof INLINE_SITES !== 'undefined') {
-            allSubscriptions = INLINE_SUBSCRIPTIONS;
-            updateStats(INLINE_SUBSCRIPTIONS);
-            detailedData = INLINE_SITES;
-            renderSubscriptions();
-          } else {
-            handleSubscriptionsError(error);
-          }
-        });
-    } else {
-      // 本地文件系统环境，直接使用内联数据
-      console.log('检测到本地文件系统环境，使用内联数据');
+    // 检查是否在GitHub Pages环境
+    const isGitHubPages = window.location.hostname.includes('github.io');
+    
+    // 本地文件系统环境或GitHub Pages，直接使用内联数据
+    if (!window.location.protocol.includes('http') || isGitHubPages) {
+      console.log('使用内联订阅数据');
       if (typeof INLINE_SUBSCRIPTIONS !== 'undefined' && typeof INLINE_SITES !== 'undefined') {
-        allSubscriptions = INLINE_SUBSCRIPTIONS;
-        updateStats(INLINE_SUBSCRIPTIONS);
-        detailedData = INLINE_SITES;
-        renderSubscriptions();
+        setTimeout(() => {
+          allSubscriptions = INLINE_SUBSCRIPTIONS;
+          updateStats(INLINE_SUBSCRIPTIONS);
+          detailedData = INLINE_SITES;
+          renderSubscriptions();
+        }, 500); // 延迟一下，让用户看到加载动画
       } else {
         throw new Error('内联数据不可用，请使用HTTP服务器或重新生成静态文件');
       }
+      return;
     }
+    
+    // 正常HTTP服务器环境，使用fetch
+    fetch(`${API_BASE_URL}/api/subscriptions.json`)
+      .then(response => {
+        if (!response.ok) {
+          throw new Error(`服务器响应错误: ${response.status}`);
+        }
+        return response.json();
+      })
+      .then(data => {
+        allSubscriptions = data;
+        updateStats(data);
+        
+        // 获取详细视图数据
+        return fetch(`${API_BASE_URL}/api/sites.json`);
+      })
+      .then(response => {
+        if (!response.ok) {
+          throw new Error(`服务器响应错误: ${response.status}`);
+        }
+        return response.json();
+      })
+      .then(data => {
+        detailedData = data;
+        renderSubscriptions();
+      })
+      .catch(error => {
+        console.warn('通过fetch加载数据失败，尝试使用内联数据:', error);
+        // 如果fetch失败，尝试使用内联数据
+        if (typeof INLINE_SUBSCRIPTIONS !== 'undefined' && typeof INLINE_SITES !== 'undefined') {
+          allSubscriptions = INLINE_SUBSCRIPTIONS;
+          updateStats(INLINE_SUBSCRIPTIONS);
+          detailedData = INLINE_SITES;
+          renderSubscriptions();
+        } else {
+          handleSubscriptionsError(error);
+        }
+      });
   } catch (error) {
     handleSubscriptionsError(error);
   }
