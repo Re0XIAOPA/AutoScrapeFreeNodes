@@ -276,6 +276,27 @@ document.addEventListener('DOMContentLoaded', function() {
   const maxArticlesEl = document.getElementById('max-articles');
   const lastUpdatedEl = document.getElementById('last-updated');
   const siteListEl = document.getElementById('site-list');
+  const backToTopBtn = document.getElementById('back-to-top');
+  
+  // 返回顶部按钮逻辑
+  if (backToTopBtn) {
+    // 监听滚动事件
+    window.addEventListener('scroll', function() {
+      if (window.pageYOffset > 300) {
+        backToTopBtn.classList.add('visible');
+      } else {
+        backToTopBtn.classList.remove('visible');
+      }
+    });
+    
+    // 点击返回顶部
+    backToTopBtn.addEventListener('click', function() {
+      window.scrollTo({
+        top: 0,
+        behavior: 'smooth'
+      });
+    });
+  }
   
   // 检查是否在GitHub Pages环境
   const isGitHubPages = window.location.hostname.includes('github.io');
@@ -416,7 +437,7 @@ document.addEventListener('DOMContentLoaded', function() {
     // 获取当前时间（客户端时间）
     const now = new Date();
     
-    // 计算今天的北京时间00:30（GitHub Actions构建时间）
+    // 固定为每天凌晨00:30更新（GitHub Actions构建时间）
     const todayBuildTime = new Date(now);
     todayBuildTime.setHours(0);
     todayBuildTime.setMinutes(30);
@@ -448,12 +469,12 @@ document.addEventListener('DOMContentLoaded', function() {
       const lastUpdated = new Date(configData.settings.lastUpdated);
       const hoursSinceUpdate = Math.floor((now - lastUpdated) / (1000 * 60 * 60));
       
-      if (hoursSinceUpdate >= 48) {
+      if (hoursSinceUpdate >= 24) {
         nextRefreshTimeEl.title = `上次更新已超过${hoursSinceUpdate}小时，可能存在同步问题`;
-      } else if (hoursSinceUpdate >= 24) {
-        nextRefreshTimeEl.title = `上次更新在${hoursSinceUpdate}小时前`;
+        nextRefreshTimeEl.classList.add('outdated');
       } else {
-        nextRefreshTimeEl.title = '';
+        nextRefreshTimeEl.title = `上次更新在${hoursSinceUpdate}小时前，每24小时更新一次`;
+        nextRefreshTimeEl.classList.remove('outdated');
       }
     }
   }
@@ -535,8 +556,8 @@ function processConfigData(data) {
   configData = data;
   
   // 更新配置显示
-  // 将分钟转换为小时显示，并格式化为整数
-  const updateIntervalHours = Math.floor(data.settings.updateInterval / 60);
+  // 固定显示为24小时
+  const updateIntervalHours = 24;
   
   // 更新所有显示更新频率的元素
   const updateIntervalEl = document.getElementById('update-interval');
@@ -955,7 +976,8 @@ function getTypeColor(type) {
     'V2ray': 'success',
     'Sing-Box': 'secondary',
     'Shadowrocket': 'dark',
-    'Quantumult': 'light'
+    'Quantumult': 'light',
+    '通用': 'info'
   };
   return colorMap[type] || 'secondary';
 }
@@ -967,7 +989,8 @@ function getTypeIcon(type) {
     'V2ray': 'bi bi-hdd-network',
     'Sing-Box': 'bi bi-link-45deg',
     'Shadowrocket': 'bi bi-hdd-network',
-    'Quantumult': 'bi bi-diagram-3'
+    'Quantumult': 'bi bi-diagram-3',
+    '通用': 'bi bi-globe2'
   };
   return iconMap[type] || 'bi bi-link-45deg';
 }
