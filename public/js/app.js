@@ -210,6 +210,7 @@ document.addEventListener('DOMContentLoaded', function() {
               if (data.success) {
                 loadSubscriptions();
                 loadConfig(); // 同时刷新配置信息
+                showInfoModal('数据刷新成功！'); // 添加成功提示
               } else {
                 showErrorModal('刷新失败: ' + (data.error || data.message || '未知错误'));
               }
@@ -235,6 +236,12 @@ document.addEventListener('DOMContentLoaded', function() {
               showInfoModal(REFRESH_RESPONSE.message);
               refreshBtn.disabled = false;
               refreshBtn.innerHTML = '<i class="bi bi-arrow-repeat me-1"></i> 刷新数据';
+              
+              // 如果REFRESH_RESPONSE表示成功，刷新数据显示
+              if (REFRESH_RESPONSE.success) {
+                loadSubscriptions();
+                loadConfig();
+              }
             }, 1000);
           } else {
             showErrorModal('内联数据不可用，请使用HTTP服务器或重新生成静态文件');
@@ -378,7 +385,18 @@ function loadConfig() {
       if (typeof INLINE_CONFIG !== 'undefined') {
         processConfigData(INLINE_CONFIG);
       } else {
-        throw new Error('内联数据不可用，请使用HTTP服务器或重新生成静态文件');
+        // 创建默认配置数据
+        console.warn('内联配置数据不可用，创建默认配置数据');
+        const defaultConfig = {
+          sites: [],
+          settings: {
+            updateInterval: 720,
+            maxArticlesPerSite: 10,
+            lastUpdated: new Date().toISOString()
+          }
+        };
+        processConfigData(defaultConfig);
+        showInfoModal('内联数据文件缺失，已创建默认配置。请运行 node generate-static.js 生成完整静态数据。');
       }
       return;
     }
@@ -400,7 +418,18 @@ function loadConfig() {
         if (typeof INLINE_CONFIG !== 'undefined') {
           processConfigData(INLINE_CONFIG);
         } else {
-          handleConfigError(error);
+          // 创建默认配置数据
+          console.warn('内联配置数据不可用，创建默认配置数据');
+          const defaultConfig = {
+            sites: [],
+            settings: {
+              updateInterval: 720,
+              maxArticlesPerSite: 10,
+              lastUpdated: new Date().toISOString()
+            }
+          };
+          processConfigData(defaultConfig);
+          showInfoModal('无法连接到服务器且内联数据不可用，已创建默认配置。请确保服务器正在运行或执行 node generate-static.js 生成静态数据。');
         }
       });
   } catch (error) {
@@ -495,7 +524,59 @@ function loadSubscriptions() {
           renderSubscriptions();
         }, 500); // 延迟一下，让用户看到加载动画
       } else {
-        throw new Error('内联数据不可用，请使用HTTP服务器或重新生成静态文件');
+        // 创建默认示例数据
+        console.warn('内联订阅数据不可用，创建默认示例数据');
+        const exampleSite = {
+          url: "https://example.com",
+          siteName: "示例站点",
+          scrapedAt: new Date().toISOString(),
+          subscriptionCount: 2,
+          subscriptions: [
+            {
+              type: "Clash",
+              name: "示例订阅1",
+              url: "https://example.com/sub1"
+            },
+            {
+              type: "V2ray",
+              name: "示例订阅2",
+              url: "https://example.com/sub2"
+            }
+          ]
+        };
+        
+        const exampleSiteDetailed = {
+          url: "https://example.com",
+          siteName: "示例站点",
+          scrapedAt: new Date().toISOString(),
+          totalSubscriptions: 2,
+          articles: [
+            {
+              title: "示例文章",
+              url: "https://example.com/article1",
+              publishedAt: new Date().toISOString(),
+              subscriptions: [
+                {
+                  type: "Clash",
+                  name: "示例订阅1",
+                  url: "https://example.com/sub1"
+                },
+                {
+                  type: "V2ray",
+                  name: "示例订阅2",
+                  url: "https://example.com/sub2"
+                }
+              ]
+            }
+          ]
+        };
+        
+        setTimeout(() => {
+          allSubscriptions = { "example": exampleSite };
+          updateStats(allSubscriptions);
+          detailedData = { "example": exampleSiteDetailed };
+          renderSubscriptions();
+        }, 500);
       }
       return;
     }
@@ -534,7 +615,58 @@ function loadSubscriptions() {
           detailedData = INLINE_SITES;
           renderSubscriptions();
         } else {
-          handleSubscriptionsError(error);
+          // 创建默认示例数据
+          console.warn('内联订阅数据不可用，创建默认示例数据');
+          const exampleSite = {
+            url: "https://example.com",
+            siteName: "示例站点 (无法连接到服务器)",
+            scrapedAt: new Date().toISOString(),
+            subscriptionCount: 2,
+            subscriptions: [
+              {
+                type: "Clash",
+                name: "示例订阅1",
+                url: "https://example.com/sub1"
+              },
+              {
+                type: "V2ray",
+                name: "示例订阅2",
+                url: "https://example.com/sub2"
+              }
+            ]
+          };
+          
+          const exampleSiteDetailed = {
+            url: "https://example.com",
+            siteName: "示例站点 (无法连接到服务器)",
+            scrapedAt: new Date().toISOString(),
+            totalSubscriptions: 2,
+            articles: [
+              {
+                title: "示例文章",
+                url: "https://example.com/article1",
+                publishedAt: new Date().toISOString(),
+                subscriptions: [
+                  {
+                    type: "Clash",
+                    name: "示例订阅1",
+                    url: "https://example.com/sub1"
+                  },
+                  {
+                    type: "V2ray",
+                    name: "示例订阅2",
+                    url: "https://example.com/sub2"
+                  }
+                ]
+              }
+            ]
+          };
+          
+          allSubscriptions = { "example": exampleSite };
+          updateStats(allSubscriptions);
+          detailedData = { "example": exampleSiteDetailed };
+          renderSubscriptions();
+          showInfoModal('无法连接到服务器且内联数据不可用，显示示例数据。请确保服务器正在运行或执行 node generate-static.js 生成静态数据。');
         }
       });
   } catch (error) {
