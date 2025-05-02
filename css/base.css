@@ -1,9 +1,12 @@
 /* 基础样式 */
 body {
-  font-family: 'Microsoft YaHei', Arial, sans-serif;
-  background-color: #f8f9fa;
+  font-family: 'Noto Sans SC', -apple-system, BlinkMacSystemFont, "Segoe UI", "Microsoft YaHei", sans-serif;
+  background-color: #f8f9fd;
   color: #333;
   line-height: 1.6;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
 }
 
 .container {
@@ -47,12 +50,14 @@ body {
 
 /* 按钮美化 */
 .btn-primary {
+  background-color: #4361ee;
   border: none;
   box-shadow: 0 2px 5px rgba(67, 97, 238, 0.3);
   transition: all 0.3s ease;
 }
 
 .btn-primary:hover {
+  background-color: #3a0ca3;
   box-shadow: 0 4px 8px rgba(67, 97, 238, 0.4);
   transform: translateY(-2px);
 }
@@ -93,7 +98,7 @@ body {
 .card, .container-card {
   box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
   border: none;
-  border-radius: 10px;
+  border-radius: 16px;
   transition: all 0.3s ease;
 }
 
@@ -101,20 +106,58 @@ body {
   box-shadow: 0 6px 20px rgba(0, 0, 0, 0.08);
 }
 
-/* 添加Forced Colors Mode支持，替代弃用的-ms-high-contrast */
+/* 添加Forced Colors Mode支持 */
 @media (forced-colors: active) {
   /* 按钮样式修复 */
   .btn {
     forced-color-adjust: none;
+    border: 1px solid ButtonText;
   }
   
-  /* 确保模态框在高对比度模式下可见 */
-  .modal-backdrop {
-    background-color: rgba(0, 0, 0, 0.6) !important;
+  .btn-primary, 
+  .btn-secondary,
+  .btn-success,
+  .btn-outline-primary:hover,
+  .btn-outline-success:hover {
+    color: ButtonText;
+    background-color: ButtonFace;
+    border-color: ButtonText;
   }
   
   /* 确保图标在高对比度模式下可见 */
-  .icon-wrapper i {
+  .icon-wrapper i,
+  .bi {
     forced-color-adjust: none;
+    color: ButtonText;
+  }
+  
+  /* 确保卡片和边框在高对比度模式下可见 */
+  .card, .container-card, .modal-content {
+    border: 1px solid ButtonText;
+    box-shadow: none;
+  }
+  
+  /* 确保链接和文本在高对比度模式下可见 */
+  a {
+    color: LinkText;
+    text-decoration: underline;
+  }
+  
+  /* 确保焦点状态在高对比度模式下清晰可见 */
+  *:focus {
+    outline: 2px solid Highlight !important;
+  }
+  
+  /* 模态框背景在高对比度模式下的处理 */
+  .modal-backdrop {
+    background-color: Canvas !important;
+    opacity: 0.8 !important;
+  }
+  
+  /* 确保表单元素在高对比度模式下可见 */
+  input, select, textarea {
+    border: 1px solid ButtonText;
+    background-color: Field;
+    color: FieldText;
   }
 }
