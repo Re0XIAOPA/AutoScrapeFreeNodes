@@ -428,6 +428,45 @@
       font-weight: 600;
       margin: 0 3px;
     }
+    
+    /* 返回顶部按钮样式 */
+    #back-to-top {
+      position: fixed;
+      bottom: 30px;
+      right: 30px;
+      z-index: 99;
+      width: 50px;
+      height: 50px;
+      border-radius: 50%;
+      background: var(--primary-color);
+      color: white;
+      border: none;
+      outline: none;
+      cursor: pointer;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.5rem;
+      opacity: 0;
+      visibility: hidden;
+      transition: all 0.3s ease;
+    }
+    
+    #back-to-top.visible {
+      opacity: 1;
+      visibility: visible;
+    }
+    
+    #back-to-top:hover {
+      background: var(--secondary-color);
+      transform: translateY(-3px);
+      box-shadow: 0 6px 20px rgba(67, 97, 238, 0.3);
+    }
+    
+    #back-to-top:active {
+      transform: translateY(0);
+    }
   </style>
 </head>
 <body>
@@ -585,15 +624,20 @@
     </div>
   </main>
 
+  <!-- 返回顶部按钮 -->
+  <button id="back-to-top" aria-label="返回顶部">
+    <i class="bi bi-arrow-up"></i>
+  </button>
+
   <!-- 页脚 -->
   <footer class="footer">
     <div class="container">
       <div class="row">
         <div class="col-md-6">
-          <p>© 2023 节点库 - 自动抓取免费订阅节点</p>
+          <p>© 2023-2025 节点库 - 自动抓取免费订阅节点</p>
         </div>
         <div class="col-md-6 text-md-end">
-          <p>数据更新频率：<span id="footer-update-interval">加载中</span> | 站点总数：<span id="footer-site-count">加载中</span></p>
+          <p>数据更新频率：<span id="footer-update-interval">加载中</span> | 站点数量：<span id="footer-site-count">加载中</span></p>
         </div>
       </div>
     </div>
