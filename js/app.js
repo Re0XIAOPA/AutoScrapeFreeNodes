@@ -28,11 +28,26 @@ function showInfoModal(message) {
       throw new Error('Bootstrap未加载');
     }
     
-    const infoModal = new bootstrap.Modal(document.getElementById('infoModal'), {
+    const modalElement = document.getElementById('infoModal');
+    
+    // 确保移除模态框上的aria-hidden属性
+    modalElement.removeAttribute('aria-hidden');
+    
+    // 创建新的模态框实例
+    const infoModal = new bootstrap.Modal(modalElement, {
       backdrop: true,
       keyboard: true,
       focus: true
     });
+    
+    // 监听模态框隐藏事件，以确保aria-hidden属性被正确处理
+    modalElement.addEventListener('hidden.bs.modal', function() {
+      // 在模态框隐藏后移除aria-hidden属性
+      setTimeout(() => {
+        modalElement.removeAttribute('aria-hidden');
+      }, 50);
+    }, { once: false });
+    
     infoModal.show();
   } catch (error) {
     console.error('Bootstrap模态框显示失败，使用备用方法:', error);
@@ -45,11 +60,13 @@ function showInfoModal(message) {
       document.querySelectorAll('.modal-backdrop').forEach(el => el.remove());
       document.body.classList.remove('modal-open');
       
+      // 确保移除aria-hidden属性
+      modalElement.removeAttribute('aria-hidden');
+      
       // 设置模态框为显示状态
       modalElement.style.display = 'block';
       modalElement.classList.add('show');
       modalElement.setAttribute('aria-modal', 'true');
-      modalElement.removeAttribute('aria-hidden');
       
       // 添加背景遮罩
       const backdrop = document.createElement('div');
@@ -67,8 +84,8 @@ function showInfoModal(message) {
         btn.addEventListener('click', function() {
           modalElement.style.display = 'none';
           modalElement.classList.remove('show');
-          modalElement.setAttribute('aria-hidden', 'true');
           modalElement.removeAttribute('aria-modal');
+          modalElement.removeAttribute('aria-hidden');
           
           // 移除背景
           document.querySelectorAll('.modal-backdrop').forEach(el => el.remove());
@@ -105,11 +122,26 @@ function showErrorModal(message) {
       throw new Error('Bootstrap未加载');
     }
     
-    const errorModal = new bootstrap.Modal(document.getElementById('errorModal'), {
+    const modalElement = document.getElementById('errorModal');
+    
+    // 确保移除模态框上的aria-hidden属性
+    modalElement.removeAttribute('aria-hidden');
+    
+    // 创建新的模态框实例
+    const errorModal = new bootstrap.Modal(modalElement, {
       backdrop: true,
       keyboard: true,
       focus: true
     });
+    
+    // 监听模态框隐藏事件，以确保aria-hidden属性被正确处理
+    modalElement.addEventListener('hidden.bs.modal', function() {
+      // 在模态框隐藏后移除aria-hidden属性
+      setTimeout(() => {
+        modalElement.removeAttribute('aria-hidden');
+      }, 50);
+    }, { once: false });
+    
     errorModal.show();
   } catch (error) {
     console.error('Bootstrap模态框显示失败，使用备用方法:', error);
@@ -122,11 +154,13 @@ function showErrorModal(message) {
       document.querySelectorAll('.modal-backdrop').forEach(el => el.remove());
       document.body.classList.remove('modal-open');
       
+      // 确保移除aria-hidden属性
+      modalElement.removeAttribute('aria-hidden');
+      
       // 设置模态框为显示状态
       modalElement.style.display = 'block';
       modalElement.classList.add('show');
       modalElement.setAttribute('aria-modal', 'true');
-      modalElement.removeAttribute('aria-hidden');
       
       // 添加背景遮罩
       const backdrop = document.createElement('div');
@@ -144,8 +178,8 @@ function showErrorModal(message) {
         btn.addEventListener('click', function() {
           modalElement.style.display = 'none';
           modalElement.classList.remove('show');
-          modalElement.setAttribute('aria-hidden', 'true');
           modalElement.removeAttribute('aria-modal');
+          modalElement.removeAttribute('aria-hidden');
           
           // 移除背景
           document.querySelectorAll('.modal-backdrop').forEach(el => el.remove());
