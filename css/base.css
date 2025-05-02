@@ -100,3 +100,21 @@ body {
 .card:hover, .container-card:hover {
   box-shadow: 0 6px 20px rgba(0, 0, 0, 0.08);
 }
+
+/* 添加Forced Colors Mode支持，替代弃用的-ms-high-contrast */
+@media (forced-colors: active) {
+  /* 按钮样式修复 */
+  .btn {
+    forced-color-adjust: none;
+  }
+  
+  /* 确保模态框在高对比度模式下可见 */
+  .modal-backdrop {
+    background-color: rgba(0, 0, 0, 0.6) !important;
+  }
+  
+  /* 确保图标在高对比度模式下可见 */
+  .icon-wrapper i {
+    forced-color-adjust: none;
+  }
+}

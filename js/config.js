@@ -7,7 +7,7 @@ const CONFIG = {
     API_BASE_URL: 'http://localhost:3001'
   },
   
-  // 生产环境API基础URL（使用相对路径）
+  // 生产环境API基础URL
   production: {
     API_BASE_URL: ''  // 会自动检测并填充
   },
@@ -21,7 +21,7 @@ const CONFIG = {
 // 根据当前环境选择配置
 let currentEnv = 'production';
 
-// 如果是在本地开发服务器
+// 确定环境
 if (window.location.hostname === '127.0.0.1' || window.location.hostname === 'localhost') {
   // 检查端口，如果是8080，则是静态测试模式
   if (window.location.port === '8080') {
@@ -31,13 +31,23 @@ if (window.location.hostname === '127.0.0.1' || window.location.hostname === 'lo
   }
 }
 
-// 自动检测基础路径（用于GitHub Pages或其他静态托管）
+// 自动设置API基础URL
 if (currentEnv === 'production' || currentEnv === 'static_test') {
-  // 对于GitHub Pages和静态部署，我们总是使用相对路径
-  // 这样无论部署在哪里都能正确访问API
-  CONFIG[currentEnv].API_BASE_URL = '.';
+  // 获取当前页面的基础URL
+  const baseUrl = window.location.origin + window.location.pathname.replace(/\/[^/]*$/, '');
   
-  console.log('使用相对路径访问API');
+  // 检查是否在GitHub Pages环境
+  const isGitHubPages = window.location.hostname.includes('github.io');
+  
+  if (isGitHubPages) {
+    // GitHub Pages环境，使用根路径
+    CONFIG[currentEnv].API_BASE_URL = baseUrl;
+    console.log('GitHub Pages环境，使用绝对路径:', baseUrl);
+  } else {
+    // 其他静态部署环境，使用相对路径
+    CONFIG[currentEnv].API_BASE_URL = '.';
+    console.log('使用相对路径访问API');
+  }
 }
 
 console.log('当前环境:', currentEnv);
