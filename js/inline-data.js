@@ -21,7 +21,7 @@ const INLINE_CONFIG = {
   "settings": {
     "updateInterval": 720,
     "maxArticlesPerSite": 10,
-    "lastUpdated": "2025-05-02T15:26:50.530Z",
+    "lastUpdated": "2025-05-02T15:30:27.151Z",
     "localFreeNodesCount": 5
   }
 };
@@ -29,7 +29,7 @@ const INLINE_SUBSCRIPTIONS = {
   "clash_meta_github_io": {
     "url": "https://clash-meta.github.io/",
     "siteName": "clash-meta.github.io",
-    "scrapedAt": "2025-05-02T15:26:50.634Z",
+    "scrapedAt": "2025-05-02T15:30:27.277Z",
     "subscriptionCount": 10,
     "subscriptions": [
       {
@@ -107,7 +107,7 @@ const INLINE_SUBSCRIPTIONS = {
   "clashnode_github_io": {
     "url": "https://clashnode.github.io/",
     "siteName": "clashnode.github.io",
-    "scrapedAt": "2025-05-02T15:26:50.632Z",
+    "scrapedAt": "2025-05-02T15:30:27.275Z",
     "subscriptionCount": 10,
     "subscriptions": [
       {
@@ -185,7 +185,7 @@ const INLINE_SUBSCRIPTIONS = {
   "www_airportnode_com": {
     "url": "https://www.airportnode.com/",
     "siteName": "www.airportnode.com",
-    "scrapedAt": "2025-05-02T15:26:50.635Z",
+    "scrapedAt": "2025-05-02T15:30:27.278Z",
     "subscriptionCount": 2,
     "subscriptions": [
       {
@@ -207,7 +207,7 @@ const INLINE_SUBSCRIPTIONS = {
   "custom": {
     "url": "custom",
     "siteName": "自定义订阅",
-    "scrapedAt": "2025-05-02T15:26:50.636Z",
+    "scrapedAt": "2025-05-02T15:30:27.279Z",
     "subscriptionCount": 5,
     "subscriptions": [
       {
@@ -232,10 +232,10 @@ const INLINE_SUBSCRIPTIONS = {
         "isCustom": true
       },
       {
-        "type": "V2Ray",
-        "name": "V2Ray免费节点4",
+        "type": "V2ray",
+        "name": "V2ray免费节点4",
         "url": "https://sub.0664.net/vmess/sub",
-        "description": "V2Ray免费节点订阅1",
+        "description": "V2ray免费节点订阅1",
         "isCustom": true
       },
       {
@@ -252,12 +252,12 @@ const INLINE_SITES = {
   "clash_meta_github_io": {
     "url": "https://clash-meta.github.io/",
     "siteName": "clash-meta.github.io",
-    "scrapedAt": "2025-05-02T15:26:50.634Z",
+    "scrapedAt": "2025-05-02T15:30:27.277Z",
     "articles": [
       {
         "url": "https://clash-meta.github.io/newly-discovered-nodes/index.html?date=2025-05-02",
         "title": "05月02日更新21.5M/S，2025年最新高速Clash/V2ray订阅链接免费节点地址分享",
-        "scrapedAt": "2025-05-02T15:26:50.634Z",
+        "scrapedAt": "2025-05-02T15:30:27.278Z",
         "subscriptionCount": 10,
         "subscriptions": [
           {
@@ -318,12 +318,12 @@ const INLINE_SITES = {
   "clashnode_github_io": {
     "url": "https://clashnode.github.io/",
     "siteName": "clashnode.github.io",
-    "scrapedAt": "2025-05-02T15:26:50.632Z",
+    "scrapedAt": "2025-05-02T15:30:27.275Z",
     "articles": [
       {
         "url": "https://clashnode.github.io/newly-discovered-nodes/index.html?date=2025-05-02",
         "title": "05月02日更新20.2M/S，2025年最新高速Clash/V2ray订阅链接免费节点地址分享",
-        "scrapedAt": "2025-05-02T15:26:50.633Z",
+        "scrapedAt": "2025-05-02T15:30:27.276Z",
         "subscriptionCount": 10,
         "subscriptions": [
           {
@@ -384,12 +384,12 @@ const INLINE_SITES = {
   "www_airportnode_com": {
     "url": "https://www.airportnode.com/",
     "siteName": "www.airportnode.com",
-    "scrapedAt": "2025-05-02T15:26:50.635Z",
+    "scrapedAt": "2025-05-02T15:30:27.278Z",
     "articles": [
       {
         "url": "https://www.airportnode.com/w/178.html",
         "title": "05月02日更新，2025年最新免费节点",
-        "scrapedAt": "2025-05-02T15:26:50.635Z",
+        "scrapedAt": "2025-05-02T15:30:27.278Z",
         "subscriptionCount": 2,
         "subscriptions": [
           {
