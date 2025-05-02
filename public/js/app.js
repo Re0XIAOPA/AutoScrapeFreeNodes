@@ -7,6 +7,46 @@ let currentView = 'normal'; // 'normal' or 'detailed'
 // API基础URL - 从环境配置中获取
 const API_BASE_URL = ENV_CONFIG.API_BASE_URL;
 
+// Monkey patch Bootstrap模态框方法，阻止aria-hidden属性设置
+document.addEventListener('DOMContentLoaded', function() {
+  if (typeof bootstrap !== 'undefined' && bootstrap.Modal) {
+    const originalShow = bootstrap.Modal.prototype.show;
+    const originalHide = bootstrap.Modal.prototype.hide;
+    
+    // 重写show方法
+    bootstrap.Modal.prototype.show = function() {
+      if (this._element) {
+        // 确保在显示前移除aria-hidden
+        this._element.removeAttribute('aria-hidden');
+      }
+      // 调用原始方法
+      const result = originalShow.apply(this, arguments);
+      
+      // 显示后也确保移除
+      if (this._element) {
+        setTimeout(() => {
+          this._element.removeAttribute('aria-hidden');
+        }, 10);
+      }
+      
+      return result;
+    };
+    
+    // 重写hide方法
+    bootstrap.Modal.prototype.hide = function() {
+      if (this._element) {
+        // 在隐藏前确保移除aria-hidden
+        this._element.removeAttribute('aria-hidden');
+      }
+      
+      // 调用原始方法
+      return originalHide.apply(this, arguments);
+    };
+    
+    console.log('Bootstrap Modal方法已增强，以改进可访问性');
+  }
+});
+
 // 自定义模态框显示函数
 function showInfoModal(message) {
   console.log('尝试显示信息模态框:', message); // 调试日志
@@ -30,8 +70,19 @@ function showInfoModal(message) {
     
     const modalElement = document.getElementById('infoModal');
     
-    // 确保移除模态框上的aria-hidden属性
-    modalElement.removeAttribute('aria-hidden');
+    // 使用MutationObserver监控模态框属性变化，防止Bootstrap添加aria-hidden
+    const observer = new MutationObserver(function(mutations) {
+      mutations.forEach(function(mutation) {
+        if (mutation.type === 'attributes' && mutation.attributeName === 'aria-hidden') {
+          if (modalElement.getAttribute('aria-hidden') === 'true') {
+            modalElement.removeAttribute('aria-hidden');
+          }
+        }
+      });
+    });
+    
+    // 开始观察模态框的属性变化
+    observer.observe(modalElement, { attributes: true });
     
     // 创建新的模态框实例
     const infoModal = new bootstrap.Modal(modalElement, {
@@ -40,13 +91,14 @@ function showInfoModal(message) {
       focus: true
     });
     
-    // 监听模态框隐藏事件，以确保aria-hidden属性被正确处理
+    // 显示模态框前，先确保没有aria-hidden属性
+    modalElement.removeAttribute('aria-hidden');
+    
+    // 监听模态框隐藏事件，停止观察并清理
     modalElement.addEventListener('hidden.bs.modal', function() {
-      // 在模态框隐藏后移除aria-hidden属性
-      setTimeout(() => {
-        modalElement.removeAttribute('aria-hidden');
-      }, 50);
-    }, { once: false });
+      observer.disconnect(); // 停止观察
+      modalElement.removeAttribute('aria-hidden'); // 再次确保移除
+    }, { once: true });
     
     infoModal.show();
   } catch (error) {
@@ -124,8 +176,19 @@ function showErrorModal(message) {
     
     const modalElement = document.getElementById('errorModal');
     
-    // 确保移除模态框上的aria-hidden属性
-    modalElement.removeAttribute('aria-hidden');
+    // 使用MutationObserver监控模态框属性变化，防止Bootstrap添加aria-hidden
+    const observer = new MutationObserver(function(mutations) {
+      mutations.forEach(function(mutation) {
+        if (mutation.type === 'attributes' && mutation.attributeName === 'aria-hidden') {
+          if (modalElement.getAttribute('aria-hidden') === 'true') {
+            modalElement.removeAttribute('aria-hidden');
+          }
+        }
+      });
+    });
+    
+    // 开始观察模态框的属性变化
+    observer.observe(modalElement, { attributes: true });
     
     // 创建新的模态框实例
     const errorModal = new bootstrap.Modal(modalElement, {
@@ -134,13 +197,14 @@ function showErrorModal(message) {
       focus: true
     });
     
-    // 监听模态框隐藏事件，以确保aria-hidden属性被正确处理
+    // 显示模态框前，先确保没有aria-hidden属性
+    modalElement.removeAttribute('aria-hidden');
+    
+    // 监听模态框隐藏事件，停止观察并清理
     modalElement.addEventListener('hidden.bs.modal', function() {
-      // 在模态框隐藏后移除aria-hidden属性
-      setTimeout(() => {
-        modalElement.removeAttribute('aria-hidden');
-      }, 50);
-    }, { once: false });
+      observer.disconnect(); // 停止观察
+      modalElement.removeAttribute('aria-hidden'); // 再次确保移除
+    }, { once: true });
     
     errorModal.show();
   } catch (error) {

@@ -11,6 +11,21 @@
   <link rel="stylesheet" href="css/base.css">
   <link rel="stylesheet" href="css/components.css">
   <link rel="stylesheet" href="css/subscription.css">
+  <!-- Polyfill for inert attribute support in older browsers -->
+  <script>
+  // inert polyfill 
+  "inert" in HTMLElement.prototype || (Object.defineProperty(HTMLElement.prototype, "inert", {
+    enumerable: true,
+    get: function() { return this.hasAttribute("inert"); },
+    set: function(value) {
+      if (value) {
+        this.setAttribute("inert", "");
+      } else {
+        this.removeAttribute("inert");
+      }
+    }
+  }));
+  </script>
 </head>
 <body>
   <div class="container">
