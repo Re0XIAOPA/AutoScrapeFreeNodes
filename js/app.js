@@ -11,36 +11,68 @@ const API_BASE_URL = ENV_CONFIG.API_BASE_URL;
 function showInfoModal(message) {
   const infoModalText = document.getElementById('infoModalText');
   infoModalText.textContent = message;
-  const infoModalEl = document.getElementById('infoModal');
   
-  // 确保模态框正确创建
-  if (!bootstrap.Modal.getInstance(infoModalEl)) {
-    const infoModal = new bootstrap.Modal(infoModalEl, {
-      backdrop: 'static', // 防止点击背景关闭模态框
-      keyboard: true,
-      focus: true
-    });
+  console.log('显示信息模态框:', message); // 调试日志
+  
+  try {
+    // 尝试使用Bootstrap的模态框
+    const infoModal = new bootstrap.Modal(document.getElementById('infoModal'));
     infoModal.show();
-  } else {
-    bootstrap.Modal.getInstance(infoModalEl).show();
+  } catch (error) {
+    console.error('模态框显示失败:', error);
+    
+    // 尝试直接设置模态框的显示属性
+    try {
+      const modalElement = document.getElementById('infoModal');
+      modalElement.classList.add('show');
+      modalElement.style.display = 'block';
+      document.body.classList.add('modal-open');
+      
+      // 添加背景遮罩
+      if (document.getElementsByClassName('modal-backdrop').length === 0) {
+        const backdrop = document.createElement('div');
+        backdrop.className = 'modal-backdrop fade show';
+        document.body.appendChild(backdrop);
+      }
+    } catch (innerError) {
+      console.error('直接设置模态框也失败:', innerError);
+      // 如果实在不行，使用alert作为最后的备选方案
+      alert(message);
+    }
   }
 }
 
 function showErrorModal(message) {
   const errorModalText = document.getElementById('errorModalText');
   errorModalText.textContent = message;
-  const errorModalEl = document.getElementById('errorModal');
   
-  // 确保模态框正确创建
-  if (!bootstrap.Modal.getInstance(errorModalEl)) {
-    const errorModal = new bootstrap.Modal(errorModalEl, {
-      backdrop: 'static', // 防止点击背景关闭模态框
-      keyboard: true,
-      focus: true
-    });
+  console.log('显示错误模态框:', message); // 调试日志
+  
+  try {
+    // 尝试使用Bootstrap的模态框
+    const errorModal = new bootstrap.Modal(document.getElementById('errorModal'));
     errorModal.show();
-  } else {
-    bootstrap.Modal.getInstance(errorModalEl).show();
+  } catch (error) {
+    console.error('模态框显示失败:', error);
+    
+    // 尝试直接设置模态框的显示属性
+    try {
+      const modalElement = document.getElementById('errorModal');
+      modalElement.classList.add('show');
+      modalElement.style.display = 'block';
+      document.body.classList.add('modal-open');
+      
+      // 添加背景遮罩
+      if (document.getElementsByClassName('modal-backdrop').length === 0) {
+        const backdrop = document.createElement('div');
+        backdrop.className = 'modal-backdrop fade show';
+        document.body.appendChild(backdrop);
+      }
+    } catch (innerError) {
+      console.error('直接设置模态框也失败:', innerError);
+      // 如果实在不行，使用alert作为最后的备选方案
+      alert(message);
+    }
   }
 }
 
@@ -108,8 +140,23 @@ document.addEventListener('DOMContentLoaded', function() {
     refreshBtn.innerHTML = `<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> 刷新中...`;
     
     try {
+      // 检查是否在GitHub Pages环境
+      const isGitHubPages = window.location.hostname.includes('github.io');
+      
       // 首先尝试通过fetch获取数据（适用于服务器环境）
       if (window.location.protocol.includes('http')) {
+        if (isGitHubPages) {
+          // GitHub Pages静态环境，显示提示信息
+          setTimeout(() => {
+            console.log('GitHub Pages环境，显示静态提示');
+            showInfoModal('GitHub Pages是静态部署环境，无法实时刷新数据。数据会在每天的定时构建中自动更新。');
+            refreshBtn.disabled = false;
+            refreshBtn.innerHTML = '<i class="bi bi-arrow-repeat me-1"></i> 刷新数据';
+          }, 1000);
+          return;
+        }
+        
+        // 正常服务器环境
         fetch(`${API_BASE_URL}/api/refresh/index.json`, {
           method: 'GET'
         })
