@@ -1,7 +1,7 @@
 /* 基础样式 */
 body {
   font-family: 'Noto Sans SC', -apple-system, BlinkMacSystemFont, "Segoe UI", "Microsoft YaHei", sans-serif;
-  background-color: #f8f9fd;
+  background-color: #f8f9fa;
   color: #333;
   line-height: 1.6;
   min-height: 100vh;
@@ -39,7 +39,7 @@ body {
 .loading .spinner-border {
   width: 3rem;
   height: 3rem;
-  color: #4361ee;
+  color: #4c6ef5;
 }
 
 /* 时间戳样式 */
@@ -50,39 +50,39 @@ body {
 
 /* 按钮美化 */
 .btn-primary {
-  background-color: #4361ee;
+  background-color: #4c6ef5;
   border: none;
-  box-shadow: 0 2px 5px rgba(67, 97, 238, 0.3);
+  box-shadow: 0 2px 5px rgba(76, 110, 245, 0.3);
   transition: all 0.3s ease;
 }
 
 .btn-primary:hover {
-  background-color: #3a0ca3;
-  box-shadow: 0 4px 8px rgba(67, 97, 238, 0.4);
+  background-color: #3b5bdb;
+  box-shadow: 0 4px 8px rgba(76, 110, 245, 0.4);
   transform: translateY(-2px);
 }
 
 .btn-outline-primary {
-  color: #4361ee;
-  border-color: #4361ee;
+  color: #4c6ef5;
+  border-color: #4c6ef5;
   transition: all 0.3s ease;
 }
 
 .btn-outline-primary:hover, .btn-outline-primary.active {
-  background-color: #4361ee;
-  border-color: #4361ee;
+  background-color: #4c6ef5;
+  border-color: #4c6ef5;
   transform: translateY(-2px);
 }
 
 .btn-outline-success {
-  color: #38b000;
-  border-color: #38b000;
+  color: #40c057;
+  border-color: #40c057;
   transition: all 0.3s ease;
 }
 
 .btn-outline-success:hover {
-  background-color: #38b000;
-  border-color: #38b000;
+  background-color: #40c057;
+  border-color: #40c057;
   transform: translateY(-2px);
 }
 

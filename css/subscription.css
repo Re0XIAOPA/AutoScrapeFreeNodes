@@ -5,7 +5,7 @@
   margin-bottom: 15px;
   border-radius: 8px;
   word-break: break-all;
-  border-left: 4px solid #4361ee;
+  border-left: 4px solid #4c6ef5;
   transition: all 0.3s ease;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
 }
@@ -52,7 +52,7 @@
 
 .subscription-item-simple:hover {
   background-color: #f8f9fa;
-  border-color: #4361ee;
+  border-color: #4c6ef5;
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.06);
   transform: translateY(-2px);
 }
@@ -94,7 +94,7 @@
 .detailed-item:hover {
   transform: translateY(-3px);
   box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
-  border-color: #4361ee;
+  border-color: #4c6ef5;
 }
 
 .detailed-item-header {
@@ -102,7 +102,7 @@
   background-color: #f8f9fa;
   border-bottom: 1px solid #eaeaea;
   font-weight: 500;
-  color: #4361ee;
+  color: #4c6ef5;
 }
 
 .detailed-item-body {
@@ -119,4 +119,31 @@
   display: flex;
   justify-content: space-between;
   margin-top: 10px;
+}
+
+/* 确保深色背景徽章内的图标和文本为白色 */
+.badge.bg-primary, 
+.badge.bg-success, 
+.badge.bg-danger, 
+.badge.bg-info, 
+.badge.bg-dark, 
+.badge.bg-secondary {
+  color: white !important;
+}
+
+.badge.bg-primary i, 
+.badge.bg-success i, 
+.badge.bg-danger i, 
+.badge.bg-info i, 
+.badge.bg-dark i, 
+.badge.bg-secondary i {
+  color: white !important;
+}
+
+.badge.bg-warning {
+  color: #212529 !important;
+}
+
+.badge.bg-warning i {
+  color: #212529 !important;
 }
