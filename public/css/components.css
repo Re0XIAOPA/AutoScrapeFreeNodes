@@ -1,6 +1,6 @@
 /* 页面标题 */
 .page-header {
-  background: linear-gradient(135deg, #4361ee, #3a0ca3);
+  background: #4c6ef5;
   color: white;
   padding: 30px 0;
   border-radius: 10px;
@@ -53,11 +53,10 @@
 .next-refresh {
   font-size: 0.95rem;
   color: #212529;
-  margin-top: 15px;
   background-color: rgba(255, 193, 7, 0.2); /* 警告黄色的透明版本 */
   display: inline-block;
-  padding: 5px 15px;
-  border-radius: 20px;
+  padding: 10px 15px;
+  border-radius: 10px;
   position: relative;
   z-index: 1;
   border: 1px solid rgba(255, 193, 7, 0.3);
@@ -102,7 +101,7 @@
 }
 
 .card-header {
-  background: linear-gradient(90deg, #4361ee, #3a0ca3);
+  background: #4c6ef5;
   color: white;
   border-radius: 16px 16px 0 0 !important;
   padding: 15px 20px;
@@ -153,8 +152,8 @@
   cursor: pointer;
   user-select: none;
   background: linear-gradient(90deg, #f8f9fa, #ffffff);
-  border-bottom: 2px solid #4361ee;
-  color: #4361ee;
+  border-bottom: 2px solid #4c6ef5;
+  color: #4c6ef5;
   padding: 15px 20px;
 }
 
@@ -162,8 +161,8 @@
 #stats-container {
   border-radius: 50px;
   padding: 5px 15px;
-  background-color: rgba(67, 97, 238, 0.1);
-  color: #4361ee;
+  background-color: rgba(76, 110, 245, 0.1);
+  color: #4c6ef5;
   font-weight: 500;
   margin-bottom: 25px;
   border: none;
@@ -206,14 +205,14 @@
 }
 
 .site-enabled {
-  color: #28a745;
-  background-color: rgba(40, 167, 69, 0.15);
+  color: #40c057;
+  background-color: rgba(64, 192, 87, 0.15);
   padding: 3px 8px;
   border-radius: 12px;
   font-size: 0.85rem;
   font-weight: bold;
   display: inline-block;
-  border: 1px solid rgba(40, 167, 69, 0.3);
+  border: 1px solid rgba(64, 192, 87, 0.3);
 }
 
 .site-enabled i {
@@ -310,7 +309,7 @@
 .custom-modal .modal-title {
   font-size: 1.4rem;
   font-weight: 600;
-  color: #4361ee;
+  color: #4c6ef5;
 }
 
 .custom-modal .btn-close {
@@ -366,19 +365,19 @@
 
 @keyframes pulse-animation {
   0% {
-    box-shadow: 0 0 0 0 rgba(67, 97, 238, 0.3);
+    box-shadow: 0 0 0 0 rgba(76, 110, 245, 0.3);
   }
   70% {
-    box-shadow: 0 0 0 15px rgba(67, 97, 238, 0);
+    box-shadow: 0 0 0 15px rgba(76, 110, 245, 0);
   }
   100% {
-    box-shadow: 0 0 0 0 rgba(67, 97, 238, 0);
+    box-shadow: 0 0 0 0 rgba(76, 110, 245, 0);
   }
 }
 
 /* 信息模态框样式 */
 #infoModal .icon-wrapper {
-  background-color: rgba(67, 97, 238, 0.1);
+  background-color: rgba(76, 110, 245, 0.1);
 }
 
 #infoModal .icon-wrapper::after {
@@ -387,18 +386,18 @@
 
 @keyframes info-pulse-animation {
   0% {
-    box-shadow: 0 0 0 0 rgba(67, 97, 238, 0.4);
+    box-shadow: 0 0 0 0 rgba(76, 110, 245, 0.4);
   }
   70% {
-    box-shadow: 0 0 0 15px rgba(67, 97, 238, 0);
+    box-shadow: 0 0 0 15px rgba(76, 110, 245, 0);
   }
   100% {
-    box-shadow: 0 0 0 0 rgba(67, 97, 238, 0);
+    box-shadow: 0 0 0 0 rgba(76, 110, 245, 0);
   }
 }
 
 #infoModal .icon-wrapper i {
-  color: #4361ee;
+  color: #4c6ef5;
   font-size: 3rem;
 }
 
@@ -413,21 +412,21 @@
 
 #infoModal .btn-primary {
   padding: 0.7rem 2.5rem;
-  background: #4361ee;
+  background: #4c6ef5;
   border: none;
   border-radius: 50px;
   font-weight: 500;
   font-size: 1rem;
   letter-spacing: 0.5px;
   transition: all 0.3s;
-  box-shadow: 0 4px 15px rgba(67, 97, 238, 0.3);
+  box-shadow: 0 4px 15px rgba(76, 110, 245, 0.3);
 }
 
 #infoModal .btn-primary:hover,
 #infoModal .btn-primary:focus {
-  background: #3a0ca3;
+  background: #3b5bdb;
   transform: translateY(-3px);
-  box-shadow: 0 8px 20px rgba(67, 97, 238, 0.4);
+  box-shadow: 0 8px 20px rgba(76, 110, 245, 0.4);
 }
 
 /* 错误模态框样式 */
@@ -584,4 +583,27 @@
 .btn-danger:hover {
   background-color: #dc3545;
   color: white;
+}
+
+/* 详细卡片样式 */
+.detailed-card-header {
+  background-color: #f8f9fa;
+  padding: 15px;
+  border-bottom: 1px solid #e9ecef;
+  font-weight: 600;
+}
+
+.detailed-card-header .badge i, 
+.section-title .badge i,
+.badge.bg-primary i,
+.badge.bg-success i,
+.badge.bg-secondary i,
+.badge.bg-info i,
+.badge.bg-dark i,
+.type-badge.bg-primary i,
+.type-badge.bg-success i,
+.type-badge.bg-secondary i,
+.type-badge.bg-info i,
+.type-badge.bg-dark i {
+  color: white !important;
 }

@@ -953,15 +953,6 @@ function updateStats(data) {
         <div>
           <span>找到 <strong>${getFilteredSubscriptions().length}</strong> 个匹配的订阅链接</span>
         </div>
-        <div class="mt-2 mt-md-0 filter-badges">
-          ${Object.entries(typeCounts)
-            .filter(([_, count]) => count > 0)
-            .map(([type, count]) => 
-              `<span class="badge bg-${getTypeColor(type)} me-1 mb-1">
-                <i class="${getTypeIcon(type)} me-1"></i>${type}: ${count}
-               </span>`
-            ).join('')}
-        </div>
       </div>
     `;
     
@@ -1065,7 +1056,7 @@ function renderNormalView() {
           <div class="d-flex justify-content-between align-items-center mb-3">
             <span class="type-badge bg-${typeColor} text-white">
               <i class="${typeIcon}"></i> ${subscription.type}
-              ${isCustom ? '<span class="ms-1 badge bg-warning">自定义</span>' : ''}
+              ${isCustom ? '<span class="ms-1 badge bg-warning text-dark">自定义</span>' : ''}
             </span>
             <div class="btn-group">
               <button class="btn btn-action btn-copy me-2" data-url="${subscription.url}">
@@ -1143,7 +1134,7 @@ function renderDetailedView() {
     html += `
       <div class="col-12 mb-4">
         <h5 class="section-title">
-          <span class="badge bg-${typeColor} me-2">
+          <span class="badge bg-${typeColor} text-white me-2">
             <i class="${typeIcon} me-1"></i> ${type}
           </span>
           订阅链接 (${subscriptions.length})
@@ -1162,7 +1153,7 @@ function renderDetailedView() {
           <div class="detailed-card ${isCustom ? 'local-subscription' : ''}">
             <div class="detailed-card-header d-flex justify-content-between align-items-center">
               <span><i class="${typeIcon} me-1"></i> ${type} 订阅</span>
-              ${isCustom ? '<span class="badge bg-warning">自定义</span>' : ''}
+              ${isCustom ? '<span class="badge bg-warning text-dark">自定义</span>' : ''}
             </div>
             <div class="detailed-card-body">
               <div class="subscription-url">${subscription.url}</div>
@@ -1249,22 +1240,7 @@ function updateFilterStats(filteredSubscriptions) {
   statsContainer.innerHTML = `
     <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center">
       <div>
-        <span>找到 <strong>${filteredSubscriptions.length}</strong> 个匹配的订阅链接</span>
-        ${localSubscriptions.length > 0 ? 
-          `<span class="badge bg-warning ms-2">包含 ${localSubscriptions.length} 个本地订阅</span>` : 
-          ''}
-        ${localFreeSubscriptions.length > 0 ? 
-          `<span class="badge bg-info ms-2">其中 ${localFreeSubscriptions.length} 个免费节点</span>` : 
-          ''}
-      </div>
-      <div class="mt-2 mt-md-0 filter-badges">
-        ${Object.entries(typeCounts)
-          .filter(([_, count]) => count > 0)
-          .map(([type, count]) => 
-            `<span class="badge bg-${getTypeColor(type)} me-1 mb-1">
-              <i class="${getTypeIcon(type)} me-1"></i>${type}: ${count}
-             </span>`
-          ).join('')}
+        <span>去重后找到 <strong>${filteredSubscriptions.length}</strong> 个匹配的订阅链接</span>
       </div>
     </div>
   `;
