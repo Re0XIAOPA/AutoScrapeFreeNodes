@@ -1,22 +1,22 @@
 {
   "url": "https://www.airportnode.com/",
   "siteName": "www.airportnode.com",
-  "scrapedAt": "2025-10-14T16:47:06.240Z",
+  "scrapedAt": "2025-10-15T04:40:18.492Z",
   "articles": [
     {
       "url": "https://www.airportnode.com/w/178.html",
-      "title": "10月14日更新，2025年最新免费节点",
-      "scrapedAt": "2025-10-14T16:47:06.240Z",
+      "title": "10月15日更新，2025年最新免费节点",
+      "scrapedAt": "2025-10-15T04:40:18.492Z",
       "subscriptionCount": 2,
       "subscriptions": [
         {
           "type": "Clash",
-          "url": "https://www.airportnode.com/stair/20251014-clash.yaml",
+          "url": "https://www.airportnode.com/stair/20251015-clash.yaml",
           "description": "Clash订阅链接"
         },
         {
           "type": "V2ray",
-          "url": "https://www.airportnode.com/stair/20251014-v2ray.txt",
+          "url": "https://www.airportnode.com/stair/20251015-v2ray.txt",
           "description": "V2ray订阅链接"
         }
       ]
