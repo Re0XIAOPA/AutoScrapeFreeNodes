@@ -1,0 +1,19 @@
+version: '3.8'
+
+services:
+  autoscrape:
+    build: .
+    container_name: autoscrape-free-nodes
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    environment:
+      - PORT=3000
+      - TZ=Asia/Shanghai
+    volumes:
+      - ./data:/app/data
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
