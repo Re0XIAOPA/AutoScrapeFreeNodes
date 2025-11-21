@@ -80,3 +80,25 @@ https://www.airportnode.com/category-1.html
 - 所有节点均来自互联网
 - 节点质量不做任何保证
 - 仅仅是个人学习和研究
+
+## Docker 部署
+
+### 使用 Docker Compose (推荐)
+
+1. 确保已安装 Docker 和 Docker Compose
+2. 在项目根目录下运行：
+```bash
+docker compose up -d
+```
+3. 访问 `http://localhost:3000`
+
+### 使用 Docker 构建
+
+1. 构建镜像：
+```bash
+docker build -t autoscrape-free-nodes .
+```
+2. 运行容器：
+```bash
+docker run -d -p 3000:3000 -v $(pwd)/data:/app/data --name autoscrape autoscrape-free-nodes
+```
