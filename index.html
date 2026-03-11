@@ -1,785 +1,335 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>AutoScrapeFreeNodes - 自动抓取免费订阅节点</title>
-  <link rel="icon" href="favicon.ico" type="image/x-icon">
-  <link rel="shortcut icon" href="favicon.ico" type="image/x-icon">
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
-  <!-- 添加Google字体 -->
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="css/base.css">
-  <link rel="stylesheet" href="css/components.css">
-  <link rel="stylesheet" href="css/subscription.css">
-  <!-- Polyfill for inert attribute support in older browsers -->
-  <script>
-  // inert polyfill 
-  "inert" in HTMLElement.prototype || (Object.defineProperty(HTMLElement.prototype, "inert", {
-    enumerable: true,
-    get: function() { return this.hasAttribute("inert"); },
-    set: function(value) {
-      if (value) {
-        this.setAttribute("inert", "");
-      } else {
-        this.removeAttribute("inert");
-      }
-    }
-  }));
-  </script>
-  <style>
-    :root {
-      --primary-color: #4c6ef5;
-      --secondary-color: #3b5bdb;
-      --success-color: #40c057;
-      --bg-gradient: #4c6ef5;
-      --card-shadow: 0 8px 30px rgba(0, 0, 0, 0.08);
-      --card-hover-shadow: 0 15px 60px rgba(76, 110, 245, 0.12);
-      --header-height: 64px;
-    }
-    
-    body {
-      font-family: 'Noto Sans SC', -apple-system, BlinkMacSystemFont, "Segoe UI", "Microsoft YaHei", sans-serif;
-      background-color: #f8f9fa;
-      color: #333;
-      line-height: 1.6;
-      min-height: 100vh;
-      display: flex;
-      flex-direction: column;
-    }
-    
-    .app-header {
-      background: var(--bg-gradient);
-      color: white;
-      padding: 0;
-      position: sticky;
-      top: 0;
-      z-index: 1030;
-      height: var(--header-height);
-      box-shadow: 0 2px 15px rgba(0, 0, 0, 0.1);
-    }
-    
-    .app-header .navbar {
-      height: 100%;
-    }
-    
-    .app-header .navbar-brand {
-      font-weight: 700;
-      font-size: 1.5rem;
-      display: flex;
-      align-items: center;
-      gap: 10px;
-    }
-    
-    .app-logo {
-      background-color: white;
-      color: var(--primary-color);
-      width: 36px;
-      height: 36px;
-      border-radius: 10px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 1.2rem;
-      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-    }
-    
-    .main-container {
-      flex: 1;
-      padding: 2rem 0;
-    }
-    
-    .stat-card {
-      background: white;
-      border-radius: 16px;
-      padding: 1.5rem;
-      margin-bottom: 1.5rem;
-      box-shadow: var(--card-shadow);
-      transition: all 0.3s ease;
-      border: none;
-      height: 100%;
-    }
-    
-    .stat-card:hover {
-      transform: translateY(-5px);
-      box-shadow: var(--card-hover-shadow);
-    }
-    
-    .stat-icon {
-      width: 55px;
-      height: 55px;
-      border-radius: 50%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 1.5rem;
-      margin-bottom: 1rem;
-    }
-    
-    .stat-icon.primary {
-      background: rgba(76, 110, 245, 0.1);
-      color: var(--primary-color);
-    }
-    
-    .stat-icon.success {
-      background: rgba(64, 192, 87, 0.1);
-      color: var(--success-color);
-    }
-    
-    .stat-icon.warning {
-      background: rgba(255, 193, 7, 0.1);
-      color: #ffc107;
-    }
-    
-    .stat-icon.info {
-      background: rgba(13, 202, 240, 0.1);
-      color: #0dcaf0;
-    }
-    
-    .stat-value {
-      font-size: 2rem;
-      font-weight: 700;
-      margin-bottom: 0.5rem;
-      color: #212529;
-    }
-    
-    .stat-label {
-      color: #6c757d;
-      font-size: 0.9rem;
-    }
-    
-    .action-bar {
-      background-color: white;
-      border-radius: 16px;
-      padding: 1.5rem;
-      margin-bottom: 1.5rem;
-      box-shadow: var(--card-shadow);
-    }
-    
-    .type-badge {
-      padding: 5px 12px;
-      border-radius: 10px;
-      font-weight: 500;
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      font-size: 0.85rem;
-    }
-    
-    .subscription-card {
-      background: white;
-      border-radius: 12px;
-      box-shadow: var(--card-shadow);
-      padding: 1.25rem;
-      margin-bottom: 1.25rem;
-      transition: all 0.3s ease;
-      border-left: 4px solid var(--primary-color);
-    }
-    
-    .subscription-card:hover {
-      transform: translateY(-5px);
-      box-shadow: var(--card-hover-shadow);
-    }
-    
-    .btn-action {
-      border-radius: 10px;
-      padding: 8px 16px;
-      font-weight: 500;
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-    }
-    
-    .btn-copy {
-      background-color: rgba(76, 110, 245, 0.1);
-      color: var(--primary-color);
-      border: none;
-      transition: all 0.3s ease;
-    }
-    
-    .btn-copy:hover {
-      background-color: var(--primary-color);
-      color: white;
-    }
-    
-    .btn-open {
-      background-color: rgba(64, 192, 87, 0.1);
-      color: var(--success-color);
-      border: none;
-      transition: all 0.3s ease;
-    }
-    
-    .btn-open:hover {
-      background-color: var(--success-color);
-      color: white;
-    }
-    
-    .search-bar {
-      position: relative;
-    }
-    
-    .search-bar .form-control {
-      border-radius: 10px;
-      padding: 12px 20px;
-      padding-left: 45px;
-      border: 1px solid #e0e0e0;
-      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
-    }
-    
-    .search-bar .search-icon {
-      position: absolute;
-      left: 15px;
-      top: 50%;
-      transform: translateY(-50%);
-      color: #6c757d;
-    }
-    
-    .update-time {
-      background-color: rgba(255, 193, 7, 0.1);
-      color: #212529;
-      padding: 8px 16px;
-      border-radius: 50px;
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      font-size: 0.9rem;
-      font-weight: 500;
-    }
-    
-    .update-time.outdated {
-      background-color: rgba(220, 53, 69, 0.1);
-      color: #dc3545;
-    }
-    
-    .update-time i {
-      font-size: 1rem;
-    }
-    
-    .refresh-btn {
-      border-radius: 10px;
-      height: 48px;
-      font-weight: 500;
-      box-shadow: 0 4px 10px rgba(76, 110, 245, 0.2);
-    }
-    
-    .filter-dropdown {
-      border-radius: 10px;
-      height: 48px;
-    }
-    
-    .filter-dropdown .form-select {
-      border-radius: 10px;
-      height: 48px;
-      padding-left: 16px;
-      border: 1px solid #e0e0e0;
-      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
-    }
-    
-    .section-title {
-      font-size: 1.3rem;
-      font-weight: 700;
-      margin-bottom: 1.5rem;
-      display: flex;
-      align-items: center;
-      gap: 10px;
-    }
-    
-    .section-title i {
-      color: var(--primary-color);
-    }
-    
-    .view-toggle .btn-outline-primary {
-      border-radius: 10px;
-      font-weight: 500;
-    }
-    
-    .detailed-card {
-      background: white;
-      border-radius: 12px;
-      box-shadow: var(--card-shadow);
-      overflow: hidden;
-      transition: all 0.3s ease;
-      height: 100%;
-      display: flex;
-      flex-direction: column;
-    }
-    
-    .detailed-card:hover {
-      transform: translateY(-5px);
-      box-shadow: var(--card-hover-shadow);
-    }
-    
-    .detailed-card-header {
-      background-color: #f8f9fa;
-      padding: 15px;
-      border-bottom: 1px solid #e9ecef;
-      font-weight: 600;
-    }
-    
-    .detailed-card-body {
-      padding: 15px;
-      flex: 1;
-    }
-    
-    .detailed-card-footer {
-      padding: 15px;
-      border-top: 1px solid #e9ecef;
-      background-color: #f8f9fa;
-    }
-    
-    .subscription-url {
-      font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
-      background-color: #f8f9fa;
-      padding: 10px;
-      border-radius: 6px;
-      font-size: 0.85rem;
-      word-break: break-all;
-      margin-bottom: 15px;
-    }
-    
-    .footer {
-      background: white;
-      border-top: 1px solid #e9ecef;
-      padding: 2rem 0;
-      margin-top: 3rem;
-    }
-    
-    .footer p {
-      margin-bottom: 0;
-      color: #6c757d;
-    }
-    
-    /* Custom skeleton loading animation */
-    @keyframes skeleton-loading {
-      0% {
-        background-position: -200px 0;
-      }
-      100% {
-        background-position: calc(200px + 100%) 0;
-      }
-    }
-    
-    .skeleton {
-      animation: skeleton-loading 1.5s ease-in-out infinite;
-      background-color: #eee;
-      background-image: linear-gradient(90deg, #eee, #f5f5f5, #eee);
-      background-size: 200px 100%;
-      background-repeat: no-repeat;
-      border-radius: 4px;
-      display: inline-block;
-      height: 16px;
-      width: 100%;
-    }
-    
-    .skeleton.title {
-      height: 24px;
-      margin-bottom: 15px;
-      width: 60%;
-    }
-    
-    .skeleton.button {
-      height: 36px;
-      width: 100px;
-      border-radius: 10px;
-    }
-    
-    .skeleton.card {
-      height: 150px;
-      border-radius: 12px;
-      margin-bottom: 15px;
-    }
-    
-    /* 响应式调整 */
-    @media (max-width: 768px) {
-      .app-header {
-        height: auto;
-      }
-      
-      .stat-card {
-        margin-bottom: 1rem;
-      }
-      
-      .action-bar {
-        padding: 1rem;
-      }
-      
-      .search-bar .form-control,
-      .filter-dropdown .form-select,
-      .refresh-btn {
-        height: 42px;
-      }
-    }
-    
-    .next-refresh {
-      background-color: rgba(255, 193, 7, 0.15);
-      color: #212529;
-      padding: 12px 16px;
-      border-radius: 10px;
-      display: flex;
-      align-items: center;
-      width: 100%;
-      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
-    }
-    
-    .next-refresh strong {
-      font-weight: 600;
-      margin: 0 3px;
-    }
-    
-    /* 确保徽章里的图标颜色正确 */
-    .badge[class*="bg-"] i {
-      color: inherit !important;
-    }
-    
-    .badge.bg-primary, .badge.bg-success, .badge.bg-secondary, 
-    .badge.bg-info, .badge.bg-dark, .badge.bg-danger {
-      color: white !important;
-    }
-    
-    .badge.bg-warning, .badge.bg-light {
-      color: #212529 !important;
-    }
-    
-    /* 返回顶部按钮样式 */
-    #back-to-top {
-      position: fixed;
-      bottom: 30px;
-      right: 30px;
-      z-index: 99;
-      width: 50px;
-      height: 50px;
-      border-radius: 50%;
-      background: var(--primary-color);
-      color: white;
-      border: none;
-      outline: none;
-      cursor: pointer;
-      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 1.5rem;
-      opacity: 0;
-      visibility: hidden;
-      transition: all 0.3s ease;
-    }
-    
-    #back-to-top.visible {
-      opacity: 1;
-      visibility: visible;
-    }
-    
-    #back-to-top:hover {
-      background: var(--secondary-color);
-      transform: translateY(-3px);
-      box-shadow: 0 6px 20px rgba(76, 110, 245, 0.3);
-    }
-    
-    #back-to-top:active {
-      transform: translateY(0);
-    }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AutoScrape - Next Gen Node Scraper</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
+    <style>
+        :root {
+            --trae-bg: #000000;
+            --trae-green: #1dff91;
+            --trae-border: #262626;
+            --trae-text-main: #ffffff;
+            --trae-text-sub: #b0b0b0;
+        }
+
+        /* 基础样式重置 */
+        * { border-radius: 0 !important; transition: 0.2s cubic-bezier(0.4, 0, 0.2, 1); }
+        body {
+            background-color: var(--trae-bg);
+            color: var(--trae-text-main);
+            font-family: 'Inter', -apple-system, sans-serif;
+            background-image: linear-gradient(var(--trae-border) 1px, transparent 1px),
+                              linear-gradient(90deg, var(--trae-border) 1px, transparent 1px);
+            background-size: 45px 45px;
+            overflow-x: hidden;
+        }
+
+        /* 导航栏 */
+        .trae-nav { padding: 25px 0; border-bottom: 1px solid var(--trae-border); background: transparent; }
+        .navbar-brand { font-weight: 800; font-size: 1.5rem; cursor: pointer; color: #fff; text-decoration: none; }
+        .logo-scrape { color: var(--trae-green); }
+        .navbar-brand:hover { color: var(--trae-green); }
+        .navbar-brand:hover .logo-scrape { color: #fff; }
+
+        .nav-link-custom { color: var(--trae-text-sub); text-decoration: none; cursor: pointer; font-weight: 500; font-size: 0.95rem; }
+        .nav-link-custom:hover, .nav-link-custom.active { color: var(--trae-green) !important; }
+
+        /* 页面切换 */
+        .page-section { display: none; }
+        .page-active { display: block; }
+
+        /* 首页 Hero */
+        .hero-section { padding: 120px 0; text-align: center; }
+        .hero-tag { color: var(--trae-green); font-family: monospace; letter-spacing: 2px; margin-bottom: 20px; font-weight: bold; }
+        .hero-title { font-size: clamp(2.5rem, 8vw, 4.5rem); font-weight: 900; line-height: 1.1; margin-bottom: 30px; }
+
+        /* 统计与控制面板 */
+        .stat-grid { display: flex; border: 1px solid var(--trae-border); background: var(--trae-border); gap: 1px; margin-bottom: 40px; }
+        .stat-box { flex: 1; background: #0a0a0a; padding: 30px; text-align: center; }
+        .stat-val { font-size: 2.5rem; font-weight: 800; color: var(--trae-green); font-family: 'Consolas', monospace; }
+
+        .control-panel { background: #0a0a0a; border: 1px solid var(--trae-border); padding: 20px; display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; }
+
+        /* 下拉菜单定制 */
+        .filter-wrapper { position: relative; }
+        .trae-select { 
+            appearance: none; background: #000; color: #fff; border: 1px solid var(--trae-border); 
+            padding: 8px 40px 8px 15px; cursor: pointer; outline: none; min-width: 180px;
+        }
+        .trae-select:hover { border-color: var(--trae-green); }
+        .filter-wrapper::after {
+            content: "\F229"; font-family: "bootstrap-icons"; position: absolute; right: 12px; top: 50%; 
+            transform: translateY(-50%); color: var(--trae-green); pointer-events: none;
+        }
+
+        /* 订阅卡片 - 深度美化 */
+        .subscription-card { 
+            background: #0a0a0a; border: 1px solid var(--trae-border); padding: 25px; 
+            height: 100%; position: relative; 
+        }
+        .subscription-card:hover { border-color: var(--trae-green); }
+        
+        .type-badge { 
+            border: 1px solid var(--trae-green); color: var(--trae-green); 
+            padding: 2px 10px; font-size: 0.75rem; font-weight: 800; text-transform: uppercase;
+        }
+        
+        .subscription-url {
+            background: #000; border: 1px solid var(--trae-border); color: #666;
+            padding: 10px; font-family: 'Consolas', monospace; font-size: 0.8rem;
+            margin: 15px 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+        }
+        
+        .site-label { color: #ddd !important; font-size: 0.85rem; font-weight: 500; }
+        .site-source-info { color: #888; font-size: 0.75rem; display: flex; align-items: center; gap: 5px; }
+
+        /* 按钮 Hover 绿色修复 */
+        .btn-action-group { display: flex; gap: 1px; background: var(--trae-border); border: 1px solid var(--trae-border); }
+        .btn-action { 
+            background: transparent; color: #ccc; border: 1px solid var(--trae-border); 
+            padding: 10px; font-size: 0.85rem; text-decoration: none; display: flex; align-items: center; justify-content: center; gap: 8px; flex: 1;
+        }
+        .btn-action:hover { color: var(--trae-green) !important; border-color: var(--trae-green) !important; background: rgba(29, 255, 145, 0.05); }
+
+        /* 提高文字可读性 */
+        .text-muted { color: #999 !important; }
+        .text-secondary { color: #aaa !important; }
+
+        /* 浮层 */
+        .overlay-full { position: fixed; inset: 0; background: #000; z-index: 2000; padding: 100px 0; display: none; overflow-y: auto; }
+        .btn-close-overlay { position: fixed; top: 30px; right: 30px; font-size: 2.5rem; color: #444; cursor: pointer; z-index: 2001; }
+        .btn-close-overlay:hover { color: var(--trae-green); transform: rotate(90deg); }
+
+        /* 订阅URL样式 */
+        .subscription-url { font-size: 1.1rem; font-weight: 500; color: #fff; }
+        .subscription-url:hover { color: var(--trae-green); transition: color 0.3s ease; }
+
+        /* 站点状态样式 */
+        .site-status-list { display: flex; flex-direction: column; gap: 10px; }
+        .site-status-item { display: flex; justify-content: space-between; align-items: center; padding: 10px; border-bottom: 1px solid var(--trae-border); }
+        .site-status.online { color: var(--trae-green); font-weight: bold; }
+        .site-status.offline { color: #ff4444; font-weight: bold; }
+
+        /* 加载动画 */
+        .loading-overlay {
+            position: fixed; inset: 0; background: rgba(0,0,0,0.95);
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            z-index: 9999; display: none;
+        }
+        .trae-loader { width: 45px; height: 45px; border: 3px solid rgba(29, 255, 145, 0.1); border-top: 3px solid var(--trae-green); border-radius: 50% !important; animation: spin 0.8s linear infinite; }
+        @keyframes spin { 100% { transform: rotate(360deg); } }
+
+        footer { border-top: 1px solid var(--trae-border); padding: 60px 0; margin-top: 80px; text-align: center; }
+        .footer-link { color: #555; text-decoration: none; cursor: pointer; margin: 0 15px; font-size: 0.9rem; }
+        .footer-link:hover { color: var(--trae-green); }
+
+        @media (max-width: 768px) { .stat-grid { flex-wrap: wrap; } .stat-box { width: 50%; flex: none; } }
+    </style>
 </head>
 <body>
-  <!-- 页面头部 -->
-  <header class="app-header">
-    <nav class="navbar navbar-expand-lg navbar-dark">
-      <div class="container">
-        <a class="navbar-brand" href="#">
-          <div class="app-logo"><i class="bi bi-globe"></i></div>
-          AutoScrapeFreeNodes
-        </a>
-        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
-          <span class="navbar-toggler-icon"></span>
+
+<div id="loader" class="loading-overlay"><div class="trae-loader"></div></div>
+
+<nav class="trae-nav">
+    <div class="container d-flex justify-content-between align-items-center">
+        <div class="navbar-brand" onclick="switchPage('home')">
+            AUTO<span class="logo-scrape">SCRAPE</span>
+        </div>
+        <div class="d-flex gap-4">
+            <span id="nav-dashboard" class="nav-link-custom" onclick="switchPage('dashboard')">工作台</span>
+            <span class="nav-link-custom" onclick="openOverlay('overlay-about')">关于项目</span>
+            <a href="https://github.com/Re0XIAOPA/AutoScrapeFreeNodes" target="_blank" class="nav-link-custom text-decoration-none"><i class="bi bi-github"></i> GitHub</a>
+        </div>
+    </div>
+</nav>
+
+<div id="page-home" class="page-section page-active">
+    <div class="container hero-section">
+        <div class="hero-tag">DISTRIBUTED SCRAPING SYSTEM</div>
+        <h1 class="hero-title">
+            <span>采集免费节点</span>
+            <span class="logo-scrape">从未如此简单</span>
+        </h1>
+        <p class="text-secondary fs-5 mb-5 mx-auto" style="max-width: 650px;">
+            基于 BlockTavern 技术栈构建的自动化数据流转系统。<br>
+            结合 GitHub Actions 高效同步，为社区提供实时、可靠的订阅分发服务。
+        </p>
+        <button class="btn px-5 py-3" style="background:var(--trae-green); color:#000; font-weight:800;" onclick="switchPage('dashboard')">
+            进入控制台 <i class="bi bi-arrow-right ms-2"></i>
         </button>
-        <div class="collapse navbar-collapse" id="navbarNav">
-          <ul class="navbar-nav ms-auto">
-            <li class="nav-item">
-              <a class="nav-link" href="https://github.com/Re0XIAOPA/AutoScrapeFreeNodes"><i class="bi bi-github me-1"></i> Github</a>
-            </li>
-            <li class="nav-item">
-              <a class="nav-link" href="#" data-bs-toggle="modal" data-bs-target="#aboutModal">
-                <i class="bi bi-info-circle me-1"></i> 关于
-              </a>
-            </li>
-          </ul>
-        </div>
-      </div>
-    </nav>
-  </header>
+    </div>
+</div>
 
-  <!-- 主要内容区域 -->
-  <main class="main-container">
-    <div class="container">
-      <!-- 统计卡片区域 -->
-      <div class="row mb-4">
-        <div class="col-md-3 col-sm-6 mb-3 mb-md-0">
-          <div class="stat-card">
-            <div class="stat-icon primary">
-              <i class="bi bi-link-45deg"></i>
+<div id="page-dashboard" class="page-section">
+    <div class="container mt-5">
+        <div class="stat-grid">
+            <div class="stat-box"><div class="stat-val" id="total-nodes">0</div><div class="text-secondary small">总计节点</div></div>
+            <div class="stat-box"><div class="stat-val" id="total-sources">0</div><div class="text-secondary small">活跃源站</div></div>
+            <div class="stat-box"><div class="stat-val">24h</div><div class="text-secondary small">同步频率</div></div>
+            <div class="stat-box">
+                <div class="text-secondary small mb-1"><i class="bi bi-clock"></i> 下次更新</div>
+                <div id="next-update-time" class="text-white small">计算中...</div>
             </div>
-            <div class="stat-value" id="total-nodes">-</div>
-            <div class="stat-label">总订阅数</div>
-          </div>
         </div>
-        <div class="col-md-3 col-sm-6 mb-3 mb-md-0">
-          <div class="stat-card">
-            <div class="stat-icon success">
-              <i class="bi bi-globe"></i>
-            </div>
-            <div class="stat-value" id="total-sites">-</div>
-            <div class="stat-label">抓取站点数</div>
-          </div>
-        </div>
-        <div class="col-md-3 col-sm-6 mb-3 mb-md-0">
-          <div class="stat-card">
-            <div class="stat-icon warning">
-              <i class="bi bi-clock-history"></i>
-            </div>
-            <div class="stat-value" id="update-interval">-</div>
-            <div class="stat-label">更新频率</div>
-          </div>
-        </div>
-        <div class="col-md-3 col-sm-6">
-          <div class="stat-card">
-            <div class="stat-icon info">
-              <i class="bi bi-calendar-check"></i>
-            </div>
-            <div class="update-time" id="last-updated">
-              <i class="bi bi-clock"></i> 正在加载...
-            </div>
-            <div class="stat-label">最后更新时间</div>
-          </div>
-        </div>
-      </div>
 
-      <!-- 操作控制区域 -->
-      <div class="action-bar mb-4">
-        <div class="row align-items-center">
-          <div class="col-lg-5 mb-3 mb-lg-0">
-            <div class="next-refresh update-time" id="next-refresh-time">
-              <i class="bi bi-clock"></i> 下次更新: 计算中...
+        <div class="control-panel">
+            <div class="d-flex align-items-center gap-3">
+                <span class="text-secondary small">协议筛选:</span>
+                <div class="filter-wrapper">
+                    <select id="type-filter" class="trae-select">
+                        <option value="all">所有协议</option>
+                        <option value="Clash">Clash</option>
+                        <option value="V2ray">V2ray</option>
+                        <option value="Sing-Box">Sing-Box</option>
+                        <option value="Shadowrocket">Shadowrocket</option>
+                        <option value="Quantumult">Quantumult</option>
+                        <option value="General">通用 (General)</option>
+                    </select>
+                </div>
             </div>
-          </div>
-          <div class="col-lg-2 mb-3 mb-lg-0">
-            <div class="filter-dropdown">
-              <select id="type-filter" class="form-select">
-                <option value="all">所有类型</option>
-                <option value="Clash">Clash</option>
-                <option value="V2ray">V2ray</option>
-                <option value="Sing-Box">Sing-Box</option>
-                <option value="Shadowrocket">Shadowrocket</option>
-                <option value="Quantumult">Quantumult</option>
-                <option value="通用">通用</option>
-              </select>
-            </div>
-          </div>
-          <div class="col-lg-2 mb-3 mb-lg-0">
-            <div class="view-toggle">
-              <div class="btn-group w-100" role="group">
-                <button type="button" class="btn btn-outline-primary active" id="normal-view">
-                  <i class="bi bi-list"></i> 简洁
-                </button>
-                <button type="button" class="btn btn-outline-primary" id="detailed-view">
-                  <i class="bi bi-grid"></i> 详细
-                </button>
-              </div>
-            </div>
-          </div>
-          <div class="col-lg-3 mb-3 mb-lg-0">
-            <button id="refresh-btn" class="btn btn-primary w-100 refresh-btn">
-              <i class="bi bi-arrow-repeat me-1"></i> 刷新数据
+            <button id="refresh-btn" class="btn" style="background:var(--trae-green); color:#000; font-weight:700;">
+                <i class="bi bi-arrow-repeat me-1"></i> 刷新数据
             </button>
-          </div>
         </div>
-      </div>
-
-      <!-- 站点配置摘要 -->
-      <div class="action-bar mb-4">
-        <div class="row">
-          <div class="col-md-12 mb-3">
-            <div class="d-flex justify-content-between align-items-center">
-              <h5 class="section-title mb-0"><i class="bi bi-gear"></i> 配置信息</h5>
-              <button class="btn btn-outline-primary" data-bs-toggle="modal" data-bs-target="#configModal">
-                <i class="bi bi-sliders me-1"></i> 查看详细配置
-              </button>
+        <div id="subscriptions-container" class="row g-4">
+            <div class="col-lg-6">
+                <div class="subscription-card">
+                    <div class="d-flex justify-content-between align-items-start mb-2">
+                        <span class="type-badge">Clash</span>
+                        <div class="site-source-info"><i class="bi bi-globe2"></i> 示例站点</div>
+                    </div>
+                    <div class="site-label">来自 示例站点 的节点订阅</div>
+                    <div class="subscription-url">https://example.com/api/v1/subscribe?token=...</div>
+                    <div class="btn-action-group">
+                        <button class="btn-action btn-copy"><i class="bi bi-clipboard"></i> 复制</button>
+                        <a href="#" target="_blank" class="btn-action"><i class="bi bi-box-arrow-up-right"></i> 打开</a>
+                    </div>
+                </div>
             </div>
-          </div>
-          <div class="col-12">
-            <div class="site-list" id="site-list" style="max-height:200px; overflow-y:auto;">
-              <div class="text-center py-3">
-                <div class="spinner-border spinner-border-sm text-primary me-2" role="status"></div>
-                加载站点列表中...
-              </div>
-            </div>
-          </div>
         </div>
-      </div>
-      
-      <!-- 节点列表标题 -->
-      <div class="d-flex justify-content-between align-items-center mb-3">
-        <h5 class="section-title mb-0"><i class="bi bi-diagram-3"></i> 订阅节点</h5>
-        <div id="stats-container" class="alert alert-primary mb-0 py-1 px-3">
-          <div class="spinner-border spinner-border-sm text-primary me-2" role="status"></div>
-          加载中...
-        </div>
-      </div>
-
-      <!-- 节点列表内容 -->
-      <div id="subscriptions-container" class="row">
-        <div class="col-12 text-center py-5">
-          <div class="spinner-border text-primary" style="width: 3rem; height: 3rem;" role="status"></div>
-          <div class="mt-3">正在加载订阅数据...</div>
-        </div>
-      </div>
     </div>
-  </main>
+</div>
 
-  <!-- 返回顶部按钮 -->
-  <button id="back-to-top" aria-label="返回顶部">
-    <i class="bi bi-arrow-up"></i>
-  </button>
-
-  <!-- 页脚 -->
-  <footer class="footer">
+<div id="overlay-about" class="overlay-full">
+    <span class="btn-close-overlay" onclick="closeOverlay()">&times;</span>
     <div class="container">
-      <div class="row">
-        <div class="col-md-6">
-          <p>© 2023-2025 AutoScrapeFreeNodes - 自动抓取免费订阅节点</p>
+        <h2 class="mb-5" style="color:var(--trae-green)">关于项目</h2>
+        <div class="row g-5">
+            <div class="col-md-7">
+                <p class="text-white fs-5">AutoScrape - 自动化节点订阅采集系统</p>
+                <p class="text-secondary">本项目旨在为用户提供一个便捷的节点订阅采集和管理平台。通过自动化技术，我们定期收集公开网络上的节点订阅链接，并进行整理和分类。</p>
+                <p class="text-secondary">项目采用现代化的前端技术栈，包括HTML5、CSS3和JavaScript，确保在各种设备上都能提供良好的用户体验。</p>
+                <p class="text-secondary text-warning mt-3">⚠️ 注意：本项目目前处于测试阶段，功能可能不稳定，数据可能存在误差。</p>
+            </div>
+            <div class="col-md-5">
+                <div class="border border-secondary p-4 bg-dark">
+                    <h6 class="text-white mb-4">技术特性</h6>
+                    <ul class="list-unstyled small text-secondary">
+                        <li class="mb-3">● 自动化采集：定期更新节点订阅</li>
+                        <li class="mb-3">● 多协议支持：Clash、V2ray、Sing-Box等</li>
+                        <li class="mb-3">● 本地处理：所有数据在浏览器本地处理</li>
+                        <li class="mb-3">● 开源免费：完全开源，免费使用</li>
+                    </ul>
+                </div>
+            </div>
         </div>
-        <div class="col-md-6 text-md-end">
-          <p>数据更新频率：<span id="footer-update-interval">加载中</span> | 站点数量：<span id="footer-site-count">加载中</span></p>
-        </div>
-      </div>
     </div>
-  </footer>
-
-  <!-- 关于模态框 -->
-  <div class="modal fade" id="aboutModal" tabindex="-1" aria-labelledby="aboutModalLabel">
-    <div class="modal-dialog modal-dialog-centered">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h5 class="modal-title" id="aboutModalLabel" style="color: #4c6ef5;">关于AutoScrapeFreeNodes</h5>
-          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="关闭"></button>
-        </div>
-        <div class="modal-body">
-          <h6 class="mb-3" style="color: #4c6ef5;">自动抓取免费订阅节点</h6>
-          <p>AutoScrapeFreeNodes是一个自动从互联网上收集免费节点订阅链接的工具，它会定期更新数据，确保您获取的是最新的可用节点。</p>
-          <p>使用方法：</p>
-          <ul>
-            <li>点击"复制"按钮复制订阅链接</li>
-            <li>在您的客户端软件中添加该订阅链接</li>
-            <li>客户端将自动获取节点信息</li>
-          </ul>
-          <p class="text-muted mt-4">请注意：所有节点订阅均来自互联网收集，我们不对节点质量和稳定性做任何保证。</p>
-        </div>
-        <div class="modal-footer">
-          <button type="button" class="btn btn-primary" data-bs-dismiss="modal">我知道了</button>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- 配置详情模态框 -->
-  <div class="modal fade" id="configModal" tabindex="-1" aria-labelledby="configModalLabel">
-    <div class="modal-dialog modal-dialog-centered modal-lg">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h5 class="modal-title" id="configModalLabel" style="color: #4c6ef5;">配置详情</h5>
-          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="关闭"></button>
-        </div>
-        <div class="modal-body">
-          <div class="row mb-3">
+</div>
+<div id="overlay-privacy" class="overlay-full">
+    <span class="btn-close-overlay" onclick="closeOverlay()">&times;</span>
+    <div class="container">
+        <h2 class="mb-5" style="color:var(--trae-green)">隐私条款</h2>
+        <div class="row g-5">
             <div class="col-md-6">
-              <h6><i class="bi bi-sliders me-2"></i>系统设置</h6>
-              <ul class="list-group">
-                <li class="list-group-item d-flex justify-content-between align-items-center">
-                  <span><i class="bi bi-clock-history me-2"></i>更新频率</span>
-                  <span id="modal-update-interval" class="badge bg-primary rounded-pill">加载中...</span>
-                </li>
-                <li class="list-group-item d-flex justify-content-between align-items-center">
-                  <span><i class="bi bi-file-text me-2"></i>抓取站点数量</span>
-                  <span id="modal-max-articles" class="badge bg-primary rounded-pill">加载中...</span>
-                </li>
-                <li class="list-group-item d-flex justify-content-between align-items-center">
-                  <span><i class="bi bi-calendar-check me-2"></i>最后更新时间</span>
-                  <span id="modal-last-updated" class="badge bg-secondary rounded-pill">加载中...</span>
-                </li>
-                <li class="list-group-item d-flex justify-content-between align-items-center">
-                  <span><i class="bi bi-bookmark me-2"></i>本地免费节点数量</span>
-                  <span id="local-free-nodes" class="badge bg-info rounded-pill">0</span>
-                </li>
-              </ul>
+                <h5 class="text-white mb-4">数据收集</h5>
+                <p class="text-secondary">本网站不会收集任何个人信息或浏览数据。所有操作均在本地浏览器完成，不会向任何服务器发送数据。</p>
+                <p class="text-secondary">订阅链接仅用于展示，不会被存储或记录。</p>
             </div>
             <div class="col-md-6">
-              <h6><i class="bi bi-globe me-2"></i>抓取站点状态</h6>
-              <div class="site-list-detail list-group shadow-sm" id="modal-site-list">
-                <div class="text-center p-3">加载中...</div>
-              </div>
+                <h5 class="text-white mb-4">使用条款</h5>
+                <p class="text-secondary">本网站提供的订阅链接均来自公开网络，仅供学习和研究使用。</p>
+                <p class="text-secondary">禁止用于商业用途或非法活动。使用本网站即表示您同意遵守相关法律法规。</p>
             </div>
-          </div>
         </div>
-        <div class="modal-footer">
-          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">关闭</button>
-        </div>
-      </div>
     </div>
-  </div>
-
-  <!-- 信息提示模态框 -->
-  <div class="modal fade custom-modal" id="infoModal" tabindex="-1" aria-labelledby="infoModalLabel">
-    <div class="modal-dialog modal-dialog-centered">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h5 class="modal-title" id="infoModalLabel" style="color: #4c6ef5;">信息提示</h5>
-          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="关闭"></button>
+</div>
+<div id="overlay-status" class="overlay-full">
+    <span class="btn-close-overlay" onclick="closeOverlay()">&times;</span>
+    <div class="container">
+        <h2 class="mb-5" style="color:var(--trae-green)">API Status</h2>
+        <div class="border border-secondary">
+            <div class="p-4 border-bottom border-secondary d-flex justify-content-between align-items-center">
+                <span><i class="bi bi-cloud-check text-success me-2"></i> 主站状态</span>
+                <span class="badge bg-success">运行中</span>
+            </div>
+            <div class="p-4 border-bottom border-secondary d-flex justify-content-between align-items-center">
+                <span><i class="bi bi-gear-wide-connected text-success me-2"></i> 采集引擎</span>
+                <span class="badge bg-success">运行中</span>
+            </div>
+            <div class="p-4 d-flex justify-content-between align-items-center">
+                <span><i class="bi bi-hdd-network text-warning me-2"></i> 爬取源站健康度</span>
+                <span class="text-secondary small">检测中...</span>
+            </div>
+            <div class="site-status-list p-4">
+                <!-- 动态生成爬取源站状态 -->
+            </div>
         </div>
-        <div class="modal-body">
-          <div class="icon-wrapper">
-            <i class="bi bi-info-circle" aria-hidden="true"></i>
-          </div>
-          <div class="modal-message" id="infoModalText"></div>
-        </div>
-        <div class="modal-footer">
-          <button type="button" class="btn btn-primary" data-bs-dismiss="modal">我知道了</button>
-        </div>
-      </div>
     </div>
-  </div>
+</div>
 
-  <!-- 错误提示模态框 -->
-  <div class="modal fade custom-modal" id="errorModal" tabindex="-1" aria-labelledby="errorModalLabel">
-    <div class="modal-dialog modal-dialog-centered">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h5 class="modal-title" id="errorModalLabel" style="color: #e5383b;">错误提示</h5>
-          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="关闭"></button>
+<footer>
+    <div class="container">
+        <div class="mb-4">
+            <span class="footer-link" onclick="openOverlay('overlay-privacy')">Privacy</span>
+            <span class="footer-link" onclick="openOverlay('overlay-privacy')">Terms</span>
+            <span class="footer-link" onclick="openOverlay('overlay-status')">API Status</span>
         </div>
-        <div class="modal-body">
-          <div class="icon-wrapper">
-            <i class="bi bi-x-circle-fill" aria-hidden="true"></i>
-          </div>
-          <div class="modal-message" id="errorModalText"></div>
+        <div class="text-secondary smaller" style="letter-spacing: 2px;">
+            © 2026 AUTOSCRAPE. AN OPEN SOURCE PROJECT BY RE0XIAOPA.
         </div>
-        <div class="modal-footer">
-          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">关闭</button>
-        </div>
-      </div>
     </div>
-  </div>
+</footer>
 
-  <!-- Bootstrap JS -->
-  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-  <!-- 环境配置 -->
-  <script src="js/config.js"></script>
-  <!-- 内联数据 - 解决本地文件系统访问问题 -->
-  <script src="js/inline-data.js"></script>
-  <!-- 订阅管理器 -->
-  <script src="js/subscription-manager.js"></script>
-  <!-- 应用程序JS -->
-  <script src="js/app.js"></script>
+<script src="js/config.js"></script>
+<script src="js/inline-data.js"></script>
+<script src="js/subscription-manager.js"></script>
+<script src="js/app.js"></script>
+
+<script>
+    function switchPage(p) {
+        document.querySelectorAll('.page-section').forEach(s => s.classList.remove('page-active'));
+        document.getElementById('page-' + p).classList.add('page-active');
+        
+        // 处理导航栏高亮
+        document.querySelectorAll('.nav-link-custom').forEach(l => l.classList.remove('active'));
+        if(p === 'dashboard') {
+            document.getElementById('nav-dashboard').classList.add('active');
+        }
+        
+        window.scrollTo(0,0);
+    }
+    
+    function openOverlay(id) {
+        document.getElementById(id).style.display = 'block';
+        document.body.style.overflow = 'hidden';
+    }
+    
+    function closeOverlay() {
+        document.querySelectorAll('.overlay-full').forEach(o => o.style.display = 'none');
+        document.body.style.overflow = 'auto';
+    }
+
+    // 视觉反馈：点击刷新按钮
+    document.getElementById('refresh-btn')?.addEventListener('click', function() {
+        const loader = document.getElementById('loader');
+        loader.style.display = 'flex';
+        // 具体的刷新逻辑会由 app.js 接管，这里只做视觉延时展示
+        setTimeout(() => { loader.style.display = 'none'; }, 800);
+    });
+</script>
+
 </body>
 </html>
