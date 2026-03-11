@@ -260,6 +260,28 @@ function showErrorModal(message) {
   }
 }
 
+// 检测网站状态
+function checkSiteStatus(url) {
+  return new Promise((resolve) => {
+    const img = new Image();
+    const timeout = setTimeout(() => {
+      resolve(false);
+    }, 5000);
+    
+    img.onload = () => {
+      clearTimeout(timeout);
+      resolve(true);
+    };
+    
+    img.onerror = () => {
+      clearTimeout(timeout);
+      resolve(false);
+    };
+    
+    img.src = `${url}/favicon.ico?${new Date().getTime()}`;
+  });
+}
+
 // 文档加载完成后执行
 document.addEventListener('DOMContentLoaded', function() {
   // DOM元素
@@ -380,6 +402,9 @@ document.addEventListener('DOMContentLoaded', function() {
   // 初始化页面
   loadConfig();
   loadSubscriptions();
+  
+  // 初始化API状态检测
+  initApiStatus();
   
   // 初始化配置区域的初始状态
   const configCollapse = document.getElementById('configCollapse');
@@ -599,28 +624,44 @@ function processConfigData(data) {
   }
   
   // 处理最后更新时间
-  const lastUpdatedEl = document.getElementById('last-updated');
+  const lastUpdatedEl = document.getElementById('last-updated-time');
+  const nextUpdateEl = document.getElementById('next-update-time');
   const modalLastUpdatedEl = document.getElementById('modal-last-updated');
   
-  if (lastUpdatedEl && data.settings && data.settings.lastUpdated) {
+  if (nextUpdateEl && data.settings && data.settings.lastUpdated) {
     const lastUpdated = new Date(data.settings.lastUpdated);
     const now = new Date();
     const hoursSinceUpdate = Math.floor((now - lastUpdated) / (1000 * 60 * 60));
     
+    // 计算下次更新时间（每24小时更新一次）
+    const nextUpdateTime = new Date(lastUpdated);
+    nextUpdateTime.setHours(nextUpdateTime.getHours() + 24);
+    const timeUntilNextUpdate = nextUpdateTime - now;
+    
+    // 格式化倒计时
+    const hours = Math.floor(timeUntilNextUpdate / (1000 * 60 * 60));
+    const minutes = Math.floor((timeUntilNextUpdate % (1000 * 60 * 60)) / (1000 * 60));
+    
     // 设置时间文本
-    lastUpdatedEl.innerHTML = `<i class="bi bi-clock"></i> ${lastUpdated.toLocaleString()}`;
+    if (nextUpdateEl) {
+      if (timeUntilNextUpdate > 0) {
+        nextUpdateEl.innerHTML = `${hours}小时${minutes}分钟`;
+      } else {
+        nextUpdateEl.innerHTML = `已过期`;
+      }
+    }
     
     // 根据更新时间设置样式
     if (hoursSinceUpdate >= 24) {
       // 超过24小时显示为严重过期
-      lastUpdatedEl.classList.add('outdated');
-      lastUpdatedEl.title = `数据已过期 ${hoursSinceUpdate} 小时`;
+      nextUpdateEl.classList.add('outdated');
+      nextUpdateEl.title = `数据已过期 ${hoursSinceUpdate} 小时`;
     } else if (hoursSinceUpdate >= 12) {
       // 超过12小时仍使用警告色，但添加提示
-      lastUpdatedEl.title = `上次更新在 ${hoursSinceUpdate} 小时前`;
+      nextUpdateEl.title = `上次更新在 ${hoursSinceUpdate} 小时前`;
     } else {
       // 12小时内，正常警告色
-      lastUpdatedEl.title = `上次更新在 ${hoursSinceUpdate} 小时前`;
+      nextUpdateEl.title = `上次更新在 ${hoursSinceUpdate} 小时前`;
     }
   }
   
@@ -632,11 +673,16 @@ function processConfigData(data) {
   // 更新站点列表
   const siteListEl = document.getElementById('site-list');
   const modalSiteListEl = document.getElementById('modal-site-list');
+  
+  // 按站点URL字母顺序排序
+  const sortedSites = [...data.sites].sort((a, b) => a.url.localeCompare(b.url))
   let siteListHTML = '';
   let modalSiteListHTML = '';
   
   if (data.sites && data.sites.length > 0) {
-    data.sites.forEach(site => {
+    // 按站点URL字母顺序排序
+    const sortedSites = [...data.sites].sort((a, b) => a.url.localeCompare(b.url));
+    sortedSites.forEach(site => {
       // 主页面简洁站点列表
       siteListHTML += `
         <div class="site-item">
@@ -939,7 +985,7 @@ function updateStats(data) {
   }
   
   // 更新总站点数显示
-  const totalSitesEl = document.getElementById('total-sites');
+  const totalSitesEl = document.getElementById('total-sources');
   if (totalSitesEl) {
     totalSitesEl.textContent = totalSites;
   }
@@ -1356,6 +1402,35 @@ function fallbackCopyToClipboard(text) {
       reject(err);
     }
   });
+}
+
+// 初始化API状态检测
+function initApiStatus() {
+  const statusOverlay = document.getElementById('overlay-status');
+  if (!statusOverlay) return;
+  
+  const siteList = statusOverlay.querySelector('.site-status-list');
+  if (!siteList) return;
+  
+  // 检测配置中的爬取源站
+  if (configData && configData.sites) {
+    configData.sites.forEach(site => {
+      const siteItem = document.createElement('div');
+      siteItem.className = 'site-status-item';
+      siteItem.innerHTML = `
+        <div class="site-url">${site.url}</div>
+        <div class="site-status">检测中...</div>
+      `;
+      siteList.appendChild(siteItem);
+      
+      // 检测爬取源站状态
+      checkSiteStatus(site.url).then(online => {
+        const statusEl = siteItem.querySelector('.site-status');
+        statusEl.textContent = online ? '在线' : '离线';
+        statusEl.className = `site-status ${online ? 'online' : 'offline'}`;
+      });
+    });
+  }
 }
 
 /**
