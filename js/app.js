@@ -585,6 +585,35 @@ function loadConfig() {
     // 检查是否在GitHub Pages环境
     const isGitHubPages = window.location.hostname.includes('github.io');
     
+    // 优先使用内联数据
+    if (typeof INLINE_CONFIG !== 'undefined') {
+      configData = INLINE_CONFIG;
+      console.log('使用内联配置数据');
+      
+      // 更新页面显示
+      const updateIntervalEl = document.getElementById('update-interval');
+      if (updateIntervalEl && configData.settings) {
+        updateIntervalEl.textContent = configData.settings.updateInterval;
+      }
+      
+      const maxArticlesEl = document.getElementById('max-articles');
+      if (maxArticlesEl && configData.settings) {
+        maxArticlesEl.textContent = configData.settings.maxArticlesPerSite;
+      }
+      
+      const lastUpdatedEl = document.getElementById('last-updated');
+      if (lastUpdatedEl && configData.settings && configData.settings.lastUpdated) {
+        const lastUpdated = new Date(configData.settings.lastUpdated);
+        lastUpdatedEl.textContent = lastUpdated.toLocaleString('zh-CN');
+      }
+      
+      // 更新统计数据
+      if (typeof allSubscriptions !== 'undefined' && allSubscriptions) {
+        updateStats(allSubscriptions);
+      }
+      return;
+    }
+    
     // 本地文件系统环境或GitHub Pages，直接使用内联数据
     if (!window.location.protocol.includes('http') || isGitHubPages) {
       console.log('使用内联配置数据');
@@ -785,10 +814,19 @@ function processConfigData(data) {
 // 处理配置加载错误
 function handleConfigError(error) {
   console.error('加载配置失败:', error);
-  document.getElementById('update-interval').textContent = '加载失败';
-  document.getElementById('max-articles').textContent = '加载失败';
-  document.getElementById('last-updated').textContent = '加载失败';
-  document.getElementById('site-list').innerHTML = '<div class="text-center text-danger">加载站点列表失败</div>';
+  
+  // 检查元素是否存在
+  const updateIntervalEl = document.getElementById('update-interval');
+  if (updateIntervalEl) updateIntervalEl.textContent = '加载失败';
+  
+  const maxArticlesEl = document.getElementById('max-articles');
+  if (maxArticlesEl) maxArticlesEl.textContent = '加载失败';
+  
+  const lastUpdatedEl = document.getElementById('last-updated');
+  if (lastUpdatedEl) lastUpdatedEl.textContent = '加载失败';
+  
+  const siteListEl = document.getElementById('site-list');
+  if (siteListEl) siteListEl.innerHTML = '<div class="text-center text-danger">加载站点列表失败</div>';
 }
 
 // 加载订阅数据
@@ -829,7 +867,17 @@ function loadSubscriptions() {
           subscriptions: [
             {
               type: "Clash",
-              name: "示例订阅1",
+              name: "示例订阅13",
+              url: "https://example.com/sub1"
+            },
+            {
+              type: "Clash",
+              name: "示例订阅111",
+              url: "https://example.com/sub1"
+            },
+            {
+              type: "Clash",
+              name: "示例订阅122",
               url: "https://example.com/sub1"
             },
             {
@@ -922,16 +970,7 @@ function loadSubscriptions() {
             scrapedAt: new Date().toISOString(),
             subscriptionCount: 2,
             subscriptions: [
-              {
-                type: "Clash",
-                name: "示例订阅1",
-                url: "https://example.com/sub1"
-              },
-              {
-                type: "V2ray",
-                name: "示例订阅2",
-                url: "https://example.com/sub2"
-              }
+             
             ]
           };
           
@@ -941,23 +980,7 @@ function loadSubscriptions() {
             scrapedAt: new Date().toISOString(),
             totalSubscriptions: 2,
             articles: [
-              {
-                title: "示例文章",
-                url: "https://example.com/article1",
-                publishedAt: new Date().toISOString(),
-                subscriptions: [
-                  {
-                    type: "Clash",
-                    name: "示例订阅1",
-                    url: "https://example.com/sub1"
-                  },
-                  {
-                    type: "V2ray",
-                    name: "示例订阅2",
-                    url: "https://example.com/sub2"
-                  }
-                ]
-              }
+              
             ]
           };
           
@@ -1019,6 +1042,12 @@ function handleSubscriptionsError(error) {
 
 // 更新统计信息
 function updateStats(data) {
+  // 检查数据是否有效
+  if (!data || typeof data !== 'object') {
+    console.error('无效的数据:', data);
+    return;
+  }
+  
   // 统计总站点数和总订阅数
   let totalSubscriptions = 0;
   let totalSites = Object.keys(data).length;
@@ -1030,7 +1059,15 @@ function updateStats(data) {
     'Sing-Box': 0,
     'Shadowrocket': 0,
     'Quantumult': 0,
+    'SS/SSR': 0,
+    'Trojan': 0,
+    'Hysteria': 0,
+    'WireGuard': 0,
+    'Tuic': 0,
+    'NaiveProxy': 0,
+    'GoFlyway': 0,
     '通用': 0,
+    '自定义': 0
   };
   
   // 遍历所有站点，统计数量
@@ -1084,8 +1121,15 @@ function getTypeColor(type) {
     'Clash': 'primary',
     'V2ray': 'success',
     'Sing-Box': 'secondary',
-    'Shadowrocket': 'dark',
+    'Shadowrocket': 'primary',
     'Quantumult': 'light',
+    'SS/SSR': 'warning',
+    'Trojan': 'danger',
+    'Hysteria': 'info',
+    'WireGuard': 'primary',
+    'Tuic': 'success',
+    'NaiveProxy': 'secondary',
+    'GoFlyway': 'warning',
     '通用': 'info'
   };
   return colorMap[type] || 'secondary';
@@ -1097,8 +1141,15 @@ function getTypeIcon(type) {
     'Clash': 'bi bi-shield-check',
     'V2ray': 'bi bi-hdd-network',
     'Sing-Box': 'bi bi-link-45deg',
-    'Shadowrocket': 'bi bi-hdd-network',
+    'Shadowrocket': 'bi bi-rocket',
     'Quantumult': 'bi bi-diagram-3',
+    'SS/SSR': 'bi bi-key',
+    'Trojan': 'bi bi-shield-lock',
+    'Hysteria': 'bi bi-lightning',
+    'WireGuard': 'bi bi-shield-exclamation',
+    'Tuic': 'bi bi-cpu',
+    'NaiveProxy': 'bi bi-browser-chrome',
+    'GoFlyway': 'bi bi-airplane',
     '通用': 'bi bi-globe2'
   };
   return iconMap[type] || 'bi bi-link-45deg';
@@ -1172,9 +1223,9 @@ function renderNormalView() {
       <div class="col-lg-6 mb-3">
         <div class="subscription-card ${isCustom ? 'local-subscription' : ''}">
           <div class="d-flex justify-content-between align-items-center mb-3">
-            <span class="type-badge bg-${typeColor} text-white">
+            <span class="type-badge border border-${typeColor} text-${typeColor}">
               <i class="${typeIcon}"></i> ${subscription.type}
-              ${isCustom ? '<span class="ms-1 badge bg-warning text-dark">自定义</span>' : ''}
+              ${isCustom ? '<span class="ms-1 badge px-2 py-1" style="background: rgba(0,0,0,0.8);"><span class="text-gradient">自定义</span></span>' : ''}
             </span>
             <div class="btn-group">
               <button class="btn btn-action btn-copy me-2" data-url="${subscription.url}">
@@ -1252,7 +1303,7 @@ function renderDetailedView() {
     html += `
       <div class="col-12 mb-4">
         <h5 class="section-title">
-          <span class="badge bg-${typeColor} text-white me-2">
+          <span class="badge border border-${typeColor} text-${typeColor} me-2">
             <i class="${typeIcon} me-1"></i> ${type}
           </span>
           订阅链接 (${subscriptions.length})
@@ -1352,7 +1403,8 @@ function updateFilterStats(filteredSubscriptions) {
     'Tuic': 0,
     'NaiveProxy': 0,
     'GoFlyway': 0,
-    '通用': 0
+    '通用': 0,
+    '自定义': 0
   };
   
   // 统计各类型数量
@@ -1403,7 +1455,8 @@ function getFilteredSubscriptions() {
   return uniqueSubscriptions.filter(subscription => {
     // 检查类型筛选条件
     const typeMatch = selectedType === 'all' || subscription.type === selectedType || 
-        (selectedType === '通用' && subscription.isCustom) ||
+        (selectedType === '通用' && !subscription.isCustom) ||
+        (selectedType === '自定义' && subscription.isCustom) ||
         (selectedType === 'SS/SSR' && (subscription.type === 'SS' || subscription.type === 'SSR')) ||
         (selectedType === 'Trojan' && subscription.type === 'Trojan') ||
         (selectedType === 'Hysteria' && subscription.type === 'Hysteria') ||

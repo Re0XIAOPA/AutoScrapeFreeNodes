@@ -93,6 +93,18 @@
             padding: 10px; font-size: 0.85rem; text-decoration: none; display: flex; align-items: center; justify-content: center; gap: 8px; flex: 1;
         }
         .btn-action:hover { color: var(--trae-green) !important; border-color: var(--trae-green) !important; background: rgba(29, 255, 145, 0.05); }
+        
+        /* 彩色渐变样式 */
+        .border-gradient {
+            border-image: linear-gradient(45deg, #ff0000, #ff7f00, #ffff00, #00ff00, #0000ff, #4b0082, #8b00ff) 1;
+        }
+        
+        .text-gradient {
+            background: linear-gradient(45deg, #ff0000, #ff7f00, #ffff00, #00ff00, #00ffff, #0000ff, #ff00ff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
 
         /* 提高文字可读性 */
         .text-muted { color: #999 !important; }
@@ -191,6 +203,7 @@
                         <option value="NaiveProxy">NaiveProxy</option>
                         <option value="GoFlyway">GoFlyway</option>
                         <option value="通用">通用</option>
+                        <option value="自定义">自定义</option>
                     </select>
                 </div>
             </div>
