@@ -49,14 +49,8 @@ document.addEventListener('DOMContentLoaded', function() {
 
 // 自定义模态框显示函数
 function showInfoModal(message) {
-  console.log('尝试显示信息模态框:', message); // 调试日志
-  
-  // 检查DOM是否已加载
-  if (!document.getElementById('infoModalText')) {
-    console.warn('模态框元素不存在，使用alert代替');
-    alert(message);
-    return;
-  }
+  console.log('信息:', message); // 仅在控制台显示信息
+  return;
   
   // 设置模态框内容
   const infoModalText = document.getElementById('infoModalText');
@@ -638,31 +632,25 @@ function processConfigData(data) {
     nextUpdateTime.setHours(nextUpdateTime.getHours() + 24);
     const timeUntilNextUpdate = nextUpdateTime - now;
     
-    // 格式化倒计时
+    // 格式化倒计时为时分秒格式
     const hours = Math.floor(timeUntilNextUpdate / (1000 * 60 * 60));
     const minutes = Math.floor((timeUntilNextUpdate % (1000 * 60 * 60)) / (1000 * 60));
+    const seconds = Math.floor((timeUntilNextUpdate % (1000 * 60)) / 1000);
     
     // 设置时间文本
-    if (nextUpdateEl) {
-      if (timeUntilNextUpdate > 0) {
-        nextUpdateEl.innerHTML = `${hours}小时${minutes}分钟`;
-      } else {
-        nextUpdateEl.innerHTML = `已过期`;
-      }
-    }
-    
-    // 根据更新时间设置样式
-    if (hoursSinceUpdate >= 24) {
-      // 超过24小时显示为严重过期
-      nextUpdateEl.classList.add('outdated');
-      nextUpdateEl.title = `数据已过期 ${hoursSinceUpdate} 小时`;
-    } else if (hoursSinceUpdate >= 12) {
-      // 超过12小时仍使用警告色，但添加提示
-      nextUpdateEl.title = `上次更新在 ${hoursSinceUpdate} 小时前`;
+  if (nextUpdateEl) {
+    if (timeUntilNextUpdate > 0) {
+      // 格式化两位数字显示
+      const formattedHours = String(hours).padStart(2, '0');
+      const formattedMinutes = String(minutes).padStart(2, '0');
+      const formattedSeconds = String(seconds).padStart(2, '0');
+      nextUpdateEl.innerHTML = `${formattedHours}:${formattedMinutes}:${formattedSeconds}`;
     } else {
-      // 12小时内，正常警告色
-      nextUpdateEl.title = `上次更新在 ${hoursSinceUpdate} 小时前`;
+      nextUpdateEl.innerHTML = `00:00:00`;
     }
+    // 设置下次更新字样为绿色
+    nextUpdateEl.style.color = 'var(--trae-green)';
+  }
   }
   
   if (modalLastUpdatedEl && data.settings && data.settings.lastUpdated) {
@@ -978,10 +966,12 @@ function updateStats(data) {
     }
   });
   
-  // 更新总节点数显示
+  // 更新总节点数显示（去重后）
   const totalNodesEl = document.getElementById('total-nodes');
   if (totalNodesEl) {
-    totalNodesEl.textContent = totalSubscriptions;
+    // 获取去重后的订阅数
+    const uniqueSubs = getUniqueSubscriptions(data);
+    totalNodesEl.textContent = uniqueSubs.length;
   }
   
   // 更新总站点数显示
