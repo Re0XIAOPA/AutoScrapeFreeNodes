@@ -38,8 +38,25 @@ npm start
 
 ## 添加自定义订阅
 
-通过修改 `config.json` 文件，可以轻松添加您自己的自定义订阅：
+通过修改根目录的 `config.json` 文件，可以轻松添加需要抓取的网站和您自己的自定义订阅：
 
+抓取的配置格式：
+```json
+"sites": [
+    {
+      "url": "https://example.com/clash",
+      "enabled": true,
+      "description": "免费节点订阅站点1"
+    },
+    {
+      "url": "https://example.com/v2ray",
+      "enabled": true,
+      "description": "免费节点订阅站点2"
+    }
+]
+```
+
+自定义配置文件格式：
 ```json
 "subscriptions": [
   {
