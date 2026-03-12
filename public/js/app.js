@@ -255,23 +255,88 @@ function showErrorModal(message) {
 }
 
 // 检测网站状态
-function checkSiteStatus(url) {
+async function checkSiteStatus(url) {
+  // 尝试多种检测方式
+  const methods = [
+    () => checkWithHeadRequest(url),
+    () => checkWithGetRequest(url),
+    () => checkWithImage(url) // 保留原有的图片检测作为后备
+  ];
+  
+  for (const method of methods) {
+    try {
+      const result = await method();
+      if (result) {
+        return true;
+      }
+    } catch (e) {
+      // 忽略单个方法的错误，尝试下一个方法
+    }
+  }
+  
+  return false;
+}
+
+function checkWithHeadRequest(url) {
   return new Promise((resolve) => {
-    const img = new Image();
     const timeout = setTimeout(() => {
       resolve(false);
-    }, 5000);
+    }, 8000);
     
+    fetch(url, {
+      method: 'HEAD',
+      mode: 'no-cors'
+    })
+    .then(() => {
+      clearTimeout(timeout);
+      resolve(true);
+    })
+    .catch(() => {
+      clearTimeout(timeout);
+      resolve(false);
+    });
+  });
+}
+
+function checkWithGetRequest(url) {
+  return new Promise((resolve) => {
+    const timeout = setTimeout(() => {
+      resolve(false);
+    }, 8000);
+    
+    fetch(url, {
+      method: 'GET',
+      mode: 'no-cors',
+      headers: {
+        'Range': 'bytes=0-1024' // 只请求前1KB数据
+      }
+    })
+    .then(() => {
+      clearTimeout(timeout);
+      resolve(true);
+    })
+    .catch(() => {
+      clearTimeout(timeout);
+      resolve(false);
+    });
+  });
+}
+
+function checkWithImage(url) {
+  return new Promise((resolve) => {
+    const timeout = setTimeout(() => {
+      resolve(false);
+    }, 8000);
+    
+    const img = new Image();
     img.onload = () => {
       clearTimeout(timeout);
       resolve(true);
     };
-    
     img.onerror = () => {
       clearTimeout(timeout);
       resolve(false);
     };
-    
     img.src = `${url}/favicon.ico?${new Date().getTime()}`;
   });
 }
@@ -453,12 +518,17 @@ document.addEventListener('DOMContentLoaded', function() {
     // 获取当前时间（客户端时间）
     const now = new Date();
     
-    // 固定为每天凌晨00:30更新（GitHub Actions构建时间）
-    const todayBuildTime = new Date(now);
-    todayBuildTime.setHours(0);
-    todayBuildTime.setMinutes(30);
-    todayBuildTime.setSeconds(0);
-    todayBuildTime.setMilliseconds(0);
+    // GitHub Actions的cron设置为'30 16 * * *'，对应北京时间00:30
+    // 因为GitHub Actions使用UTC时间，所以需要转换为北京时间
+    const todayBuildTimeUTC = new Date(now);
+    todayBuildTimeUTC.setUTCHours(16);
+    todayBuildTimeUTC.setUTCMinutes(30);
+    todayBuildTimeUTC.setUTCSeconds(0);
+    todayBuildTimeUTC.setUTCMilliseconds(0);
+    
+    // 转换为北京时间
+    const todayBuildTime = new Date(todayBuildTimeUTC);
+    todayBuildTime.setHours(todayBuildTime.getHours() + 8); // UTC+8
     
     // 如果当前时间已经过了今天的构建时间，则下次构建时间为明天同一时间
     const nextBuildTime = new Date(todayBuildTime);
@@ -466,16 +536,22 @@ document.addEventListener('DOMContentLoaded', function() {
       nextBuildTime.setDate(nextBuildTime.getDate() + 1);
     }
     
-    // 计算距离下次更新的时间（以小时和分钟表示）
+    // 计算距离下次更新的时间（以小时、分钟、秒表示）
     const diffMs = nextBuildTime - now;
     const diffHours = Math.floor(diffMs / (1000 * 60 * 60));
     const diffMinutes = Math.floor((diffMs % (1000 * 60 * 60)) / (1000 * 60));
+    const diffSeconds = Math.floor((diffMs % (1000 * 60)) / 1000);
     
     // 格式化时间显示
     const formattedTime = nextBuildTime.toLocaleTimeString([], {hour: '2-digit', minute: '2-digit'});
-    const timeDisplay = diffHours > 0 
-      ? `${diffHours}小时${diffMinutes}分钟后` 
-      : `${diffMinutes}分钟后`;
+    let timeDisplay;
+    if (diffHours > 0) {
+      timeDisplay = `${diffHours}小时${diffMinutes}分钟${diffSeconds}秒后`;
+    } else if (diffMinutes > 0) {
+      timeDisplay = `${diffMinutes}分钟${diffSeconds}秒后`;
+    } else {
+      timeDisplay = `${diffSeconds}秒后`;
+    }
     
     // 更新显示内容
     nextRefreshTimeEl.innerHTML = `<i class="bi bi-clock"></i> 下次更新: <strong>${formattedTime}</strong> (约${timeDisplay})`;
@@ -499,7 +575,7 @@ document.addEventListener('DOMContentLoaded', function() {
   updateNextRefreshTime();
   const nextRefreshTimeEl = document.getElementById('next-refresh-time');
   if (nextRefreshTimeEl) {
-    setInterval(updateNextRefreshTime, 30000); // 每30秒更新一次显示
+    setInterval(updateNextRefreshTime, 1000); // 每秒更新一次显示，实现实时倒计时
   }
 });
 
