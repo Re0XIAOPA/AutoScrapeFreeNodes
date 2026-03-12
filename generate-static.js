@@ -97,7 +97,7 @@ async function generateStaticSite() {
                 type: "V2ray",
                 name: "示例订阅2",
                 url: "https://example.com/sub2"
-              }
+              },
             ]
           }
         ]
