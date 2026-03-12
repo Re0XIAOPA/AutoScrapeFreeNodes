@@ -1404,6 +1404,15 @@ function initApiStatus() {
   
   // 检测配置中的爬取源站
   if (configData && configData.sites) {
+    let onlineCount = 0;
+    let totalCount = configData.sites.length;
+    
+    // 更新健康度标题
+    const healthStatusEl = statusOverlay.querySelector('.site-status');
+    if (healthStatusEl) {
+      healthStatusEl.textContent = `检测中... (0/${totalCount})`;
+    }
+    
     configData.sites.forEach(site => {
       const siteItem = document.createElement('div');
       siteItem.className = 'site-status-item';
@@ -1415,9 +1424,17 @@ function initApiStatus() {
       
       // 检测爬取源站状态
       checkSiteStatus(site.url).then(online => {
+        if (online) onlineCount++;
+        
         const statusEl = siteItem.querySelector('.site-status');
         statusEl.textContent = online ? '在线' : '离线';
         statusEl.className = `site-status ${online ? 'online' : 'offline'}`;
+        
+        // 更新健康度统计
+        if (healthStatusEl) {
+          healthStatusEl.textContent = `${onlineCount}/${totalCount} 在线`;
+          healthStatusEl.className = `site-status ${onlineCount === totalCount ? 'online' : onlineCount > 0 ? 'text-warning' : 'offline'}`;
+        }
       });
     });
   }
