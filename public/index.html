@@ -109,7 +109,7 @@
 
         /* 站点状态样式 */
         .site-status-list { display: flex; flex-direction: column; gap: 10px; }
-        .site-status-item { display: flex; justify-content: space-between; align-items: center; padding: 10px; border-bottom: 1px solid var(--trae-border); }
+        .site-status-item { display: flex; justify-content: space-between; align-items: center; padding: 10px 5px; border-bottom: 1px solid var(--trae-border); }
         .site-status.online { color: var(--trae-green); font-weight: bold; }
         .site-status.offline { color: #ff4444; font-weight: bold; }
 
@@ -312,15 +312,15 @@
         <div class="border border-secondary">
             <div class="p-4 border-bottom border-secondary d-flex justify-content-between align-items-center">
                 <span><i class="bi bi-cloud-check text-success me-2"></i> 主站状态</span>
-                <span class="badge bg-success">运行中</span>
+                <span class="badge bg-success">在线</span>
             </div>
             <div class="p-4 border-bottom border-secondary d-flex justify-content-between align-items-center">
                 <span><i class="bi bi-gear-wide-connected text-success me-2"></i> 采集引擎</span>
-                <span class="badge bg-success">运行中</span>
+                <span class="badge bg-success">在线</span>
             </div>
             <div class="p-4 d-flex justify-content-between align-items-center">
                 <span><i class="bi bi-hdd-network text-warning me-2"></i> 爬取源站健康度</span>
-                <span class="site-status">检测中...</span>
+                <span class="site-status badge bg-secondary" style="min-width: 40px; text-align: center;">检测中...</span>
             </div>
             <div class="site-status-list p-4">
                 <!-- 动态生成爬取源站状态 -->
@@ -363,6 +363,9 @@
     
     function openOverlay(id) {
         document.getElementById(id).style.display = 'block';
+        if (id === 'overlay-status') {
+            initApiStatus();
+        }
         document.body.style.overflow = 'hidden';
     }
     

@@ -397,9 +397,6 @@ document.addEventListener('DOMContentLoaded', function() {
   loadConfig();
   loadSubscriptions();
   
-  // 初始化API状态检测
-  initApiStatus();
-  
   // 初始化配置区域的初始状态
   const configCollapse = document.getElementById('configCollapse');
   if (configCollapse) {
@@ -1410,7 +1407,10 @@ function initApiStatus() {
     // 更新健康度标题
     const healthStatusEl = statusOverlay.querySelector('.site-status');
     if (healthStatusEl) {
-      healthStatusEl.textContent = `检测中... (0/${totalCount})`;
+      healthStatusEl.textContent = `检测中...`;
+      healthStatusEl.className = `site-status badge bg-secondary`;
+      healthStatusEl.style.minWidth = '40px';
+      healthStatusEl.style.textAlign = 'center';
     }
     
     configData.sites.forEach(site => {
@@ -1432,8 +1432,10 @@ function initApiStatus() {
         
         // 更新健康度统计
         if (healthStatusEl) {
-          healthStatusEl.textContent = `${onlineCount}/${totalCount} 在线`;
-          healthStatusEl.className = `site-status ${onlineCount === totalCount ? 'online' : onlineCount > 0 ? 'text-warning' : 'offline'}`;
+          healthStatusEl.textContent = `${onlineCount}/${totalCount}`;
+          healthStatusEl.className = `site-status badge ${onlineCount === totalCount ? 'bg-success' : onlineCount > 0 ? 'bg-warning text-dark' : 'bg-danger'}`;
+          healthStatusEl.style.minWidth = '40px';
+          healthStatusEl.style.textAlign = 'center';
         }
       });
     });
