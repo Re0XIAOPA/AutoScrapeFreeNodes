@@ -695,10 +695,12 @@ function processConfigData(data) {
   const nextUpdateEl = document.getElementById('next-update-time');
   const modalLastUpdatedEl = document.getElementById('modal-last-updated');
   
-  if (nextUpdateEl && data.settings && data.settings.lastUpdated) {
+  // 实时更新倒计时
+  function updateCountdown() {
+    if (!nextUpdateEl || !data.settings || !data.settings.lastUpdated) return;
+    
     const lastUpdated = new Date(data.settings.lastUpdated);
     const now = new Date();
-    const hoursSinceUpdate = Math.floor((now - lastUpdated) / (1000 * 60 * 60));
     
     // 计算下次更新时间（每24小时更新一次）
     const nextUpdateTime = new Date(lastUpdated);
@@ -711,7 +713,6 @@ function processConfigData(data) {
     const seconds = Math.floor((timeUntilNextUpdate % (1000 * 60)) / 1000);
     
     // 设置时间文本
-  if (nextUpdateEl) {
     if (timeUntilNextUpdate > 0) {
       // 格式化两位数字显示
       const formattedHours = String(hours).padStart(2, '0');
@@ -724,6 +725,13 @@ function processConfigData(data) {
     // 设置下次更新字样为绿色
     nextUpdateEl.style.color = 'var(--trae-green)';
   }
+  
+  // 初始化倒计时
+  updateCountdown();
+  
+  // 每秒更新一次倒计时
+  if (nextUpdateEl) {
+    setInterval(updateCountdown, 1000);
   }
   
   if (modalLastUpdatedEl && data.settings && data.settings.lastUpdated) {
