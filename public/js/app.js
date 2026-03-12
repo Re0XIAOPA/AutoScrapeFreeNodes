@@ -1344,7 +1344,15 @@ function updateFilterStats(filteredSubscriptions) {
     'V2ray': 0,
     'Sing-Box': 0,
     'Shadowrocket': 0,
-    'Quantumult': 0
+    'Quantumult': 0,
+    'SS/SSR': 0,
+    'Trojan': 0,
+    'Hysteria': 0,
+    'WireGuard': 0,
+    'Tuic': 0,
+    'NaiveProxy': 0,
+    'GoFlyway': 0,
+    '通用': 0
   };
   
   // 统计各类型数量
@@ -1394,7 +1402,15 @@ function getFilteredSubscriptions() {
   // 应用过滤条件
   return uniqueSubscriptions.filter(subscription => {
     // 检查类型筛选条件
-    const typeMatch = selectedType === 'all' || subscription.type === selectedType;
+    const typeMatch = selectedType === 'all' || subscription.type === selectedType || 
+        (selectedType === '通用' && subscription.isCustom) ||
+        (selectedType === 'SS/SSR' && (subscription.type === 'SS' || subscription.type === 'SSR')) ||
+        (selectedType === 'Trojan' && subscription.type === 'Trojan') ||
+        (selectedType === 'Hysteria' && subscription.type === 'Hysteria') ||
+        (selectedType === 'WireGuard' && subscription.type === 'WireGuard') ||
+        (selectedType === 'Tuic' && subscription.type === 'Tuic') ||
+        (selectedType === 'NaiveProxy' && subscription.type === 'NaiveProxy') ||
+        (selectedType === 'GoFlyway' && subscription.type === 'GoFlyway');
     
     return typeMatch;
   });
