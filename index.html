@@ -62,7 +62,7 @@
         .trae-select:hover { border-color: var(--trae-green); }
         .filter-wrapper::after {
             content: "\F229"; font-family: "bootstrap-icons"; position: absolute; right: 12px; top: 50%; 
-            transform: translateY(-50%); color: var(--trae-green); pointer-events: none;
+            transform: translateY(-50%); color: #fff; pointer-events: none;
         }
 
         /* 订阅卡片 - 深度美化 */
@@ -109,7 +109,7 @@
 
         /* 站点状态样式 */
         .site-status-list { display: flex; flex-direction: column; gap: 10px; }
-        .site-status-item { display: flex; justify-content: space-between; align-items: center; padding: 10px; border-bottom: 1px solid var(--trae-border); }
+        .site-status-item { display: flex; justify-content: space-between; align-items: center; padding: 10px 5px; border-bottom: 1px solid var(--trae-border); }
         .site-status.online { color: var(--trae-green); font-weight: bold; }
         .site-status.offline { color: #ff4444; font-weight: bold; }
 
@@ -126,7 +126,7 @@
         .footer-link { color: #555; text-decoration: none; cursor: pointer; margin: 0 15px; font-size: 0.9rem; }
         .footer-link:hover { color: var(--trae-green); }
 
-        @media (max-width: 768px) { .stat-grid { flex-wrap: wrap; } .stat-box { width: 50%; flex: none; } }
+        @media (max-width: 768px) { .stat-grid { flex-wrap: wrap; } .stat-box { width: 50%; flex: none; } } @media (max-width: 576px) { .stat-grid { flex-direction: column; } .stat-box { width: 100%; flex: none; } }
     </style>
 </head>
 <body>
@@ -154,7 +154,7 @@
             <span class="logo-scrape">从未如此简单</span>
         </h1>
         <p class="text-secondary fs-5 mb-5 mx-auto" style="max-width: 650px;">
-            基于 BlockTavern 技术栈构建的自动化数据流转系统。<br>
+            基于现代化技术栈构建的自动化数据流转系统。<br>
             结合 GitHub Actions 高效同步，为社区提供实时、可靠的订阅分发服务。
         </p>
         <button class="btn px-5 py-3" style="background:var(--trae-green); color:#000; font-weight:800;" onclick="switchPage('dashboard')">
@@ -169,10 +169,7 @@
             <div class="stat-box"><div class="stat-val" id="total-nodes">0</div><div class="text-secondary small">总计节点</div></div>
             <div class="stat-box"><div class="stat-val" id="total-sources">0</div><div class="text-secondary small">活跃源站</div></div>
             <div class="stat-box"><div class="stat-val">24h</div><div class="text-secondary small">同步频率</div></div>
-            <div class="stat-box">
-                <div class="text-secondary small mb-1"><i class="bi bi-clock"></i> 下次更新</div>
-                <div id="next-update-time" class="text-white small">计算中...</div>
-            </div>
+            <div class="stat-box"><div class="stat-val" id="next-update-time">00:00:00</div><div class="text-secondary small">下次更新</div></div>
         </div>
 
         <div class="control-panel">
@@ -186,7 +183,7 @@
                         <option value="Sing-Box">Sing-Box</option>
                         <option value="Shadowrocket">Shadowrocket</option>
                         <option value="Quantumult">Quantumult</option>
-                        <option value="General">通用 (General)</option>
+                        <option value="General">通用</option>
                     </select>
                 </div>
             </div>
@@ -223,6 +220,18 @@
                 <p class="text-secondary">本项目旨在为用户提供一个便捷的节点订阅采集和管理平台。通过自动化技术，我们定期收集公开网络上的节点订阅链接，并进行整理和分类。</p>
                 <p class="text-secondary">项目采用现代化的前端技术栈，包括HTML5、CSS3和JavaScript，确保在各种设备上都能提供良好的用户体验。</p>
                 <p class="text-secondary text-warning mt-3">⚠️ 注意：本项目目前处于测试阶段，功能可能不稳定，数据可能存在误差。</p>
+                
+                <h5 class="text-white mb-4 mt-5">项目背景</h5>
+                <p class="text-secondary">随着网络技术的发展，节点订阅服务变得越来越重要。然而，寻找可靠的免费节点订阅链接往往需要花费大量时间和精力。本项目旨在解决这一问题，通过自动化技术为用户提供一站式的节点订阅采集和管理服务。</p>
+                
+                <h5 class="text-white mb-4 mt-5">未来规划</h5>
+                <p class="text-secondary">我们计划在未来添加更多的功能，包括但不限于：</p>
+                <ul class="list-unstyled small text-secondary">
+                    <li class="mb-2">● 支持更多的节点协议</li>
+                    <li class="mb-2">● 提供更丰富的筛选和排序功能</li>
+                    <li class="mb-2">● 添加节点质量评估和推荐系统</li>
+                    <li class="mb-2">● 支持用户自定义节点源</li>
+                </ul>
             </div>
             <div class="col-md-5">
                 <div class="border border-secondary p-4 bg-dark">
@@ -234,6 +243,20 @@
                         <li class="mb-3">● 开源免费：完全开源，免费使用</li>
                     </ul>
                 </div>
+                
+                <div class="border border-secondary p-4 bg-dark mt-4">
+                    <h6 class="text-white mb-4">联系方式</h6>
+                    <ul class="list-unstyled small text-secondary">
+                        <li class="mb-3">● GitHub: <a href="https://github.com/Re0XIAOPA/AutoScrapeFreeNodes" target="_blank" class="text-success">Re0XIAOPA/AutoScrapeFreeNodes</a></li>
+                        <li class="mb-3">● Issue: <a href="https://github.com/Re0XIAOPA/AutoScrapeFreeNodes/issues" target="_blank" class="text-success">AutoScrapeFreeNodes/issues</a></li>
+                        <li class="mb-3">● Pull Request: <a href="https://github.com/Re0XIAOPA/AutoScrapeFreeNodes/pulls" target="_blank" class="text-success">AutoScrapeFreeNodes/pulls</a></li>
+                    </ul>
+                </div>
+                
+                <div class="border border-secondary p-4 bg-dark mt-4">
+                    <h6 class="text-white mb-4">开源协议</h6>
+                    <p class="text-secondary small">本项目采用GPL-3.0开源协议，允许自由使用、修改和分发。</p>
+                </div>
             </div>
         </div>
     </div>
@@ -241,17 +264,43 @@
 <div id="overlay-privacy" class="overlay-full">
     <span class="btn-close-overlay" onclick="closeOverlay()">&times;</span>
     <div class="container">
-        <h2 class="mb-5" style="color:var(--trae-green)">隐私条款</h2>
+        <h2 class="mb-5" style="color:var(--trae-green)">隐私政策</h2>
         <div class="row g-5">
-            <div class="col-md-6">
+            <div class="col-md-12">
                 <h5 class="text-white mb-4">数据收集</h5>
                 <p class="text-secondary">本网站不会收集任何个人信息或浏览数据。所有操作均在本地浏览器完成，不会向任何服务器发送数据。</p>
                 <p class="text-secondary">订阅链接仅用于展示，不会被存储或记录。</p>
+                
+                <h5 class="text-white mb-4 mt-5">数据安全</h5>
+                <p class="text-secondary">由于所有数据处理均在本地浏览器完成，您的隐私得到最大程度的保护。我们不会存储、传输或分享任何用户数据。</p>
+                
+                <h5 class="text-white mb-4 mt-5">第三方链接</h5>
+                <p class="text-secondary">本网站可能包含指向第三方网站的链接。我们对这些第三方网站的隐私政策不承担任何责任。请在访问这些网站时查看其隐私政策。</p>
+                
+                <h5 class="text-white mb-4 mt-5">政策变更</h5>
+                <p class="text-secondary">我们保留随时更新本隐私政策的权利。任何变更将在本页面发布后立即生效。建议您定期查看本隐私政策以了解最新信息。</p>
             </div>
-            <div class="col-md-6">
-                <h5 class="text-white mb-4">使用条款</h5>
-                <p class="text-secondary">本网站提供的订阅链接均来自公开网络，仅供学习和研究使用。</p>
-                <p class="text-secondary">禁止用于商业用途或非法活动。使用本网站即表示您同意遵守相关法律法规。</p>
+        </div>
+    </div>
+</div>
+<div id="overlay-terms" class="overlay-full">
+    <span class="btn-close-overlay" onclick="closeOverlay()">&times;</span>
+    <div class="container">
+        <h2 class="mb-5" style="color:var(--trae-green)">使用条款</h2>
+        <div class="row g-5">
+            <div class="col-md-12">
+                <h5 class="text-white mb-4">使用许可</h5>
+                <p class="text-secondary">本网站提供的订阅链接均来自公开网络，仅供学习和研究使用。您不得将本网站提供的内容用于商业用途或非法活动。</p>
+                
+                <h5 class="text-white mb-4 mt-5">免责声明</h5>
+                <p class="text-secondary">本网站提供的订阅链接均来自公开网络，我们不对其准确性、完整性或合法性负责。使用本网站提供的内容所产生的任何风险由您自行承担。</p>
+                <p class="text-secondary">我们保留随时删除或修改本网站内容的权利，无需提前通知。</p>
+                
+                <h5 class="text-white mb-4 mt-5">用户行为</h5>
+                <p class="text-secondary">您同意不会以任何方式干扰或破坏本网站的正常运行，包括但不限于发送垃圾信息、进行网络攻击等。</p>
+                
+                <h5 class="text-white mb-4 mt-5">条款变更</h5>
+                <p class="text-secondary">我们保留随时更新本使用条款的权利。任何变更将在本页面发布后立即生效。建议您定期查看本使用条款以了解最新信息。</p>
             </div>
         </div>
     </div>
@@ -263,15 +312,15 @@
         <div class="border border-secondary">
             <div class="p-4 border-bottom border-secondary d-flex justify-content-between align-items-center">
                 <span><i class="bi bi-cloud-check text-success me-2"></i> 主站状态</span>
-                <span class="badge bg-success">运行中</span>
+                <span class="badge bg-success">在线</span>
             </div>
             <div class="p-4 border-bottom border-secondary d-flex justify-content-between align-items-center">
                 <span><i class="bi bi-gear-wide-connected text-success me-2"></i> 采集引擎</span>
-                <span class="badge bg-success">运行中</span>
+                <span class="badge bg-success">在线</span>
             </div>
             <div class="p-4 d-flex justify-content-between align-items-center">
                 <span><i class="bi bi-hdd-network text-warning me-2"></i> 爬取源站健康度</span>
-                <span class="text-secondary small">检测中...</span>
+                <span class="site-status badge bg-secondary" style="min-width: 40px; text-align: center;">检测中...</span>
             </div>
             <div class="site-status-list p-4">
                 <!-- 动态生成爬取源站状态 -->
@@ -284,7 +333,7 @@
     <div class="container">
         <div class="mb-4">
             <span class="footer-link" onclick="openOverlay('overlay-privacy')">Privacy</span>
-            <span class="footer-link" onclick="openOverlay('overlay-privacy')">Terms</span>
+            <span class="footer-link" onclick="openOverlay('overlay-terms')">Terms</span>
             <span class="footer-link" onclick="openOverlay('overlay-status')">API Status</span>
         </div>
         <div class="text-secondary smaller" style="letter-spacing: 2px;">
@@ -314,6 +363,9 @@
     
     function openOverlay(id) {
         document.getElementById(id).style.display = 'block';
+        if (id === 'overlay-status') {
+            initApiStatus();
+        }
         document.body.style.overflow = 'hidden';
     }
     

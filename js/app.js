@@ -49,14 +49,8 @@ document.addEventListener('DOMContentLoaded', function() {
 
 // 自定义模态框显示函数
 function showInfoModal(message) {
-  console.log('尝试显示信息模态框:', message); // 调试日志
-  
-  // 检查DOM是否已加载
-  if (!document.getElementById('infoModalText')) {
-    console.warn('模态框元素不存在，使用alert代替');
-    alert(message);
-    return;
-  }
+  console.log('信息:', message); // 仅在控制台显示信息
+  return;
   
   // 设置模态框内容
   const infoModalText = document.getElementById('infoModalText');
@@ -403,9 +397,6 @@ document.addEventListener('DOMContentLoaded', function() {
   loadConfig();
   loadSubscriptions();
   
-  // 初始化API状态检测
-  initApiStatus();
-  
   // 初始化配置区域的初始状态
   const configCollapse = document.getElementById('configCollapse');
   if (configCollapse) {
@@ -638,31 +629,25 @@ function processConfigData(data) {
     nextUpdateTime.setHours(nextUpdateTime.getHours() + 24);
     const timeUntilNextUpdate = nextUpdateTime - now;
     
-    // 格式化倒计时
+    // 格式化倒计时为时分秒格式
     const hours = Math.floor(timeUntilNextUpdate / (1000 * 60 * 60));
     const minutes = Math.floor((timeUntilNextUpdate % (1000 * 60 * 60)) / (1000 * 60));
+    const seconds = Math.floor((timeUntilNextUpdate % (1000 * 60)) / 1000);
     
     // 设置时间文本
-    if (nextUpdateEl) {
-      if (timeUntilNextUpdate > 0) {
-        nextUpdateEl.innerHTML = `${hours}小时${minutes}分钟`;
-      } else {
-        nextUpdateEl.innerHTML = `已过期`;
-      }
-    }
-    
-    // 根据更新时间设置样式
-    if (hoursSinceUpdate >= 24) {
-      // 超过24小时显示为严重过期
-      nextUpdateEl.classList.add('outdated');
-      nextUpdateEl.title = `数据已过期 ${hoursSinceUpdate} 小时`;
-    } else if (hoursSinceUpdate >= 12) {
-      // 超过12小时仍使用警告色，但添加提示
-      nextUpdateEl.title = `上次更新在 ${hoursSinceUpdate} 小时前`;
+  if (nextUpdateEl) {
+    if (timeUntilNextUpdate > 0) {
+      // 格式化两位数字显示
+      const formattedHours = String(hours).padStart(2, '0');
+      const formattedMinutes = String(minutes).padStart(2, '0');
+      const formattedSeconds = String(seconds).padStart(2, '0');
+      nextUpdateEl.innerHTML = `${formattedHours}:${formattedMinutes}:${formattedSeconds}`;
     } else {
-      // 12小时内，正常警告色
-      nextUpdateEl.title = `上次更新在 ${hoursSinceUpdate} 小时前`;
+      nextUpdateEl.innerHTML = `00:00:00`;
     }
+    // 设置下次更新字样为绿色
+    nextUpdateEl.style.color = 'var(--trae-green)';
+  }
   }
   
   if (modalLastUpdatedEl && data.settings && data.settings.lastUpdated) {
@@ -978,10 +963,12 @@ function updateStats(data) {
     }
   });
   
-  // 更新总节点数显示
+  // 更新总节点数显示（去重后）
   const totalNodesEl = document.getElementById('total-nodes');
   if (totalNodesEl) {
-    totalNodesEl.textContent = totalSubscriptions;
+    // 获取去重后的订阅数
+    const uniqueSubs = getUniqueSubscriptions(data);
+    totalNodesEl.textContent = uniqueSubs.length;
   }
   
   // 更新总站点数显示
@@ -1414,6 +1401,18 @@ function initApiStatus() {
   
   // 检测配置中的爬取源站
   if (configData && configData.sites) {
+    let onlineCount = 0;
+    let totalCount = configData.sites.length;
+    
+    // 更新健康度标题
+    const healthStatusEl = statusOverlay.querySelector('.site-status');
+    if (healthStatusEl) {
+      healthStatusEl.textContent = `检测中...`;
+      healthStatusEl.className = `site-status badge bg-secondary`;
+      healthStatusEl.style.minWidth = '40px';
+      healthStatusEl.style.textAlign = 'center';
+    }
+    
     configData.sites.forEach(site => {
       const siteItem = document.createElement('div');
       siteItem.className = 'site-status-item';
@@ -1425,9 +1424,19 @@ function initApiStatus() {
       
       // 检测爬取源站状态
       checkSiteStatus(site.url).then(online => {
+        if (online) onlineCount++;
+        
         const statusEl = siteItem.querySelector('.site-status');
         statusEl.textContent = online ? '在线' : '离线';
         statusEl.className = `site-status ${online ? 'online' : 'offline'}`;
+        
+        // 更新健康度统计
+        if (healthStatusEl) {
+          healthStatusEl.textContent = `${onlineCount}/${totalCount}`;
+          healthStatusEl.className = `site-status badge ${onlineCount === totalCount ? 'bg-success' : onlineCount > 0 ? 'bg-warning text-dark' : 'bg-danger'}`;
+          healthStatusEl.style.minWidth = '40px';
+          healthStatusEl.style.textAlign = 'center';
+        }
       });
     });
   }
