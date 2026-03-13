@@ -760,11 +760,17 @@ function processConfigData(data) {
       nextUpdateEl.style.color = 'var(--trae-green)';
     }
     
-    // 初始化倒计时
-    updateCountdown();
-    
-    // 每秒更新一次倒计时
-    setInterval(updateCountdown, 1000);
+    // 如果定时器不存在，创建新的；如果存在，只更新倒计时逻辑
+    if (!window.countdownInterval) {
+      // 初始化倒计时
+      updateCountdown();
+      
+      // 每秒更新一次倒计时
+      window.countdownInterval = setInterval(updateCountdown, 1000);
+    } else {
+      // 只更新倒计时显示，不重置定时器
+      updateCountdown();
+    }
   }
   
   if (modalLastUpdatedEl && data.settings && data.settings.lastUpdated) {

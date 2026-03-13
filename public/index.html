@@ -6,140 +6,9 @@
     <title>AutoScrape - Next Gen Node Scraper</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
-    <style>
-        :root {
-            --trae-bg: #000000;
-            --trae-green: #1dff91;
-            --trae-border: #262626;
-            --trae-text-main: #ffffff;
-            --trae-text-sub: #b0b0b0;
-        }
-
-        /* 基础样式重置 */
-        * { border-radius: 0 !important; transition: 0.2s cubic-bezier(0.4, 0, 0.2, 1); }
-        body {
-            background-color: var(--trae-bg);
-            color: var(--trae-text-main);
-            font-family: 'Inter', -apple-system, sans-serif;
-            background-image: linear-gradient(var(--trae-border) 1px, transparent 1px),
-                              linear-gradient(90deg, var(--trae-border) 1px, transparent 1px);
-            background-size: 45px 45px;
-            overflow-x: hidden;
-        }
-
-        /* 导航栏 */
-        .trae-nav { padding: 25px 0; border-bottom: 1px solid var(--trae-border); background: transparent; }
-        .navbar-brand { font-weight: 800; font-size: 1.5rem; cursor: pointer; color: #fff; text-decoration: none; }
-        .logo-scrape { color: var(--trae-green); }
-        .navbar-brand:hover { color: var(--trae-green); }
-        .navbar-brand:hover .logo-scrape { color: #fff; }
-
-        .nav-link-custom { color: var(--trae-text-sub); text-decoration: none; cursor: pointer; font-weight: 500; font-size: 0.95rem; }
-        .nav-link-custom:hover, .nav-link-custom.active { color: var(--trae-green) !important; }
-
-        /* 页面切换 */
-        .page-section { display: none; }
-        .page-active { display: block; }
-
-        /* 首页 Hero */
-        .hero-section { padding: 120px 0; text-align: center; }
-        .hero-tag { color: var(--trae-green); font-family: monospace; letter-spacing: 2px; margin-bottom: 20px; font-weight: bold; }
-        .hero-title { font-size: clamp(2.5rem, 8vw, 4.5rem); font-weight: 900; line-height: 1.1; margin-bottom: 30px; }
-
-        /* 统计与控制面板 */
-        .stat-grid { display: flex; border: 1px solid var(--trae-border); background: var(--trae-border); gap: 1px; margin-bottom: 40px; }
-        .stat-box { flex: 1; background: #0a0a0a; padding: 30px; text-align: center; }
-        .stat-val { font-size: 2.5rem; font-weight: 800; color: var(--trae-green); font-family: 'Consolas', monospace; }
-
-        .control-panel { background: #0a0a0a; border: 1px solid var(--trae-border); padding: 20px; display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; }
-
-        /* 下拉菜单定制 */
-        .filter-wrapper { position: relative; }
-        .trae-select { 
-            appearance: none; background: #000; color: #fff; border: 1px solid var(--trae-border); 
-            padding: 8px 40px 8px 15px; cursor: pointer; outline: none; min-width: 180px;
-        }
-        .trae-select:hover { border-color: var(--trae-green); }
-        .filter-wrapper::after {
-            content: "\F229"; font-family: "bootstrap-icons"; position: absolute; right: 12px; top: 50%; 
-            transform: translateY(-50%); color: #fff; pointer-events: none;
-        }
-
-        /* 订阅卡片 - 深度美化 */
-        .subscription-card { 
-            background: #0a0a0a; border: 1px solid var(--trae-border); padding: 25px; 
-            height: 100%; position: relative; 
-        }
-        .subscription-card:hover { border-color: var(--trae-green); }
-        
-        .type-badge { 
-            border: 1px solid var(--trae-green); color: var(--trae-green); 
-            padding: 2px 10px; font-size: 0.75rem; font-weight: 800; text-transform: uppercase;
-        }
-        
-        .subscription-url {
-            background: #000; border: 1px solid var(--trae-border); color: #666;
-            padding: 10px; font-family: 'Consolas', monospace; font-size: 0.8rem;
-            margin: 15px 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
-        }
-        
-        .site-label { color: #ddd !important; font-size: 0.85rem; font-weight: 500; }
-        .site-source-info { color: #888; font-size: 0.75rem; display: flex; align-items: center; gap: 5px; }
-
-        /* 按钮 Hover 绿色修复 */
-        .btn-action-group { display: flex; gap: 1px; background: var(--trae-border); border: 1px solid var(--trae-border); }
-        .btn-action { 
-            background: transparent; color: #ccc; border: 1px solid var(--trae-border); 
-            padding: 10px; font-size: 0.85rem; text-decoration: none; display: flex; align-items: center; justify-content: center; gap: 8px; flex: 1;
-        }
-        .btn-action:hover { color: var(--trae-green) !important; border-color: var(--trae-green) !important; background: rgba(29, 255, 145, 0.05); }
-        
-        /* 彩色渐变样式 */
-        .border-gradient {
-            border-image: linear-gradient(45deg, #ff0000, #ff7f00, #ffff00, #00ff00, #0000ff, #4b0082, #8b00ff) 1;
-        }
-        
-        .text-gradient {
-            background: linear-gradient(45deg, #ff0000, #ff7f00, #ffff00, #00ff00, #00ffff, #0000ff, #ff00ff);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-        }
-
-        /* 提高文字可读性 */
-        .text-muted { color: #999 !important; }
-        .text-secondary { color: #aaa !important; }
-
-        /* 浮层 */
-        .overlay-full { position: fixed; inset: 0; background: #000; z-index: 2000; padding: 100px 0; display: none; overflow-y: auto; }
-        .btn-close-overlay { position: fixed; top: 30px; right: 30px; font-size: 2.5rem; color: #444; cursor: pointer; z-index: 2001; }
-        .btn-close-overlay:hover { color: var(--trae-green); transform: rotate(90deg); }
-
-        /* 订阅URL样式 */
-        .subscription-url { font-size: 1.1rem; font-weight: 500; color: #fff; }
-        .subscription-url:hover { color: var(--trae-green); transition: color 0.3s ease; }
-
-        /* 站点状态样式 */
-        .site-status-list { display: flex; flex-direction: column; gap: 10px; }
-        .site-status-item { display: flex; justify-content: space-between; align-items: center; padding: 10px 5px; border-bottom: 1px solid var(--trae-border); }
-        .site-status.online { color: var(--trae-green); font-weight: bold; }
-        .site-status.offline { color: #ff4444; font-weight: bold; }
-
-        /* 加载动画 */
-        .loading-overlay {
-            position: fixed; inset: 0; background: rgba(0,0,0,0.95);
-            display: flex; flex-direction: column; align-items: center; justify-content: center;
-            z-index: 9999; display: none;
-        }
-        .trae-loader { width: 45px; height: 45px; border: 3px solid rgba(29, 255, 145, 0.1); border-top: 3px solid var(--trae-green); border-radius: 50% !important; animation: spin 0.8s linear infinite; }
-        @keyframes spin { 100% { transform: rotate(360deg); } }
-
-        footer { border-top: 1px solid var(--trae-border); padding: 60px 0; margin-top: 80px; text-align: center; }
-        .footer-link { color: #555; text-decoration: none; cursor: pointer; margin: 0 15px; font-size: 0.9rem; }
-        .footer-link:hover { color: var(--trae-green); }
-
-        @media (max-width: 768px) { .stat-grid { flex-wrap: wrap; } .stat-box { width: 50%; flex: none; } } @media (max-width: 576px) { .stat-grid { flex-direction: column; } .stat-box { width: 100%; flex: none; } }
-    </style>
+    <link rel="stylesheet" href="css/base.css">
+    <link rel="stylesheet" href="css/components.css">
+    <link rel="stylesheet" href="css/subscription.css">
 </head>
 <body>
 
@@ -151,9 +20,15 @@
             AUTO<span class="logo-scrape">SCRAPE</span>
         </div>
         <div class="d-flex gap-4">
-            <span id="nav-dashboard" class="nav-link-custom" onclick="switchPage('dashboard')">工作台</span>
-            <span class="nav-link-custom" onclick="openOverlay('overlay-about')">关于项目</span>
-            <a href="https://github.com/Re0XIAOPA/AutoScrapeFreeNodes" target="_blank" class="nav-link-custom text-decoration-none"><i class="bi bi-github"></i> GitHub</a>
+            <span id="nav-dashboard" class="nav-link-custom" onclick="switchPage('dashboard')">
+                <i class="bi bi-speedometer2 me-2"></i>工作台
+            </span>
+            <span class="nav-link-custom" onclick="openOverlay('overlay-about')">
+                <i class="bi bi-info-circle me-2"></i>关于项目
+            </span>
+            <a href="https://github.com/Re0XIAOPA/AutoScrapeFreeNodes" target="_blank" class="nav-link-custom text-decoration-none">
+                <i class="bi bi-github me-2"></i>GitHub
+            </a>
         </div>
     </div>
 </nav>

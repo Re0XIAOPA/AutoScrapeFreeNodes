@@ -1,40 +1,99 @@
-# 自动抓取免费订阅节点
+<div align="center">
+  <br />
+  <h1 align="center">AutoScrapeFreeNodes</h1>
+  <p align="center">
+    <strong>高效 · 自动化 · 跨协议的免费节点聚合方案</strong>
+  </p>
 
-这是一个自动从互联网上抓取免费订阅节点的工具，它会定期更新数据，确保您获取的是最新的可用节点。支持去重功能，避免显示重复的订阅链接。
+  <p align="center">
+    <a href="https://github.com/Re0XIAOPA/AutoScrapeFreeNodes">
+      <img src="https://img.shields.io/github/stars/Re0XIAOPA/AutoScrapeFreeNodes?style=flat-square" alt="GitHub stars">
+    </a>
+    <a href="https://github.com/Re0XIAOPA/AutoScrapeFreeNodes/network">
+      <img src="https://img.shields.io/github/forks/Re0XIAOPA/AutoScrapeFreeNodes?style=flat-square" alt="GitHub forks">
+    </a>
+    <a href="https://github.com/Re0XIAOPA/AutoScrapeFreeNodes/issues">
+      <img src="https://img.shields.io/github/issues/Re0XIAOPA/AutoScrapeFreeNodes?style=flat-square" alt="GitHub issues">
+    </a>
+    <a href="https://github.com/Re0XIAOPA/AutoScrapeFreeNodes/blob/master/LICENSE">
+      <img src="https://img.shields.io/github/license/Re0XIAOPA/AutoScrapeFreeNodes?style=flat-square" alt="GitHub license">
+    </a>
+  </p>
 
-## 特性
+  <p align="center">
+    <a href="https://asfn.awafuns.cn/">在线预览</a> 
+    <span> · </span>
+    <a href="#快速开始">部署指南</a> 
+    <span> · </span>
+    <a href="#配置指南">配置文档</a>
+  </p>
+  <br />
+</div>
 
-- 🚀 自动抓取多个来源的免费节点订阅
-- 🔄 支持定时更新数据
-- 🔍 提供简洁视图和详细视图两种展示方式
-- 🧰 支持多种订阅类型（Clash、V2ray、SS、SSR、Trojan等）
-- 🔄 支持订阅去重功能，不再显示重复链接
-- ⚙️ 可通过配置文件添加自定义订阅
+---
+
+## 核心特性
+
+<table width="100%">
+  <tr>
+    <td width="50%">
+      <strong>多源聚合抓取</strong><br />
+      从多个高质量公共渠道自动提取免费订阅信息。
+    </td>
+    <td width="50%">
+      <strong>自动化运维</strong><br />
+      支持定时更新机制，确保持续维护节点数据的时效性。
+    </td>
+  </tr>
+  <tr>
+    <td width="50%">
+      <strong>智能去重过滤</strong><br />
+      内置指纹识别逻辑，自动剔除重复的链接，保持订阅纯净。
+    </td>
+    <td width="50%">
+      <strong>全协议兼容</strong><br />
+      全面支持 Clash, V2ray, SS, SSR, Trojan, Sing-Box 等。
+    </td>
+  </tr>
+</table>
+
+---
+
+## 要求
+
+- **Node.js**: 18.0.0 或更高版本
+
 
 ## 快速开始
 
-### 直接访问
+### 本地部署
 
-可以直接访问我们的在线版本：[在线预览](https://asfn.awafuns.cn/)
+**静态模式 (无依赖)**
+直接通过浏览器打开 `public/index.html` 即可查看静态快照数据。
 
-### 本地运行
-
-1. 克隆代码库
+**2完整模式 (支持实时抓取)**
 ```bash
-git clone https://github.com/Re0XIAOPA/AutoScrapeFreeNodes.git
-```
+# 克隆仓库
+git clone [https://github.com/Re0XIAOPA/AutoScrapeFreeNodes.git](https://github.com/Re0XIAOPA/AutoScrapeFreeNodes.git)
 
-2. 安装依赖
-```bash
+# 安装必要依赖
 npm install
-```
 
-3. 启动服务器
-```bash
+# 启动服务端应用
 npm start
 ```
 
-4. 浏览器中访问 `http://localhost:3001`
+## 配置指南
+
+项目核心配置文件位于根目录 `config.json`。
+
+### 抓取站点 (sites)
+
+| 字段 | 类型 | 说明 |
+|------|------|------|
+| `url` | String | 需要爬取的网页 URL |
+| `enabled` | Boolean | 是否启用该抓取任务 |
+| `description` | String | 站点用途备注 |
 
 ## 添加自定义订阅
 
@@ -88,16 +147,6 @@ https://clashnode.github.io/free-nodes/
 https://clash-meta.github.io/free-nodes/  
 https://www.airportnode.com/category-1.html  
 
-## 要求
-
-- **Node.js**: 18.0.0 或更高版本
-
-## 声明
-
-- 所有节点均来自互联网
-- 节点质量不做任何保证
-- 仅仅是个人学习和研究
-
 ## Docker 部署
 
 ### 使用 Docker Compose (推荐)
@@ -119,3 +168,24 @@ docker build -t autoscrape-free-nodes .
 ```bash
 docker run -d -p 3000:3000 -v $(pwd)/data:/app/data --name autoscrape autoscrape-free-nodes
 ```
+
+
+<div style="padding: 16px; border: 1px solid #1dff91; margin: 24px 0;">
+  <strong style="display: block; margin-bottom: 10px; color: #1dff91;">## 免责声明</strong>
+  <ul style="margin-bottom: 0; padding-left: 20px; line-height: 1.6;">
+    <li>本项目仅作为技术交流与学术研究使用。</li>
+    <li>所有节点数据均来源于第三方互联网公开页面，工具本身不存储、不分发任何服务器资源。</li>
+    <li>使用者应自行判断节点安全性，并严格遵守当地相关法律法规。</li>
+    <li>作者不对因使用本工具导致的任何形式的损失或法律纠纷负责。</li>
+  </ul>
+</div>
+
+## Star History
+
+<a href="https://www.star-history.com/?repos=Re0XIAOPA%2FAutoScrapeFreeNodes&type=date&logscale=&legend=top-left">
+ <picture>
+   <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/image?repos=Re0XIAOPA/AutoScrapeFreeNodes&type=date&theme=dark&legend=top-left" />
+   <source media="(prefers-color-scheme: light)" srcset="https://api.star-history.com/image?repos=Re0XIAOPA/AutoScrapeFreeNodes&type=date&legend=top-left" />
+   <img alt="Star History Chart" src="https://api.star-history.com/image?repos=Re0XIAOPA/AutoScrapeFreeNodes&type=date&legend=top-left" />
+ </picture>
+</a>
