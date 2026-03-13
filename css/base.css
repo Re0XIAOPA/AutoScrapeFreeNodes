@@ -1,18 +1,25 @@
-/* 基础样式 */
-body {
-  font-family: 'Noto Sans SC', -apple-system, BlinkMacSystemFont, "Segoe UI", "Microsoft YaHei", sans-serif;
-  background-color: #f8f9fa;
-  color: #333;
-  line-height: 1.6;
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
+:root {
+    --trae-bg: #000000;
+    --trae-green: #1dff91;
+    --trae-border: #262626;
+    --trae-text-main: #ffffff;
+    --trae-text-sub: #b0b0b0;
 }
 
-.container {
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 20px;
+/* 基础样式重置 */
+* { border-radius: 0 !important; transition: 0.2s cubic-bezier(0.4, 0, 0.2, 1); }
+body {
+    background-color: var(--trae-bg);
+    color: var(--trae-text-main);
+    font-family: 'Inter', -apple-system, sans-serif;
+    background-image: linear-gradient(var(--trae-border) 1px, transparent 1px),
+                      linear-gradient(90deg, var(--trae-border) 1px, transparent 1px);
+    background-size: 45px 45px;
+    overflow-x: hidden;
+    line-height: 1.6;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
 }
 
 /* 响应式调整 */
@@ -47,6 +54,26 @@ body {
   font-size: 0.85rem;
   color: #6c757d;
 }
+
+/* 提高文字可读性 */
+.text-muted { color: var(--trae-text-sub) !important; }
+.text-secondary { color: #aaa !important; }
+
+/* 彩色渐变样式 */
+.border-gradient {
+    border-image: linear-gradient(45deg, #ff0000, #ff7f00, #ffff00, #00ff00, #0000ff, #4b0082, #8b00ff) 1;
+}
+
+.text-gradient {
+    background: linear-gradient(45deg, #ff0000, #ff7f00, #ffff00, #00ff00, #00ffff, #0000ff, #ff00ff);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+/* 页面切换 */
+.page-section { display: none; }
+.page-active { display: block; }
 
 /* 按钮美化 */
 .btn-primary {

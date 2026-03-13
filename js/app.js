@@ -590,22 +590,8 @@ function loadConfig() {
       configData = INLINE_CONFIG;
       console.log('使用内联配置数据');
       
-      // 更新页面显示
-      const updateIntervalEl = document.getElementById('update-interval');
-      if (updateIntervalEl && configData.settings) {
-        updateIntervalEl.textContent = configData.settings.updateInterval;
-      }
-      
-      const maxArticlesEl = document.getElementById('max-articles');
-      if (maxArticlesEl && configData.settings) {
-        maxArticlesEl.textContent = configData.settings.maxArticlesPerSite;
-      }
-      
-      const lastUpdatedEl = document.getElementById('last-updated');
-      if (lastUpdatedEl && configData.settings && configData.settings.lastUpdated) {
-        const lastUpdated = new Date(configData.settings.lastUpdated);
-        lastUpdatedEl.textContent = lastUpdated.toLocaleString('zh-CN');
-      }
+      // 处理配置数据
+      processConfigData(INLINE_CONFIG);
       
       // 更新统计数据
       if (typeof allSubscriptions !== 'undefined' && allSubscriptions) {
@@ -724,14 +710,31 @@ function processConfigData(data) {
   const nextUpdateEl = document.getElementById('next-update-time');
   const modalLastUpdatedEl = document.getElementById('modal-last-updated');
   
-  if (nextUpdateEl && data.settings && data.settings.lastUpdated) {
-    const lastUpdated = new Date(data.settings.lastUpdated);
+  if (nextUpdateEl) {
+    // 基于GitHub Actions的cron时间计算下次更新时间
+    // GitHub Actions的cron设置为'30 16 * * *'，对应北京时间00:30
     const now = new Date();
-    const hoursSinceUpdate = Math.floor((now - lastUpdated) / (1000 * 60 * 60));
     
-    // 计算下次更新时间（每24小时更新一次）
-    const nextUpdateTime = new Date(lastUpdated);
-    nextUpdateTime.setHours(nextUpdateTime.getHours() + 24);
+    // 创建今天的构建时间（UTC时间16:30，对应北京时间00:30）
+    const todayBuildTimeUTC = new Date(now);
+    todayBuildTimeUTC.setUTCHours(16);
+    todayBuildTimeUTC.setUTCMinutes(30);
+    todayBuildTimeUTC.setUTCMilliseconds(0);
+    
+    // 转换为北京时间
+    const todayBuildTime = new Date(todayBuildTimeUTC);
+    todayBuildTime.setHours(todayBuildTime.getHours() + 8); // UTC+8
+    
+    // 确定下次更新时间
+    let nextUpdateTime;
+    if (now > todayBuildTime) {
+      // 如果当前时间已经过了今天的构建时间，则下次构建时间为明天同一时间
+      nextUpdateTime = new Date(todayBuildTime);
+      nextUpdateTime.setDate(nextUpdateTime.getDate() + 1);
+    } else {
+      // 否则，下次构建时间为今天的构建时间
+      nextUpdateTime = todayBuildTime;
+    }
     
     // 实时更新倒计时
     function updateCountdown() {
@@ -757,11 +760,17 @@ function processConfigData(data) {
       nextUpdateEl.style.color = 'var(--trae-green)';
     }
     
-    // 初始化倒计时
-    updateCountdown();
-    
-    // 每秒更新一次倒计时
-    setInterval(updateCountdown, 1000);
+    // 如果定时器不存在，创建新的；如果存在，只更新倒计时逻辑
+    if (!window.countdownInterval) {
+      // 初始化倒计时
+      updateCountdown();
+      
+      // 每秒更新一次倒计时
+      window.countdownInterval = setInterval(updateCountdown, 1000);
+    } else {
+      // 只更新倒计时显示，不重置定时器
+      updateCountdown();
+    }
   }
   
   if (modalLastUpdatedEl && data.settings && data.settings.lastUpdated) {
@@ -1552,6 +1561,9 @@ function initApiStatus() {
   
   const siteList = statusOverlay.querySelector('.site-status-list');
   if (!siteList) return;
+  
+  // 清空之前的检测结果，避免累加
+  siteList.innerHTML = '';
   
   // 检测配置中的爬取源站
   if (configData && configData.sites) {
