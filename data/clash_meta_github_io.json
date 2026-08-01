@@ -1,62 +1,62 @@
 {
   "url": "https://clash-meta.github.io/",
   "siteName": "clash-meta.github.io",
-  "scrapedAt": "2026-07-31T18:04:55.923Z",
+  "scrapedAt": "2026-08-01T06:44:29.565Z",
   "articles": [
     {
-      "url": "https://clash-meta.github.io/newly-discovered-nodes/index.html?date=2026-07-31",
-      "title": "07月31日更新21.5M/S，2026年最新高速Clash/V2ray订阅链接免费节点地址分享",
-      "scrapedAt": "2026-07-31T18:04:55.923Z",
+      "url": "https://clash-meta.github.io/newly-discovered-nodes/index.html?date=2026-08-01",
+      "title": "08月01日更新21.5M/S，2026年最新高速Clash/V2ray订阅链接免费节点地址分享",
+      "scrapedAt": "2026-08-01T06:44:29.565Z",
       "subscriptionCount": 10,
       "subscriptions": [
         {
           "type": "Clash",
-          "url": "https://node.freeclashnode.com/uploads/2026/07/0-20260731.yaml",
+          "url": "https://node.freeclashnode.com/uploads/2026/08/0-20260801.yaml",
           "description": "Clash订阅链接"
         },
         {
           "type": "Clash",
-          "url": "https://node.freeclashnode.com/uploads/2026/07/1-20260731.yaml",
+          "url": "https://node.freeclashnode.com/uploads/2026/08/1-20260801.yaml",
           "description": "Clash订阅链接"
         },
         {
           "type": "Clash",
-          "url": "https://node.freeclashnode.com/uploads/2026/07/2-20260731.yaml",
+          "url": "https://node.freeclashnode.com/uploads/2026/08/2-20260801.yaml",
           "description": "Clash订阅链接"
         },
         {
           "type": "Clash",
-          "url": "https://node.freeclashnode.com/uploads/2026/07/3-20260731.yaml",
+          "url": "https://node.freeclashnode.com/uploads/2026/08/3-20260801.yaml",
           "description": "Clash订阅链接"
         },
         {
           "type": "Clash",
-          "url": "https://node.freeclashnode.com/uploads/2026/07/4-20260731.yaml",
+          "url": "https://node.freeclashnode.com/uploads/2026/08/4-20260801.yaml",
           "description": "Clash订阅链接"
         },
         {
           "type": "V2ray",
-          "url": "https://node.freeclashnode.com/uploads/2026/07/0-20260731.txt",
+          "url": "https://node.freeclashnode.com/uploads/2026/08/0-20260801.txt",
           "description": "V2ray订阅链接"
         },
         {
           "type": "V2ray",
-          "url": "https://node.freeclashnode.com/uploads/2026/07/1-20260731.txt",
+          "url": "https://node.freeclashnode.com/uploads/2026/08/1-20260801.txt",
           "description": "V2ray订阅链接"
         },
         {
           "type": "V2ray",
-          "url": "https://node.freeclashnode.com/uploads/2026/07/2-20260731.txt",
+          "url": "https://node.freeclashnode.com/uploads/2026/08/2-20260801.txt",
           "description": "V2ray订阅链接"
         },
         {
           "type": "V2ray",
-          "url": "https://node.freeclashnode.com/uploads/2026/07/3-20260731.txt",
+          "url": "https://node.freeclashnode.com/uploads/2026/08/3-20260801.txt",
           "description": "V2ray订阅链接"
         },
         {
           "type": "Sing-Box",
-          "url": "https://node.freeclashnode.com/uploads/2026/07/20260731.json",
+          "url": "https://node.freeclashnode.com/uploads/2026/08/20260801.json",
           "description": "Sing-Box订阅链接"
         }
       ]
