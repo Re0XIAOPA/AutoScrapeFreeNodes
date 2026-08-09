@@ -1,6 +1,8 @@
 const express = require('express');
 const fs = require('fs-extra');
 const path = require('path');
+const crypto = require('crypto');
+const Csrf = require('csrf');
 const { CronJob } = require('cron');
 const scraper = require('./scraper');
 const cors = require('cors');
@@ -33,8 +35,33 @@ app.use((req, res, next) => {
   next();
 });
 
+// CSRF保护中间件（使用csrf包）
+const csrfLib = new Csrf();
+const csrfSecret = crypto.randomBytes(18).toString('base64');
+const csrfProtect = (req, res, next) => {
+  if (req.method === 'GET') return next();
+  const token = req.headers['x-csrf-token'];
+  if (!token || !csrfLib.verify(csrfSecret, token)) {
+    return res.status(403).json({ error: 'Invalid CSRF token' });
+  }
+  next();
+};
+app.get('/api/csrf-token', (req, res) => {
+  res.json({ csrfToken: csrfLib.create(csrfSecret) });
+});
+app.use('/api', csrfProtect);
+
+// 简单API密钥认证中间件
+const apiAuth = (req, res, next) => {
+  const apiKey = process.env.API_KEY;
+  if (!apiKey) return next();
+  const token = req.headers['x-api-key'] || req.query.api_key;
+  if (token !== apiKey) return res.status(401).json({ error: 'Unauthorized' });
+  next();
+};
+
 // 添加API端点返回配置信息（隐藏敏感数据）
-app.get('/api/config', (req, res) => {
+app.get('/api/config', apiAuth, (req, res) => {
   try {
     const publicConfig = {
       sites: config.sites.map(site => ({
@@ -57,7 +84,7 @@ app.get('/api/config', (req, res) => {
 });
 
 // API端点返回所有订阅链接数据
-app.get('/api/subscriptions', (req, res) => {
+app.get('/api/subscriptions', apiAuth, (req, res) => {
   try {
     const subscriptionsData = {};
     
@@ -70,8 +97,10 @@ app.get('/api/subscriptions', (req, res) => {
     
     sites.forEach(site => {
       try {
-        const siteData = fs.readJsonSync(path.join(dataDir, site));
-        const siteName = site.replace('.json', '');
+        const safeFile = path.basename(site);
+        const safeFilePath = dataDir + path.sep + safeFile;
+        const siteData = fs.readJsonSync(safeFilePath);
+        const siteName = safeFile.replace('.json', '');
         
         // 处理新的数据结构
         const processedData = {
@@ -128,7 +157,7 @@ app.get('/api/subscriptions', (req, res) => {
 });
 
 // 添加API端点返回详细数据（包括文章信息）
-app.get('/api/sites', (req, res) => {
+app.get('/api/sites', apiAuth, (req, res) => {
   try {
     const sitesData = {};
     
@@ -141,8 +170,10 @@ app.get('/api/sites', (req, res) => {
     
     sites.forEach(site => {
       try {
-        const siteData = fs.readJsonSync(path.join(dataDir, site));
-        const siteName = site.replace('.json', '');
+        const safeFile = path.basename(site);
+        const safeFilePath = dataDir + path.sep + safeFile;
+        const siteData = fs.readJsonSync(safeFilePath);
+        const siteName = safeFile.replace('.json', '');
         sitesData[siteName] = siteData;
       } catch (err) {
         console.error(`读取站点 ${site} 数据失败:`, err);
@@ -158,7 +189,7 @@ app.get('/api/sites', (req, res) => {
 });
 
 // 手动触发抓取的API
-app.post('/api/refresh', async (req, res) => {
+app.post('/api/refresh', apiAuth, async (req, res) => {
   try {
     console.log('手动触发抓取...');
     await scraper.scrapeAllSites();
@@ -199,8 +230,9 @@ console.log('开始初始抓取...');
 scraper.scrapeAllSites();
 
 // 设置定时任务，根据配置的updateInterval决定频率
-const cronExpression = `*/${settings.updateInterval || 15} * * * *`;
-console.log(`定时任务设置为每${settings.updateInterval || 15}分钟执行一次`);
+const interval = parseInt(settings.updateInterval, 10) || 15;
+const cronExpression = '*/' + interval + ' * * * *';
+console.log('定时任务设置为每' + interval + '分钟执行一次');
 
 const job = new CronJob(cronExpression, function() {
   console.log('执行定时抓取任务...');
