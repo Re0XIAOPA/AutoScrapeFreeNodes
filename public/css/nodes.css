@@ -89,6 +89,32 @@
     white-space: nowrap;
 }
 
+/* 可用性徽章：颜色来自抓取期的 TCP/TLS 探测结果，写死色值不依赖 Bootstrap 工具类 */
+.node-alive-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 3px 8px;
+    font-size: 0.72rem;
+    font-weight: 600;
+    white-space: nowrap;
+    border: 1px solid var(--trae-border);
+}
+
+.node-alive-badge i { font-size: 0.72rem; }
+
+.node-alive-badge.alive {
+    color: var(--trae-green);
+    border-color: rgba(29, 255, 145, 0.35);
+    background: rgba(29, 255, 145, 0.06);
+}
+
+.node-alive-badge.dead {
+    color: #ff5a5a;
+    border-color: rgba(255, 90, 90, 0.35);
+    background: rgba(255, 90, 90, 0.06);
+}
+
 /* API Status 分组标题 */
 .site-group-title {
     color: var(--trae-green);
@@ -132,9 +158,21 @@
    content-visibility: auto 让视口外的卡片直接跳过布局与绘制（内部子树不再参与），
    实测 1000 张卡片的全量重排 132ms → 30ms，滚动也不再为看不见的卡片付成本。
    contain-intrinsic-size 的 auto 前缀让浏览器记住卡片首次渲染后的真实高度，
-   未进入视口的卡片按 223px 估算，滚动条基本不抖（偏差 < 0.6%，滚动后自动校正）。
+   未进入视口的卡片按估算高度占位，估算越准滚动条越稳。
    ------------------------------------------------------------------ */
 #nodes-container > div[class*="col-"] {
     content-visibility: auto;
-    contain-intrinsic-size: auto 223px;
+    contain-intrinsic-size: auto 168px;
+}
+
+/* ------------------------------------------------------------------
+   滚动期过渡风暴治理（滚动卡顿的第二根因）
+   base.css 的全局 `* { transition: 0.2s }` 平时无害，但滚轮滚动时卡片会
+   在光标下连续移动，每张进入光标的卡都触发 :hover 边框过渡 → 329 张卡
+   边刷边滚就是一长串小重绘。节点区内的过渡全部关掉：hover 状态改为
+   立即生效，视觉几乎无差别，滚动期间不再为过渡付样式计算 + 重绘成本。
+   ------------------------------------------------------------------ */
+#nodes-container .node-card,
+#nodes-container .node-card * {
+    transition: none !important;
 }

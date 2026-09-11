@@ -8,9 +8,10 @@
  */
 
 let allNodes = [];
-let nodesMeta = { generatedAt: null, total: 0, duplicatesMerged: 0, summary: {}, sources: [] };
+let nodesMeta = { generatedAt: null, total: 0, duplicatesMerged: 0, summary: {}, sources: [], check: null };
 let nodeTypeFilter = 'all';
 let nodeSourceFilter = 'all';
+let nodeAliveFilter = 'all';
 let nodesHasLoaded = false;
 
 // 协议展示元信息
@@ -95,6 +96,7 @@ function applyNodesData(data) {
     duplicatesMerged: safe.duplicatesMerged || 0,
     summary: safe.summary && typeof safe.summary === 'object' ? safe.summary : {},
     sources: Array.isArray(safe.sources) ? safe.sources : [],
+    check: safe.check && typeof safe.check === 'object' ? safe.check : null,
     total: Array.isArray(safe.nodes) ? safe.nodes.length : 0
   };
 
@@ -103,6 +105,7 @@ function applyNodesData(data) {
 
   buildNodeTypeOptions();
   buildNodeSourceOptions();
+  buildNodeAliveOptions();
   updateNodeStats();
   renderNodes();
 }
@@ -125,9 +128,9 @@ function nodeSkeletonHtml(count = 6) {
     html += `
       <div class="col-lg-6 col-xl-4 mb-3">
         <div class="node-card skeleton-card${flat}">
-          <div class="d-flex justify-content-between align-items-center mb-2">
+          <div class="d-flex justify-content-between align-items-center mb-2 gap-2">
             <span class="skeleton-line" style="width:76px; height:24px; margin-bottom:0;"></span>
-            <span class="skeleton-line" style="width:74px; height:32px; margin-bottom:0;"></span>
+            <span class="skeleton-line" style="width:150px; height:32px; margin-bottom:0;"></span>
           </div>
           <div class="skeleton-line skeleton-line-lg"></div>
           <div class="skeleton-line skeleton-line-sm"></div>
@@ -230,6 +233,39 @@ function buildNodeSourceOptions() {
   select.value = nodeSourceFilter;
 }
 
+// 可用性筛选选项：只列出数据里真实存在的状态，并附带数量（与协议/来源筛选同一套约定）
+function buildNodeAliveOptions() {
+  const select = document.getElementById('node-alive-filter');
+  if (!select) return;
+
+  const counts = { alive: 0, dead: 0 };
+  allNodes.forEach(node => {
+    if (node.alive === true) counts.alive += 1;
+    else counts.dead += 1;
+  });
+
+  const options = [
+    { value: 'all', label: `全部 (${allNodes.length})` },
+    { value: 'alive', label: `可用 (${counts.alive})` },
+    { value: 'dead', label: `不可用 (${counts.dead})` }
+  ];
+
+  // 先校正失效的当前选项，再做签名比对，避免无谓重建导致下拉闪烁
+  const validValues = options.map(o => o.value);
+  if (!validValues.includes(nodeAliveFilter)) nodeAliveFilter = 'all';
+  if (nodeAliveFilter === 'dead' && !counts.dead) nodeAliveFilter = 'all';
+
+  const signature = options.map(o => `${o.value}:${o.label}`).join('|');
+  if (select.dataset.signature === signature) {
+    select.value = nodeAliveFilter;
+    return;
+  }
+  select.dataset.signature = signature;
+
+  select.innerHTML = options.map(o => `<option value="${o.value}">${o.label}</option>`).join('');
+  select.value = nodeAliveFilter;
+}
+
 // ---------------------------------------------------------------------------
 // 渲染
 // ---------------------------------------------------------------------------
@@ -243,8 +279,26 @@ function getFilteredNodes() {
       if (name !== nodeSourceFilter) return false;
     }
 
+    // 可用性筛选：探测层保证每个节点都有 true/false 结论
+    if (nodeAliveFilter === 'alive' && node.alive !== true) return false;
+    if (nodeAliveFilter === 'dead' && node.alive === true) return false;
+
     return true;
   });
+}
+
+/**
+ * 节点可用性徽章。数据来自抓取期的连通性探测（TCP/TLS/UDP-QUIC）：
+ * alive=true 端口可通；false 不可达；null 仅在未启用探测时出现（按不可用兜底显示）。
+ * 延迟数值只放进悬浮提示，不再占用卡片空间。
+ * 注意端口可通不等于节点一定能用（无法校验账号密码，CDN 节点恒通）。
+ */
+function renderNodeAliveBadge(node) {
+  if (node.alive === true) {
+    const latency = typeof node.latencyMs === 'number' ? ` · ${node.latencyMs}ms` : '';
+    return `<span class="node-alive-badge alive" title="${escapeAttr((node.probeNote || '连接成功') + latency)}"><i class="bi bi-broadcast"></i> 可用</span>`;
+  }
+  return `<span class="node-alive-badge dead" title="${escapeAttr(node.probeNote || '连接失败')}"><i class="bi bi-broadcast"></i> 不可用</span>`;
 }
 
 function renderNodes() {
@@ -289,13 +343,16 @@ function renderNodes() {
     parts.push(`
       <div class="col-lg-6 col-xl-4 mb-3">
         <div class="node-card" data-link="${escapeAttr(node.link)}">
-          <div class="d-flex justify-content-between align-items-center mb-2">
+          <div class="d-flex justify-content-between align-items-center mb-2 gap-2">
             <span class="type-badge border border-${meta.color} text-${meta.color}">
               <i class="${meta.icon}"></i> ${escapeHtml(meta.label)}
             </span>
-            <button class="btn-action node-copy-btn">
-              <i class="bi bi-clipboard"></i> 复制
-            </button>
+            <div class="d-flex align-items-center gap-2">
+              ${renderNodeAliveBadge(node)}
+              <button class="btn-action node-copy-btn">
+                <i class="bi bi-clipboard"></i> 复制
+              </button>
+            </div>
           </div>
           <div class="node-name" title="${escapeAttr(name)}">${escapeHtml(name)}</div>
           <div class="node-endpoint"><i class="bi bi-hdd-network me-1"></i>${escapeHtml(endpoint)}</div>
@@ -340,6 +397,14 @@ function updateNodeStats(filteredCount) {
     if (nodesMeta.generatedAt) parts.push(`更新于 ${formatNodeTime(nodesMeta.generatedAt)}`);
     if (nodesMeta.duplicatesMerged) parts.push(`已合并重复 ${nodesMeta.duplicatesMerged} 个`);
     if (nodesMeta.sources.length) parts.push(`${nodesMeta.sources.length} 个来源仓库`);
+
+    // 可用性汇总（TCP/TLS/UDP-QUIC 探测结果，探测层保证全覆盖）
+    let aliveCount = 0;
+    allNodes.forEach(node => {
+      if (node.alive === true) aliveCount += 1;
+    });
+    parts.push(`可用 ${aliveCount}/${allNodes.length}`);
+
     if (typeof filteredCount === 'number' && filteredCount !== allNodes.length) {
       parts.push(`当前筛选 ${filteredCount} 个`);
     }
@@ -389,6 +454,7 @@ function copyAllVisibleNodes(buttonEl) {
 document.addEventListener('DOMContentLoaded', function () {
   const typeSelect = document.getElementById('node-type-filter');
   const sourceSelect = document.getElementById('node-source-filter');
+  const aliveSelect = document.getElementById('node-alive-filter');
   const copyAllBtn = document.getElementById('node-copy-all-btn');
   const nodesRefreshBtn = document.getElementById('node-refresh-btn');
 
@@ -402,6 +468,13 @@ document.addEventListener('DOMContentLoaded', function () {
   if (sourceSelect) {
     sourceSelect.addEventListener('change', function () {
       nodeSourceFilter = this.value;
+      renderNodes();
+    });
+  }
+
+  if (aliveSelect) {
+    aliveSelect.addEventListener('change', function () {
+      nodeAliveFilter = this.value;
       renderNodes();
     });
   }
