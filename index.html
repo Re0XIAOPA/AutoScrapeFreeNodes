@@ -6,13 +6,12 @@
     <title>AutoScrape - Next Gen Node Scraper</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
-    <link rel="stylesheet" href="css/base.css">
-    <link rel="stylesheet" href="css/components.css">
-    <link rel="stylesheet" href="css/subscription.css">
+    <link rel="stylesheet" href="css/base.css?v=4">
+    <link rel="stylesheet" href="css/components.css?v=5">
+    <link rel="stylesheet" href="css/subscription.css?v=3">
+    <link rel="stylesheet" href="css/nodes.css?v=4">
 </head>
 <body>
-
-<div id="loader" class="loading-overlay"><div class="trae-loader"></div></div>
 
 <nav class="trae-nav">
     <div class="container d-flex justify-content-between align-items-center">
@@ -53,32 +52,25 @@
 <div id="page-dashboard" class="page-section">
     <div class="container mt-5">
         <div class="stat-grid">
-            <div class="stat-box"><div class="stat-val" id="total-nodes">0</div><div class="text-secondary small">总计节点</div></div>
+            <div class="stat-box"><div class="stat-val" id="total-nodes">0</div><div class="text-secondary small">订阅链接</div></div>
+            <div class="stat-box"><div class="stat-val" id="total-importable-nodes">0</div><div class="text-secondary small">可导入节点</div></div>
             <div class="stat-box"><div class="stat-val" id="total-sources">0</div><div class="text-secondary small">活跃源站</div></div>
             <div class="stat-box"><div class="stat-val">24h</div><div class="text-secondary small">同步频率</div></div>
             <div class="stat-box"><div class="stat-val" id="next-update-time">00:00:00</div><div class="text-secondary small">下次更新</div></div>
+        </div>
+
+        <div class="section-heading">
+            <span class="section-title">订阅链接</span>
+            <span class="text-secondary small">来自网页站点采集的订阅地址</span>
         </div>
 
         <div class="control-panel">
             <div class="d-flex align-items-center gap-3">
                 <span class="text-secondary small">协议筛选:</span>
                 <div class="filter-wrapper">
+                    <!-- 协议选项由 app.js 依据实际数据动态生成（只列出数据里真实存在的协议，并附带数量） -->
                     <select id="type-filter" class="trae-select">
                         <option value="all">所有协议</option>
-                        <option value="Clash">Clash</option>
-                        <option value="V2ray">V2ray</option>
-                        <option value="Sing-Box">Sing-Box</option>
-                        <option value="Shadowrocket">Shadowrocket</option>
-                        <option value="Quantumult">Quantumult</option>
-                        <option value="SS/SSR">SS/SSR</option>
-                        <option value="Trojan">Trojan</option>
-                        <option value="Hysteria">Hysteria</option>
-                        <option value="WireGuard">WireGuard</option>
-                        <option value="Tuic">Tuic</option>
-                        <option value="NaiveProxy">NaiveProxy</option>
-                        <option value="GoFlyway">GoFlyway</option>
-                        <option value="通用">通用</option>
-                        <option value="自定义">自定义</option>
                     </select>
                 </div>
             </div>
@@ -102,6 +94,38 @@
                 </div>
             </div>
         </div>
+
+        <div class="section-heading mt-5">
+            <span class="section-title">可导入节点</span>
+            <span class="text-secondary small">整理自公开仓库，复制后可直接导入客户端</span>
+        </div>
+
+        <div class="control-panel node-control-panel">
+            <div class="d-flex align-items-center gap-3 flex-wrap">
+                <span class="text-secondary small">协议筛选:</span>
+                <div class="filter-wrapper">
+                    <select id="node-type-filter" class="trae-select">
+                        <option value="all">所有协议</option>
+                    </select>
+                </div>
+                <span class="text-secondary small">来源:</span>
+                <div class="filter-wrapper">
+                    <select id="node-source-filter" class="trae-select">
+                        <option value="all">所有来源</option>
+                    </select>
+                </div>
+            </div>
+            <div class="d-flex gap-2">
+                <button id="node-copy-all-btn" class="btn btn-outline-success">
+                    <i class="bi bi-clipboard-check me-1"></i> 复制全部
+                </button>
+                <button id="node-refresh-btn" class="btn" style="background:var(--trae-green); color:#000; font-weight:700;">
+                    <i class="bi bi-arrow-repeat me-1"></i> 刷新节点
+                </button>
+            </div>
+        </div>
+        <div id="nodes-meta" class="text-secondary smaller mb-3"></div>
+        <div id="nodes-container" class="row g-4"></div>
     </div>
 </div>
 
@@ -206,15 +230,15 @@
         <h2 class="mb-5" style="color:var(--trae-green)">API Status</h2>
         <div class="border border-secondary">
             <div class="p-4 border-bottom border-secondary d-flex justify-content-between align-items-center">
-                <span><i class="bi bi-cloud-check text-success me-2"></i> 主站状态</span>
+                <span><i class="bi bi-cloud-check api-icon-main me-2"></i> 主站状态</span>
                 <span class="badge bg-success">在线</span>
             </div>
             <div class="p-4 border-bottom border-secondary d-flex justify-content-between align-items-center">
-                <span><i class="bi bi-gear-wide-connected text-success me-2"></i> 采集引擎</span>
+                <span><i class="bi bi-gear-wide-connected api-icon-engine me-2"></i> 采集引擎</span>
                 <span class="badge bg-success">在线</span>
             </div>
             <div class="p-4 d-flex justify-content-between align-items-center">
-                <span><i class="bi bi-hdd-network text-warning me-2"></i> 爬取源站健康度</span>
+                <span><i class="bi bi-hdd-network api-icon-sites me-2"></i> 爬取源站健康度</span>
                 <span class="site-status badge bg-secondary" style="min-width: 40px; text-align: center;">检测中...</span>
             </div>
             <div class="site-status-list p-4">
@@ -237,10 +261,11 @@
     </div>
 </footer>
 
-<script src="js/config.js"></script>
-<script src="js/inline-data.js"></script>
-<script src="js/subscription-manager.js"></script>
-<script src="js/app.js"></script>
+<script src="js/config.js?v=3"></script>
+<script src="js/inline-data.js?v=3"></script>
+<script src="js/subscription-manager.js?v=3"></script>
+<script src="js/app.js?v=7"></script>
+<script src="js/nodes.js?v=5"></script>
 
 <script>
     function switchPage(p) {
@@ -268,14 +293,6 @@
         document.querySelectorAll('.overlay-full').forEach(o => o.style.display = 'none');
         document.body.style.overflow = 'auto';
     }
-
-    // 视觉反馈：点击刷新按钮
-    document.getElementById('refresh-btn')?.addEventListener('click', function() {
-        const loader = document.getElementById('loader');
-        loader.style.display = 'flex';
-        // 具体的刷新逻辑会由 app.js 接管，这里只做视觉延时展示
-        setTimeout(() => { loader.style.display = 'none'; }, 800);
-    });
 </script>
 
 </body>

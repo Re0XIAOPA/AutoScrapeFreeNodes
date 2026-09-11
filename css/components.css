@@ -33,7 +33,7 @@
 .hero-title { font-size: clamp(2.5rem, 8vw, 4.5rem); font-weight: 900; line-height: 1.1; margin-bottom: 30px; }
 
 /* 统计与控制面板 */
-.stat-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1px; border: 1px solid var(--trae-border); background: var(--trae-border); margin-bottom: 40px; }
+.stat-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 1px; border: 1px solid var(--trae-border); background: var(--trae-border); margin-bottom: 40px; }
 .stat-box { background: #0a0a0a; padding: 30px; text-align: center; }
 .stat-val { font-size: 2.5rem; font-weight: 800; color: var(--trae-green); font-family: 'Consolas', monospace; }
 
@@ -70,13 +70,75 @@
 .site-status.online { color: var(--trae-green); font-weight: bold; }
 .site-status.offline { color: #ff4444; font-weight: bold; }
 
-/* 加载动画 */
-.loading-overlay {
-    position: fixed; inset: 0; background: rgba(0,0,0,0.95);
-    display: flex; flex-direction: column; align-items: center; justify-content: center;
-    z-index: 9999; display: none;
+/* API Status 图标配色
+   不依赖 Bootstrap 的 text-* 工具类（CDN 不可用时这些类会失效，
+   导致不同图标退化为同一继承色），统一使用站点调色板，保证三者颜色可区分。 */
+.api-icon-main   { color: #1dff91; }  /* 主站状态 · 主题绿 */
+.api-icon-engine { color: #4da3ff; }  /* 采集引擎 · 蓝 */
+.api-icon-sites  { color: #ffc53d; }  /* 爬取源站健康度 · 琥珀 */
+
+/* ------------------------------------------------------------------
+   骨架屏（Skeleton）
+   加载 / 刷新期间用「真实卡片外壳 + 占位条」占位：
+     1. 占位卡片复用 .subscription-card / .node-card，高度与真实卡片基本一致，
+        页面不会在加载瞬间「塌陷」，从根上消除刷新时的滚动跳变；
+     2. 打光层由 ::after 的线性渐变从左到右平滑循环扫过；
+     3. 全部为站点自有样式，不依赖 Bootstrap —— 基座里有
+        `* { border-radius: 0 !important }`，会把 Bootstrap 的 spinner-border
+        压成方块，所以这里不再使用任何 Bootstrap 加载动画类。
+   ------------------------------------------------------------------ */
+.skeleton-card {
+    position: relative;
+    overflow: hidden;
+    pointer-events: none;
 }
-.trae-loader { width: 45px; height: 45px; border: 3px solid rgba(29, 255, 145, 0.1); border-top: 3px solid var(--trae-green); border-radius: 50% !important; animation: spin 0.8s linear infinite; }
+
+.skeleton-line {
+    display: block;
+    height: 12px;
+    margin-bottom: 10px;
+    background: rgba(255, 255, 255, 0.06);
+}
+.skeleton-line:last-child { margin-bottom: 0; }
+.skeleton-line-sm { width: 42%; }
+.skeleton-line-md { width: 72%; }
+.skeleton-line-lg { width: 100%; }
+.skeleton-line-block { width: 100%; height: 38px; margin: 15px 0; }
+
+/* 打光：一层柔和的渐变高光，从左到右循环扫过 */
+.skeleton-card::after {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    width: 55%;
+    background: linear-gradient(
+        90deg,
+        rgba(255, 255, 255, 0) 0%,
+        rgba(255, 255, 255, 0.09) 50%,
+        rgba(255, 255, 255, 0) 100%
+    );
+    transform: translateX(-120%);
+    animation: skeleton-sweep 1.5s linear infinite;
+    pointer-events: none;
+}
+
+@keyframes skeleton-sweep {
+    0%   { transform: translateX(-120%); }
+    72%  { transform: translateX(220%); }
+    100% { transform: translateX(220%); }
+}
+
+/* 屏幕外的骨架卡不参与打光：看不见高光，却能省下大量合成开销 */
+.skeleton-card.skeleton-flat::after { content: none; }
+
+@media (prefers-reduced-motion: reduce) {
+    .skeleton-card::after { animation: none; }
+}
+
+/* 按钮内的旋转图标（「刷新中」状态），仍使用站点自有的圆形/旋转实现 */
+.icon-spin { display: inline-block; animation: spin 0.9s linear infinite; }
 @keyframes spin { 100% { transform: rotate(360deg); } }
 
 /* 页脚 */
