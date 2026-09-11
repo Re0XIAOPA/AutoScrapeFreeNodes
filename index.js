@@ -5,6 +5,7 @@ const crypto = require('crypto');
 const Csrf = require('csrf');
 const { CronJob } = require('cron');
 const scraper = require('./scraper');
+const mdNodes = require('./md-nodes');
 const cors = require('cors');
 
 // 获取配置
@@ -64,10 +65,21 @@ const apiAuth = (req, res, next) => {
 app.get('/api/config', apiAuth, (req, res) => {
   try {
     const publicConfig = {
-      sites: config.sites.map(site => ({
+        sites: config.sites.map(site => ({
         url: site.url,
         description: site.description,
         enabled: site.enabled
+      })),
+      mdSources: (config.mdSources || []).map(source => ({
+        name: source.name,
+        repo: source.repo,
+        url: `https://github.com/${source.repo}`,
+        enabled: source.enabled !== false
+      })),
+      nodeSources: (config.nodeSources || []).map(source => ({
+        name: source.name,
+        url: source.url,
+        enabled: source.enabled !== false
       })),
       settings: {
         updateInterval: settings.updateInterval,
@@ -188,11 +200,152 @@ app.get('/api/sites', apiAuth, (req, res) => {
   }
 });
 
+// API端点返回统一的健康度数据（供 API Status 浮层使用）
+app.get('/api/status', apiAuth, (req, res) => {
+  try {
+    const sites = [];
+    const siteFiles = fs.readdirSync(dataDir).filter(file => file.endsWith('.json'));
+
+    siteFiles.forEach(file => {
+      try {
+        const siteData = fs.readJsonSync(path.join(dataDir, path.basename(file)));
+        sites.push({
+          name: siteData.siteName || path.basename(file, '.json'),
+          url: siteData.url,
+          description: siteData.description,
+          strategy: siteData.strategy,
+          scrapedAt: siteData.scrapedAt,
+          subscriptionCount: siteData.totalSubscriptions || 0,
+          health: siteData.health || null,
+          error: siteData.error || null
+        });
+      } catch (err) {
+        console.error(`读取站点健康度失败 ${file}:`, err.message);
+      }
+    });
+
+    const nodes = mdNodes.readNodes();
+    const nodeSourceStats = (nodes && Array.isArray(nodes.sources)) ? nodes.sources : [];
+
+    const mdSources = (config.mdSources || []).map(source => {
+      const stat = nodeSourceStats.find(item => item.repo === source.repo);
+      return {
+        kind: 'repo',
+        name: source.name,
+        repo: source.repo,
+        url: `https://github.com/${source.repo}`,
+        fileCount: stat ? stat.fileCount : 0,
+        nodeCount: stat ? stat.nodeCount : 0,
+        error: stat ? stat.error : null
+      };
+    });
+
+    const nodeSources = (config.nodeSources || []).map(source => {
+      const stat = nodeSourceStats.find(item => item.url === source.url || item.name === source.name);
+      return {
+        kind: 'web',
+        name: source.name,
+        url: source.url,
+        fileCount: stat ? stat.fileCount : 0,
+        nodeCount: stat ? stat.nodeCount : 0,
+        error: stat ? stat.error : null
+      };
+    });
+
+    const totals = sites.reduce((acc, site) => {
+      const health = site.health || { total: 0, online: 0 };
+      acc.total += health.total || 0;
+      acc.online += health.online || 0;
+      return acc;
+    }, { total: 0, online: 0 });
+
+    res.json({
+      generatedAt: new Date().toISOString(),
+      subscriptions: {
+        total: totals.total,
+        online: totals.online,
+        offline: totals.total - totals.online
+      },
+      sites,
+      mdSources,
+      nodeSources,
+      nodes: {
+        total: nodes ? nodes.total : 0,
+        generatedAt: nodes ? nodes.generatedAt : null,
+        summary: nodes ? nodes.summary || {} : {},
+        duplicatesMerged: nodes ? nodes.duplicatesMerged || 0 : 0
+      }
+    });
+  } catch (error) {
+    console.error('获取健康度数据失败:', error);
+    res.status(500).json({ error: '获取健康度数据失败' });
+  }
+});
+
+// API端点返回从 markdown 仓库提取的可导入节点
+app.get('/api/nodes', apiAuth, (req, res) => {
+  try {
+    const data = mdNodes.readNodes();
+
+    if (!data) {
+      return res.json({
+        generatedAt: null,
+        datasetTotal: 0,
+        total: 0,
+        count: 0,
+        duplicatesMerged: 0,
+        summary: {},
+        sources: [],
+        nodes: []
+      });
+    }
+
+    const allNodes = Array.isArray(data.nodes) ? data.nodes : [];
+    let nodes = allNodes;
+
+    // 可选过滤：?type=ss / ?source=v2rayfree
+    if (req.query.type) {
+      const type = String(req.query.type).toLowerCase();
+      nodes = nodes.filter(node => String(node.type).toLowerCase() === type);
+    }
+    if (req.query.source) {
+      const source = String(req.query.source).toLowerCase();
+      nodes = nodes.filter(node => String(node.source || '').toLowerCase() === source);
+    }
+
+    // total 表示过滤后的数量，不受 limit 影响
+    const total = nodes.length;
+
+    // ?limit=50 仅限制返回条数
+    if (req.query.limit) {
+      const limit = parseInt(req.query.limit, 10);
+      if (Number.isFinite(limit) && limit > 0) {
+        nodes = nodes.slice(0, limit);
+      }
+    }
+
+    res.json({
+      generatedAt: data.generatedAt,
+      datasetTotal: allNodes.length,
+      total,
+      count: nodes.length,
+      duplicatesMerged: data.duplicatesMerged || 0,
+      summary: data.summary || {},
+      sources: data.sources || [],
+      nodes
+    });
+  } catch (error) {
+    console.error('获取节点数据失败:', error);
+    res.status(500).json({ error: '获取节点数据失败' });
+  }
+});
+
 // 手动触发抓取的API
 app.post('/api/refresh', apiAuth, async (req, res) => {
   try {
     console.log('手动触发抓取...');
     await scraper.scrapeAllSites();
+    await mdNodes.scrapeMdNodes();
     res.json({ success: true, message: '抓取完成' });
   } catch (error) {
     console.error('手动抓取失败:', error);
@@ -225,9 +378,17 @@ app.listen(PORT, () => {
   console.log(`服务器运行在 http://localhost:${PORT}`);
 });
 
+// 执行一次完整抓取（站点订阅 + markdown 节点）
+const runFullScrape = async () => {
+  await scraper.scrapeAllSites();
+  await mdNodes.scrapeMdNodes();
+};
+
 // 初始化抓取一次
 console.log('开始初始抓取...');
-scraper.scrapeAllSites();
+runFullScrape().catch(error => {
+  console.error('初始抓取失败:', error);
+});
 
 // 设置定时任务，根据配置的updateInterval决定频率
 const interval = parseInt(settings.updateInterval, 10) || 15;
@@ -236,7 +397,9 @@ console.log('定时任务设置为每' + interval + '分钟执行一次');
 
 const job = new CronJob(cronExpression, function() {
   console.log('执行定时抓取任务...');
-  scraper.scrapeAllSites();
+  runFullScrape().catch(error => {
+    console.error('定时抓取失败:', error);
+  });
 }, null, true);
 
 job.start();
