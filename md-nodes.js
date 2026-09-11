@@ -11,6 +11,7 @@
 const fs = require('fs-extra');
 const path = require('path');
 const { httpGet, decodeHtmlEntities } = require('./http-client');
+const { probeNodes } = require('./node-probe');
 
 // 默认数据源（可在 config.json 的 mdSources 中覆盖）
 const DEFAULT_SOURCES = [
@@ -675,11 +676,29 @@ const scrapeMdNodes = async (options = {}) => {
     summary[node.type] = (summary[node.type] || 0) + 1;
   }
 
+  // 节点连通性探测：就地给每个节点写入 alive / latencyMs / probe / probeNote。
+  // TCP/TLS/UDP-QUIC 全覆盖，每个节点都有 可用/不可用 结论；只筛掉服务器失效的节点。
+  let check = null;
+  try {
+    const stats = await probeNodes(allNodes);
+    check = {
+      method: stats.method,
+      at: stats.at,
+      total: stats.total,
+      alive: stats.alive,
+      dead: stats.dead,
+      endpoints: stats.endpoints
+    };
+  } catch (error) {
+    console.error('[probe] 节点探测失败（忽略，节点仍正常输出）:', error.message);
+  }
+
   const output = {
     generatedAt: new Date().toISOString(),
     total: allNodes.length,
     duplicatesMerged: duplicates,
     summary,
+    check,
     sources: results.map(r => ({
       kind: r.kind || 'repo',
       repo: r.repo,

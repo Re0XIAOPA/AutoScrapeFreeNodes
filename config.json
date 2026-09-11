@@ -88,6 +88,11 @@
       "timeout": 12000,
       "concurrency": 6,
       "maxBytes": 65536
+    },
+    "nodeCheck": {
+      "enabled": true,
+      "timeout": 4000,
+      "concurrency": 32
     }
   },
   "subscriptions": []

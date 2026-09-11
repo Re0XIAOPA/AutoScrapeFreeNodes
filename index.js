@@ -273,7 +273,8 @@ app.get('/api/status', apiAuth, (req, res) => {
         total: nodes ? nodes.total : 0,
         generatedAt: nodes ? nodes.generatedAt : null,
         summary: nodes ? nodes.summary || {} : {},
-        duplicatesMerged: nodes ? nodes.duplicatesMerged || 0 : 0
+        duplicatesMerged: nodes ? nodes.duplicatesMerged || 0 : 0,
+        check: nodes ? (nodes.check || null) : null
       }
     });
   } catch (error) {
@@ -331,6 +332,7 @@ app.get('/api/nodes', apiAuth, (req, res) => {
       count: nodes.length,
       duplicatesMerged: data.duplicatesMerged || 0,
       summary: data.summary || {},
+      check: data.check || null,
       sources: data.sources || [],
       nodes
     });
