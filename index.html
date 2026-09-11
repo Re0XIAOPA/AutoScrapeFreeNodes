@@ -1,261 +1,268 @@
 <!DOCTYPE html>
-<html lang="zh-CN">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<html lang="zh-CN" data-page-node-id="HjVAcIMVDmDXrYhhJYV8pX">
+<head data-page-node-id="QMN0RrgH7mOFnsvRuU00dH">
+    <meta charset="UTF-8" data-page-node-id="zhC2AysnWoHA9CGEu3FH4I">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" data-page-node-id="hV5l0wFywMQHoJSM45jQiR">
     <title>AutoScrape - Next Gen Node Scraper</title>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
-    <link rel="stylesheet" href="css/base.css?v=4">
-    <link rel="stylesheet" href="css/components.css?v=5">
-    <link rel="stylesheet" href="css/subscription.css?v=3">
-    <link rel="stylesheet" href="css/nodes.css?v=4">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" data-page-node-id="X13zbqGlRhsKlOSGDN4b8F">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" data-page-node-id="HaIOKJMWULZtzfunH4wcBZ">
+    <link rel="stylesheet" href="css/base.css?v=4" data-page-node-id="i11zcEdT17EaXb4U2CahfV">
+    <link rel="stylesheet" href="css/components.css?v=5" data-page-node-id="bzGCeEEU3RMceJ8M8mAus2">
+    <link rel="stylesheet" href="css/subscription.css?v=3" data-page-node-id="IGufEFEBsgZTTY9xIxeFl8">
+    <link rel="stylesheet" href="css/nodes.css?v=6" data-page-node-id="n0GlF5LwdOJ5RHE9VHZBeJ">
 </head>
-<body>
+<body data-page-node-id="bcWNH6frLJZEA7LIwZaGPg">
 
-<nav class="trae-nav">
-    <div class="container d-flex justify-content-between align-items-center">
-        <div class="navbar-brand" onclick="switchPage('home')">
-            AUTO<span class="logo-scrape">SCRAPE</span>
+<nav class="trae-nav" data-page-node-id="TAixDz23KwRXbB3WSvtoL9">
+    <div class="container d-flex justify-content-between align-items-center" data-page-node-id="1HBC3cpgY8LMcU7pEriCtj">
+        <div class="navbar-brand" onclick="switchPage('home')" data-page-node-id="arjG2Efw0ID3j8b84MWjmC">
+            AUTO<span class="logo-scrape" data-page-node-id="c8wGeSpbfAUXD5I77IfLHh">SCRAPE</span>
         </div>
-        <div class="d-flex gap-4">
-            <span id="nav-dashboard" class="nav-link-custom" onclick="switchPage('dashboard')">
-                <i class="bi bi-speedometer2 me-2"></i>工作台
+        <div class="d-flex gap-4" data-page-node-id="TDAVCIJHZ1DbU0BlilSS5V">
+            <span id="nav-dashboard" class="nav-link-custom" onclick="switchPage('dashboard')" data-page-node-id="rdAl5sfssToSXdyfvBSk5E">
+                <i class="bi bi-speedometer2 me-2" data-page-node-id="mMLQvPcl3iRegLxBxGyDBL"></i>工作台
             </span>
-            <span class="nav-link-custom" onclick="openOverlay('overlay-about')">
-                <i class="bi bi-info-circle me-2"></i>关于项目
+            <span class="nav-link-custom" onclick="openOverlay('overlay-about')" data-page-node-id="XIFqoyXocLeIzbZy19GBul">
+                <i class="bi bi-info-circle me-2" data-page-node-id="d2FUXfir5EWKiWvqHIU3Gk"></i>关于项目
             </span>
-            <a href="https://github.com/Re0XIAOPA/AutoScrapeFreeNodes" target="_blank" class="nav-link-custom text-decoration-none">
-                <i class="bi bi-github me-2"></i>GitHub
+            <a href="https://github.com/Re0XIAOPA/AutoScrapeFreeNodes" target="_blank" class="nav-link-custom text-decoration-none" data-page-node-id="k1Nf0dXrEwFBAYYOGugQNT">
+                <i class="bi bi-github me-2" data-page-node-id="kbeNjXNgeifjQEdjZwN7FQ"></i>GitHub
             </a>
         </div>
     </div>
 </nav>
 
-<div id="page-home" class="page-section page-active">
-    <div class="container hero-section">
-        <div class="hero-tag">DISTRIBUTED SCRAPING SYSTEM</div>
-        <h1 class="hero-title">
-            <span>采集免费节点</span>
-            <span class="logo-scrape">从未如此简单</span>
+<div id="page-home" class="page-section page-active" data-page-node-id="I775PdTt556w6q8u1JNRVk">
+    <div class="container hero-section" data-page-node-id="Z90MraAiVnyS5CUOiA6su0">
+        <div class="hero-tag" data-page-node-id="GUoDrCJPCDNJCSzG4AR7Er">DISTRIBUTED SCRAPING SYSTEM</div>
+        <h1 class="hero-title" data-page-node-id="Otv18QrxpXkCIOVnwtsjCw">
+            <span data-page-node-id="tCLPjv8QgcWHmtfuTMBOQj">采集免费节点</span>
+            <span class="logo-scrape" data-page-node-id="V11RM89ufISJJiaQjmO9pA">从未如此简单</span>
         </h1>
-        <p class="text-secondary fs-5 mb-5 mx-auto" style="max-width: 650px;">
-            基于现代化技术栈构建的自动化数据流转系统。<br>
+        <p class="text-secondary fs-5 mb-5 mx-auto" style="max-width: 650px;" data-page-node-id="Z0iOHMzTuKmNQgNCRGwmBU">
+            基于现代化技术栈构建的自动化数据流转系统。<br data-page-node-id="Fotdf7fFROyBb34WdpqhbJ">
             结合 GitHub Actions 高效同步，为社区提供实时、可靠的订阅分发服务。
         </p>
-        <button class="btn px-5 py-3" style="background:var(--trae-green); color:#000; font-weight:800;" onclick="switchPage('dashboard')">
-            进入控制台 <i class="bi bi-arrow-right ms-2"></i>
+        <button class="btn px-5 py-3" style="background:var(--trae-green); color:#000; font-weight:800;" onclick="switchPage('dashboard')" data-page-node-id="cLGJgWU4l71gxZkgRUqAuX">
+            进入控制台 <i class="bi bi-arrow-right ms-2" data-page-node-id="FRJBmM1qvQ6T58c9WL8M1s"></i>
         </button>
     </div>
 </div>
 
-<div id="page-dashboard" class="page-section">
-    <div class="container mt-5">
-        <div class="stat-grid">
-            <div class="stat-box"><div class="stat-val" id="total-nodes">0</div><div class="text-secondary small">订阅链接</div></div>
-            <div class="stat-box"><div class="stat-val" id="total-importable-nodes">0</div><div class="text-secondary small">可导入节点</div></div>
-            <div class="stat-box"><div class="stat-val" id="total-sources">0</div><div class="text-secondary small">活跃源站</div></div>
-            <div class="stat-box"><div class="stat-val">24h</div><div class="text-secondary small">同步频率</div></div>
-            <div class="stat-box"><div class="stat-val" id="next-update-time">00:00:00</div><div class="text-secondary small">下次更新</div></div>
+<div id="page-dashboard" class="page-section" data-page-node-id="H53hqAchFD5KXAhjDFfckI">
+    <div class="container mt-5" data-page-node-id="U2XHKFBFc90qA8YIP38wew">
+        <div class="stat-grid" data-page-node-id="OEvZByyPxGJCkknjILouiF">
+            <div class="stat-box" data-page-node-id="bnbzp8zznn3QJoxXECnV1i"><div class="stat-val" id="total-nodes" data-page-node-id="4gOInjKlJOZNeQ5GJxhBut">0</div><div class="text-secondary small" data-page-node-id="vRNuE475MAFbD6aEtRnDN2">订阅链接</div></div>
+            <div class="stat-box" data-page-node-id="vprG1wDExzJIdcXz1UiMhB"><div class="stat-val" id="total-importable-nodes" data-page-node-id="LxZUCKMnbTIyzoyuFsJAYK">0</div><div class="text-secondary small" data-page-node-id="ysHfyAtD6smcXXkfKJTuRS">可导入节点</div></div>
+            <div class="stat-box" data-page-node-id="eMWtLHva7nris1BpXSZH71"><div class="stat-val" id="total-sources" data-page-node-id="DqNz7RTqoZziTJdfHQxIN4">0</div><div class="text-secondary small" data-page-node-id="tzixNvO4tUZ1ZOA8TmPmnC">活跃源站</div></div>
+            <div class="stat-box" data-page-node-id="DQ0O8UECsdJZYalgGRnUHU"><div class="stat-val" data-page-node-id="HHNBSSmu22GDfGNO0XsVTw">24h</div><div class="text-secondary small" data-page-node-id="9f1NU8b4tbMtHyE6Ebb1Jj">同步频率</div></div>
+            <div class="stat-box" data-page-node-id="jOPFxKC7D8yq6Z1b0iHxQg"><div class="stat-val" id="next-update-time" data-page-node-id="g8S7J7iTcaK3PqbdS1APQf">00:00:00</div><div class="text-secondary small" data-page-node-id="F1d4imgiyoTEmlpvXMhukp">下次更新</div></div>
         </div>
 
-        <div class="section-heading">
-            <span class="section-title">订阅链接</span>
-            <span class="text-secondary small">来自网页站点采集的订阅地址</span>
+        <div class="section-heading" data-page-node-id="k8lXZja2s0cLLDFP6ghReV">
+            <span class="section-title" data-page-node-id="BMwGzz1lkxGXQaLSS5KrzR">订阅链接</span>
+            <span class="text-secondary small" data-page-node-id="AOGLAJUrHXI5NVw5pQBCuP">来自网页站点采集的订阅地址</span>
         </div>
 
-        <div class="control-panel">
-            <div class="d-flex align-items-center gap-3">
-                <span class="text-secondary small">协议筛选:</span>
-                <div class="filter-wrapper">
+        <div class="control-panel" data-page-node-id="HTanTvXmh2H8ol7EG8CyWm">
+            <div class="d-flex align-items-center gap-3" data-page-node-id="v6OCNJbgQcmIdBMxUnaCny">
+                <span class="text-secondary small" data-page-node-id="0Rfe0wBlS0374p343xToyH">协议筛选:</span>
+                <div class="filter-wrapper" data-page-node-id="jVve3BaCvRbxS3XC8AUQN8">
                     <!-- 协议选项由 app.js 依据实际数据动态生成（只列出数据里真实存在的协议，并附带数量） -->
-                    <select id="type-filter" class="trae-select">
-                        <option value="all">所有协议</option>
+                    <select id="type-filter" class="trae-select" data-page-node-id="CTgMeJjjGGvzjLPZh9coaT">
+                        <option value="all" data-page-node-id="gXUPLQxsWEkimO9Bq61BRa">所有协议</option>
                     </select>
                 </div>
             </div>
-            <button id="refresh-btn" class="btn" style="background:var(--trae-green); color:#000; font-weight:700;">
-                <i class="bi bi-arrow-repeat me-1"></i> 刷新数据
+            <button id="refresh-btn" class="btn" style="background:var(--trae-green); color:#000; font-weight:700;" data-page-node-id="ck2PO9RRneoo4Ifw46Ew8x">
+                <i class="bi bi-arrow-repeat me-1" data-page-node-id="6MnlU5k8gNvRnfx8ktWnRZ"></i> 刷新数据
             </button>
         </div>
-        <div id="subscriptions-container" class="row g-4">
-            <div class="col-lg-6">
-                <div class="subscription-card">
-                    <div class="d-flex justify-content-between align-items-start mb-2">
-                        <span class="type-badge">Clash</span>
-                        <div class="site-source-info"><i class="bi bi-globe2"></i> 示例站点</div>
+        <div id="subscriptions-container" class="row g-4" data-page-node-id="txr0lnCSzuWbzcsz3mWkqX">
+            <div class="col-lg-6" data-page-node-id="Vuq4YuD2Nqv01TqkhXAerv">
+                <div class="subscription-card" data-page-node-id="g15MHx68LhDMJsOuY3IMCa">
+                    <div class="d-flex justify-content-between align-items-start mb-2" data-page-node-id="FhwFFkzQAabIXy1BI5mhHY">
+                        <span class="type-badge" data-page-node-id="4fxjodS6yjp9nxEFgBoFch">Clash</span>
+                        <div class="site-source-info" data-page-node-id="PDIKlMKBsNp2X1Rh4fykBT"><i class="bi bi-globe2" data-page-node-id="Uzhe6YMwwTuqgfWXyGLXKI"></i> 示例站点</div>
                     </div>
-                    <div class="site-label">来自 示例站点 的节点订阅</div>
-                    <div class="subscription-url">https://example.com/api/v1/subscribe?token=...</div>
-                    <div class="btn-action-group">
-                        <button class="btn-action btn-copy"><i class="bi bi-clipboard"></i> 复制</button>
-                        <a href="#" target="_blank" class="btn-action"><i class="bi bi-box-arrow-up-right"></i> 打开</a>
+                    <div class="site-label" data-page-node-id="rjByXCjHfLVo5WRzO0j8sM">来自 示例站点 的节点订阅</div>
+                    <div class="subscription-url" data-page-node-id="A0uHPUnpDNvfBWwmA8cqVu">https://example.com/api/v1/subscribe?token=...</div>
+                    <div class="btn-action-group" data-page-node-id="GnwUphayTJwNL55EzWelNg">
+                        <button class="btn-action btn-copy" data-page-node-id="XQoXR5pg9W5YtlnazeiYZ6"><i class="bi bi-clipboard" data-page-node-id="wZPbMeC0S5gSdsTEokyAFC"></i> 复制</button>
+                        <a href="#" target="_blank" class="btn-action" data-page-node-id="oxYAKMAcnI274HbKD37HjG"><i class="bi bi-box-arrow-up-right" data-page-node-id="ZOyqguYAH7BcurHgugB2Cx"></i> 打开</a>
                     </div>
                 </div>
             </div>
         </div>
 
-        <div class="section-heading mt-5">
-            <span class="section-title">可导入节点</span>
-            <span class="text-secondary small">整理自公开仓库，复制后可直接导入客户端</span>
+        <div class="section-heading mt-5" data-page-node-id="ErIARfcTgpTCkr3cAud1bT">
+            <span class="section-title" data-page-node-id="3BtYIKGR1YplzDq5UDlzQR">可导入节点</span>
+            <span class="text-secondary small" data-page-node-id="6zFhoHy9KFbPMUulq028BN">整理自公开仓库，复制后可直接导入客户端</span>
         </div>
 
-        <div class="control-panel node-control-panel">
-            <div class="d-flex align-items-center gap-3 flex-wrap">
-                <span class="text-secondary small">协议筛选:</span>
-                <div class="filter-wrapper">
-                    <select id="node-type-filter" class="trae-select">
-                        <option value="all">所有协议</option>
+        <div class="control-panel node-control-panel" data-page-node-id="4PZa125fz8K3hWJGhiHRzg">
+            <div class="d-flex align-items-center gap-3 flex-wrap" data-page-node-id="skHHKACROEWgWAcDZF5REn">
+                <span class="text-secondary small" data-page-node-id="mGLUj7X7LWJCJNCF0yw0LA">协议筛选:</span>
+                <div class="filter-wrapper" data-page-node-id="HCfnKpKuWHFgSJK1uBkd7A">
+                    <select id="node-type-filter" class="trae-select" data-page-node-id="HenvLD6R00GqDa8tX3KVjH">
+                        <option value="all" data-page-node-id="FuQzksBd3L49a5S2xvPMTN">所有协议</option>
                     </select>
                 </div>
-                <span class="text-secondary small">来源:</span>
-                <div class="filter-wrapper">
-                    <select id="node-source-filter" class="trae-select">
-                        <option value="all">所有来源</option>
+                <span class="text-secondary small" data-page-node-id="rmnzl9R9K5h7FBpZmnuoIL">来源:</span>
+                <div class="filter-wrapper" data-page-node-id="TwlC4W05mC4MVa10yD8OTe">
+                    <select id="node-source-filter" class="trae-select" data-page-node-id="7bgNE6ylYzDh1tvjwJ4MS8">
+                        <option value="all" data-page-node-id="cISXFNORs5oR3Le5rWg51Z">所有来源</option>
+                    </select>
+                </div>
+                <span class="text-secondary small" data-page-node-id="LZ3zHhfLukDTCkSSgK6ZD8">可用性:</span>
+                <div class="filter-wrapper" data-page-node-id="jQI88oKU2Rcw2NaxPPfCVr">
+                    <!-- 选项由 nodes.js 依据探测结果动态生成（全部/可用/不可用，含数量） -->
+                    <select id="node-alive-filter" class="trae-select" data-page-node-id="BfJ6hJ0FQm91MO7Bcr79zL">
+                        <option value="all" data-page-node-id="N33NI0T1eBF0AQpvKjPrOf">全部</option>
                     </select>
                 </div>
             </div>
-            <div class="d-flex gap-2">
-                <button id="node-copy-all-btn" class="btn btn-outline-success">
-                    <i class="bi bi-clipboard-check me-1"></i> 复制全部
+            <div class="d-flex gap-2" data-page-node-id="POuRSUZFvLLxDVeesYRXNX">
+                <button id="node-copy-all-btn" class="btn btn-outline-success" data-page-node-id="BeBWjXR6UplarqAtHnnJbH">
+                    <i class="bi bi-clipboard-check me-1" data-page-node-id="y2bECDgHIFYIJG48jzyMQH"></i> 复制全部
                 </button>
-                <button id="node-refresh-btn" class="btn" style="background:var(--trae-green); color:#000; font-weight:700;">
-                    <i class="bi bi-arrow-repeat me-1"></i> 刷新节点
+                <button id="node-refresh-btn" class="btn" style="background:var(--trae-green); color:#000; font-weight:700;" data-page-node-id="GTxiQDXBPVN40AQaUto312">
+                    <i class="bi bi-arrow-repeat me-1" data-page-node-id="woY8Rc7DsW0zv5FiR4ZsAi"></i> 刷新节点
                 </button>
             </div>
         </div>
-        <div id="nodes-meta" class="text-secondary smaller mb-3"></div>
-        <div id="nodes-container" class="row g-4"></div>
+        <div id="nodes-meta" class="text-secondary smaller mb-3" data-page-node-id="aDojeioHVVfXM6gwr1eX5N"></div>
+        <div id="nodes-container" class="row g-4" data-page-node-id="85B38EuLz9IRm8YMrrmtMQ"></div>
     </div>
 </div>
 
-<div id="overlay-about" class="overlay-full">
-    <span class="btn-close-overlay" onclick="closeOverlay()">&times;</span>
-    <div class="container">
-        <h2 class="mb-5" style="color:var(--trae-green)">关于项目</h2>
-        <div class="row g-5">
-            <div class="col-md-7">
-                <p class="text-white fs-5">AutoScrape - 自动化节点订阅采集系统</p>
-                <p class="text-secondary">本项目旨在为用户提供一个便捷的节点订阅采集和管理平台。通过自动化技术，我们定期收集公开网络上的节点订阅链接，并进行整理和分类。此外我们不对节点质量做保证，用户应自行评估节点质量。</p>
-                <p class="text-secondary">项目采用现代化的前端技术栈，包括HTML5、CSS3和JavaScript，确保在各种设备上都能提供良好的用户体验。</p>
-                <p class="text-secondary text-warning mt-3">⚠️ 注意：本项目目前处于测试阶段，功能可能不稳定，数据可能存在误差。</p>
+<div id="overlay-about" class="overlay-full" data-page-node-id="ti35me3kmFv4dMtu4CFFtJ">
+    <span class="btn-close-overlay" onclick="closeOverlay()" data-page-node-id="yDxDzWg2sI52z0tcV8Oca1">&times;</span>
+    <div class="container" data-page-node-id="GTi0Tua9uTswDTPzIlMHrm">
+        <h2 class="mb-5" style="color:var(--trae-green)" data-page-node-id="GXJnNVCszwluPMQM5tY5KI">关于项目</h2>
+        <div class="row g-5" data-page-node-id="XAEVOACC3tWaBXkzJqvYas">
+            <div class="col-md-7" data-page-node-id="0Tadt5KILvF0SyUHInsRFT">
+                <p class="text-white fs-5" data-page-node-id="RGorC7mdnhdTYDQmCp93FE">AutoScrape - 自动化节点订阅采集系统</p>
+                <p class="text-secondary" data-page-node-id="QCWsDYUKG8sDiJyZvO7DnF">本项目旨在为用户提供一个便捷的节点订阅采集和管理平台。通过自动化技术，我们定期收集公开网络上的节点订阅链接，并进行整理和分类。此外我们不对节点质量做保证，用户应自行评估节点质量。</p>
+                <p class="text-secondary" data-page-node-id="Dq0X3MFp8DLP8UKZlo5qnp">项目采用现代化的前端技术栈，包括HTML5、CSS3和JavaScript，确保在各种设备上都能提供良好的用户体验。</p>
+                <p class="text-secondary text-warning mt-3" data-page-node-id="bE8pDIn6caUW0RmsadHg2X">⚠️ 注意：本项目目前处于测试阶段，功能可能不稳定，数据可能存在误差。</p>
                 
-                <h5 class="text-white mb-4 mt-5">项目背景</h5>
-                <p class="text-secondary">随着网络技术的发展，节点订阅服务变得越来越重要。然而，寻找可靠的免费节点订阅链接往往需要花费大量时间和精力。本项目旨在解决这一问题，通过自动化技术为用户提供一站式的节点订阅采集和管理服务。</p>
+                <h5 class="text-white mb-4 mt-5" data-page-node-id="Ftz7alDvvgqi4eFNNMMU99">项目背景</h5>
+                <p class="text-secondary" data-page-node-id="0HnEFGtdKnQgbkC6wO9Km0">随着网络技术的发展，节点订阅服务变得越来越重要。然而，寻找可靠的免费节点订阅链接往往需要花费大量时间和精力。本项目旨在解决这一问题，通过自动化技术为用户提供一站式的节点订阅采集和管理服务。</p>
                 
-                <h5 class="text-white mb-4 mt-5">未来规划</h5>
-                <p class="text-secondary">我们计划在未来添加更多的功能，包括但不限于：</p>
-                <ul class="list-unstyled small text-secondary">
-                    <li class="mb-2">● 支持更多的节点协议</li>
-                    <li class="mb-2">● 提供更丰富的筛选和排序功能</li>
-                    <li class="mb-2">● 添加节点质量评估和推荐系统</li>
-                    <li class="mb-2">● 支持用户自定义节点源</li>
+                <h5 class="text-white mb-4 mt-5" data-page-node-id="uxQBACwg5oEQOtfzMlX3xa">未来规划</h5>
+                <p class="text-secondary" data-page-node-id="XvcccxOOYf99KDjGn01soP">我们计划在未来添加更多的功能，包括但不限于：</p>
+                <ul class="list-unstyled small text-secondary" data-page-node-id="D6tYyZ3V83W8Ei1bq2DriM">
+                    <li class="mb-2" data-page-node-id="DeJooHGAclYksQaixazrRB">● 支持更多的节点协议</li>
+                    <li class="mb-2" data-page-node-id="KebhJKm2nmeVE6UXgD1MEW">● 提供更丰富的筛选和排序功能</li>
+                    <li class="mb-2" data-page-node-id="jPgjGyOcVscCImPhYBmEjk">● 添加节点质量评估和推荐系统</li>
+                    <li class="mb-2" data-page-node-id="nDXlGc8nyDAJiMKb1MaZfQ">● 支持用户自定义节点源</li>
                 </ul>
             </div>
-            <div class="col-md-5">
-                <div class="border border-secondary p-4 bg-dark">
-                    <h6 class="text-white mb-4">技术特性</h6>
-                    <ul class="list-unstyled small text-secondary">
-                        <li class="mb-3">● 自动化采集：定期更新节点订阅</li>
-                        <li class="mb-3">● 多协议支持：Clash、V2ray、Sing-Box等</li>
-                        <li class="mb-3">● 本地处理：所有数据在浏览器本地处理</li>
-                        <li class="mb-3">● 开源免费：完全开源，免费使用</li>
+            <div class="col-md-5" data-page-node-id="HHPIME2z7NOEpdTxNFV7ng">
+                <div class="border border-secondary p-4 bg-dark" data-page-node-id="0IgroelyNT7qCQh0jXtEBM">
+                    <h6 class="text-white mb-4" data-page-node-id="jVWF85PxhaX75hkNH7heC8">技术特性</h6>
+                    <ul class="list-unstyled small text-secondary" data-page-node-id="F05706P8O46cIXu195rf6U">
+                        <li class="mb-3" data-page-node-id="FBtSdywBSWFuXH1rPA8nXD">● 自动化采集：定期更新节点订阅</li>
+                        <li class="mb-3" data-page-node-id="auqLvw7EQav8cxmDE2WErA">● 多协议支持：Clash、V2ray、Sing-Box等</li>
+                        <li class="mb-3" data-page-node-id="cGek74mQb0Ihh87wxUvnhs">● 本地处理：所有数据在浏览器本地处理</li>
+                        <li class="mb-3" data-page-node-id="NdOM1eHHCwzGrBKHPCz7sf">● 开源免费：完全开源，免费使用</li>
                     </ul>
                 </div>
                 
-                <div class="border border-secondary p-4 bg-dark mt-4">
-                    <h6 class="text-white mb-4">联系方式</h6>
-                    <ul class="list-unstyled small text-secondary">
-                        <li class="mb-3">● GitHub: <a href="https://github.com/Re0XIAOPA/AutoScrapeFreeNodes" target="_blank" class="text-success">Re0XIAOPA/AutoScrapeFreeNodes</a></li>
-                        <li class="mb-3">● Issue: <a href="https://github.com/Re0XIAOPA/AutoScrapeFreeNodes/issues" target="_blank" class="text-success">AutoScrapeFreeNodes/issues</a></li>
-                        <li class="mb-3">● Pull Request: <a href="https://github.com/Re0XIAOPA/AutoScrapeFreeNodes/pulls" target="_blank" class="text-success">AutoScrapeFreeNodes/pulls</a></li>
+                <div class="border border-secondary p-4 bg-dark mt-4" data-page-node-id="GO64k486BNeA6O0NNquhI1">
+                    <h6 class="text-white mb-4" data-page-node-id="O4AAAIZ2JE9yW3urRFmHPD">联系方式</h6>
+                    <ul class="list-unstyled small text-secondary" data-page-node-id="n9OrdNCcCeJraFdEVAJbim">
+                        <li class="mb-3" data-page-node-id="QebqfGatGeNzwGE3Fc86Ij">● GitHub: <a href="https://github.com/Re0XIAOPA/AutoScrapeFreeNodes" target="_blank" class="text-success" data-page-node-id="xAQFk062Oq9tJGpTu4CNxa">Re0XIAOPA/AutoScrapeFreeNodes</a></li>
+                        <li class="mb-3" data-page-node-id="mi52hPX41yhVBQZCjiKIDq">● Issue: <a href="https://github.com/Re0XIAOPA/AutoScrapeFreeNodes/issues" target="_blank" class="text-success" data-page-node-id="Eyq3uq1wAmtMQqMbVgsDXB">AutoScrapeFreeNodes/issues</a></li>
+                        <li class="mb-3" data-page-node-id="lBOSD9tUEGgb1dLPZVBv3y">● Pull Request: <a href="https://github.com/Re0XIAOPA/AutoScrapeFreeNodes/pulls" target="_blank" class="text-success" data-page-node-id="sdm13s3UWBwKhumlHVSnRb">AutoScrapeFreeNodes/pulls</a></li>
                     </ul>
                 </div>
                 
-                <div class="border border-secondary p-4 bg-dark mt-4">
-                    <h6 class="text-white mb-4">开源协议</h6>
-                    <p class="text-secondary small">本项目采用GPL-3.0开源协议，允许自由使用、修改和分发。</p>
+                <div class="border border-secondary p-4 bg-dark mt-4" data-page-node-id="HzHtAKS6Okq1zhjRVjqWPA">
+                    <h6 class="text-white mb-4" data-page-node-id="k3Tmj6be2jl26b9YPCU83o">开源协议</h6>
+                    <p class="text-secondary small" data-page-node-id="gKhDBPWYTCNb4YACysy5HW">本项目采用GPL-3.0开源协议，允许自由使用、修改和分发。</p>
                 </div>
             </div>
         </div>
     </div>
 </div>
-<div id="overlay-privacy" class="overlay-full">
-    <span class="btn-close-overlay" onclick="closeOverlay()">&times;</span>
-    <div class="container">
-        <h2 class="mb-5" style="color:var(--trae-green)">隐私政策</h2>
-        <div class="row g-5">
-            <div class="col-md-12">
-                <h5 class="text-white mb-4">数据收集</h5>
-                <p class="text-secondary">本网站不会收集任何个人信息或浏览数据。所有操作均在本地浏览器完成，不会向任何服务器发送数据。</p>
-                <p class="text-secondary">订阅链接仅用于展示，不会被存储或记录。</p>
+<div id="overlay-privacy" class="overlay-full" data-page-node-id="TGaCdTMuukJl6QYhCtJ8IG">
+    <span class="btn-close-overlay" onclick="closeOverlay()" data-page-node-id="dLht4m75Zuu2r1ZHuE7q0t">&times;</span>
+    <div class="container" data-page-node-id="SPFU7IjZqGdtZ453LskHjH">
+        <h2 class="mb-5" style="color:var(--trae-green)" data-page-node-id="2QA1fK2GFlsxWYpQzNfjlm">隐私政策</h2>
+        <div class="row g-5" data-page-node-id="Sd5pDBtcnipX7hxGElFeTZ">
+            <div class="col-md-12" data-page-node-id="AmJo603MPKSyxL5yXZ3iYY">
+                <h5 class="text-white mb-4" data-page-node-id="khGYdqr7oTEzX3iNxSB2Nu">数据收集</h5>
+                <p class="text-secondary" data-page-node-id="reI2sInVmO8MphEDutyvSt">本网站不会收集任何个人信息或浏览数据。所有操作均在本地浏览器完成，不会向任何服务器发送数据。</p>
+                <p class="text-secondary" data-page-node-id="nfk33taXlBvwNhrW9zJVkU">订阅链接仅用于展示，不会被存储或记录。</p>
                 
-                <h5 class="text-white mb-4 mt-5">数据安全</h5>
-                <p class="text-secondary">由于所有数据处理均在本地浏览器完成，您的隐私得到最大程度的保护。我们不会存储、传输或分享任何用户数据。</p>
+                <h5 class="text-white mb-4 mt-5" data-page-node-id="ymMS3koIxe8ZOakQiDQODC">数据安全</h5>
+                <p class="text-secondary" data-page-node-id="zzVczImHbt3NMOli27OAtB">由于所有数据处理均在本地浏览器完成，您的隐私得到最大程度的保护。我们不会存储、传输或分享任何用户数据。</p>
                 
-                <h5 class="text-white mb-4 mt-5">第三方链接</h5>
-                <p class="text-secondary">本网站可能包含指向第三方网站的链接。我们对这些第三方网站的隐私政策不承担任何责任。请在访问这些网站时查看其隐私政策。</p>
+                <h5 class="text-white mb-4 mt-5" data-page-node-id="q4Ja0lh5gZy694uEvQEx1k">第三方链接</h5>
+                <p class="text-secondary" data-page-node-id="UqeqoEKBQVupC9CvnCOsJR">本网站可能包含指向第三方网站的链接。我们对这些第三方网站的隐私政策不承担任何责任。请在访问这些网站时查看其隐私政策。</p>
                 
-                <h5 class="text-white mb-4 mt-5">政策变更</h5>
-                <p class="text-secondary">我们保留随时更新本隐私政策的权利。任何变更将在本页面发布后立即生效。建议您定期查看本隐私政策以了解最新信息。</p>
+                <h5 class="text-white mb-4 mt-5" data-page-node-id="CnCRR4a7lXEiGYEXyMzkNQ">政策变更</h5>
+                <p class="text-secondary" data-page-node-id="F8MsuaVvEgEo5NzNuLJSNS">我们保留随时更新本隐私政策的权利。任何变更将在本页面发布后立即生效。建议您定期查看本隐私政策以了解最新信息。</p>
             </div>
         </div>
     </div>
 </div>
-<div id="overlay-terms" class="overlay-full">
-    <span class="btn-close-overlay" onclick="closeOverlay()">&times;</span>
-    <div class="container">
-        <h2 class="mb-5" style="color:var(--trae-green)">使用条款</h2>
-        <div class="row g-5">
-            <div class="col-md-12">
-                <h5 class="text-white mb-4">使用许可</h5>
-                <p class="text-secondary">本网站提供的订阅链接均来自公开网络，仅供学习和研究使用。您不得将本网站提供的内容用于商业用途或非法活动。</p>
+<div id="overlay-terms" class="overlay-full" data-page-node-id="6vUkPQzxvlaeLnilqZNjbP">
+    <span class="btn-close-overlay" onclick="closeOverlay()" data-page-node-id="Oo8oLu3UbSKGE3YBi5dy0H">&times;</span>
+    <div class="container" data-page-node-id="vFwmNFzBgUvoiCPpE61KZP">
+        <h2 class="mb-5" style="color:var(--trae-green)" data-page-node-id="rDBXhGS6BoW34xgb1PyPQr">使用条款</h2>
+        <div class="row g-5" data-page-node-id="tXM504GczwJmNyHYDqifoV">
+            <div class="col-md-12" data-page-node-id="9OK3xZ7S9XZ7XZNAlzPZvr">
+                <h5 class="text-white mb-4" data-page-node-id="9Rh8qedexEChdLYPUEqRVp">使用许可</h5>
+                <p class="text-secondary" data-page-node-id="WnflXhzB68Hbyjmz6ytFai">本网站提供的订阅链接均来自公开网络，仅供学习和研究使用。您不得将本网站提供的内容用于商业用途或非法活动。</p>
                 
-                <h5 class="text-white mb-4 mt-5">免责声明</h5>
-                <p class="text-secondary">本网站提供的订阅链接均来自公开网络，我们不对其准确性、完整性或合法性负责。使用本网站提供的内容所产生的任何风险由您自行承担。</p>
-                <p class="text-secondary">我们保留随时删除或修改本网站内容的权利，无需提前通知。</p>
+                <h5 class="text-white mb-4 mt-5" data-page-node-id="185EuGNSABRDl7jKWvGQlE">免责声明</h5>
+                <p class="text-secondary" data-page-node-id="Qk7fLOVS2alFbOWbj8bgFg">本网站提供的订阅链接均来自公开网络，我们不对其准确性、完整性或合法性负责。使用本网站提供的内容所产生的任何风险由您自行承担。</p>
+                <p class="text-secondary" data-page-node-id="yxp17VW7ZfseLKVlUbo6ys">我们保留随时删除或修改本网站内容的权利，无需提前通知。</p>
                 
-                <h5 class="text-white mb-4 mt-5">用户行为</h5>
-                <p class="text-secondary">您同意不会以任何方式干扰或破坏本网站的正常运行，包括但不限于发送垃圾信息、进行网络攻击等。</p>
+                <h5 class="text-white mb-4 mt-5" data-page-node-id="AC8aLaItaOUqlIARZaTKwk">用户行为</h5>
+                <p class="text-secondary" data-page-node-id="V9asE79k0VmddwXyiOxXk1">您同意不会以任何方式干扰或破坏本网站的正常运行，包括但不限于发送垃圾信息、进行网络攻击等。</p>
                 
-                <h5 class="text-white mb-4 mt-5">条款变更</h5>
-                <p class="text-secondary">我们保留随时更新本使用条款的权利。任何变更将在本页面发布后立即生效。建议您定期查看本使用条款以了解最新信息。</p>
+                <h5 class="text-white mb-4 mt-5" data-page-node-id="2GH4DIOgrm4xJsttuslPEP">条款变更</h5>
+                <p class="text-secondary" data-page-node-id="piBoMzpJ9Imolxi5EAsC3Z">我们保留随时更新本使用条款的权利。任何变更将在本页面发布后立即生效。建议您定期查看本使用条款以了解最新信息。</p>
             </div>
         </div>
     </div>
 </div>
-<div id="overlay-status" class="overlay-full">
-    <span class="btn-close-overlay" onclick="closeOverlay()">&times;</span>
-    <div class="container">
-        <h2 class="mb-5" style="color:var(--trae-green)">API Status</h2>
-        <div class="border border-secondary">
-            <div class="p-4 border-bottom border-secondary d-flex justify-content-between align-items-center">
-                <span><i class="bi bi-cloud-check api-icon-main me-2"></i> 主站状态</span>
-                <span class="badge bg-success">在线</span>
+<div id="overlay-status" class="overlay-full" data-page-node-id="NDLFcCdfQ1zCTe2lkUNSnh">
+    <span class="btn-close-overlay" onclick="closeOverlay()" data-page-node-id="qCAmk23Z1izhRHEgXNylfI">&times;</span>
+    <div class="container" data-page-node-id="8mwjkEgTTiMHQOkyfQiEHQ">
+        <h2 class="mb-5" style="color:var(--trae-green)" data-page-node-id="lzD2YxMiZFyqimYlimwDPY">API Status</h2>
+        <div class="border border-secondary" data-page-node-id="rtSo4y1OyDFeicVudMuwEO">
+            <div class="p-4 border-bottom border-secondary d-flex justify-content-between align-items-center" data-page-node-id="aga0vFJSBlzu7vCxnwEJbd">
+                <span data-page-node-id="weOCpgCcTM3uoCeIw1lI6v"><i class="bi bi-cloud-check api-icon-main me-2" data-page-node-id="GI9vLBN39udno5YJg6duMS"></i> 主站状态</span>
+                <span class="badge bg-success" data-page-node-id="k3hEdZMoaDFcH5YmSbsdNy">在线</span>
             </div>
-            <div class="p-4 border-bottom border-secondary d-flex justify-content-between align-items-center">
-                <span><i class="bi bi-gear-wide-connected api-icon-engine me-2"></i> 采集引擎</span>
-                <span class="badge bg-success">在线</span>
+            <div class="p-4 border-bottom border-secondary d-flex justify-content-between align-items-center" data-page-node-id="vgN3eNKJyWhs0tblDa2hca">
+                <span data-page-node-id="aW8R5HDxPjHuRPEJ2QMAEk"><i class="bi bi-gear-wide-connected api-icon-engine me-2" data-page-node-id="0vAUUm9TAKChoXKyR6nR7e"></i> 采集引擎</span>
+                <span class="badge bg-success" data-page-node-id="90y54A2c7AO7qiyRetwk4S">在线</span>
             </div>
-            <div class="p-4 d-flex justify-content-between align-items-center">
-                <span><i class="bi bi-hdd-network api-icon-sites me-2"></i> 爬取源站健康度</span>
-                <span class="site-status badge bg-secondary" style="min-width: 40px; text-align: center;">检测中...</span>
+            <div class="p-4 d-flex justify-content-between align-items-center" data-page-node-id="lo8W6FyZOJQ2HyfrLgz5HD">
+                <span data-page-node-id="FRgHY2kmIStBHeGaULAQGo"><i class="bi bi-hdd-network api-icon-sites me-2" data-page-node-id="3kfnb8k9ZiHOrRqJv0vKGH"></i> 爬取源站健康度</span>
+                <span class="site-status badge bg-secondary" style="min-width: 40px; text-align: center;" data-page-node-id="XnXjOiLLC6npbKahql4Fml">检测中...</span>
             </div>
-            <div class="site-status-list p-4">
+            <div class="site-status-list p-4" data-page-node-id="mVVR49sNVbgVoUUHfb0nsy">
                 <!-- 动态生成爬取源站状态 -->
             </div>
         </div>
     </div>
 </div>
 
-<footer>
-    <div class="container">
-        <div class="mb-4">
-            <span class="footer-link" onclick="openOverlay('overlay-privacy')">Privacy</span>
-            <span class="footer-link" onclick="openOverlay('overlay-terms')">Terms</span>
-            <span class="footer-link" onclick="openOverlay('overlay-status')">API Status</span>
+<footer data-page-node-id="Q9XuE8V74oRSWX6NvCsoNt">
+    <div class="container" data-page-node-id="DCVXtE3m3UO3lurGjnUQt5">
+        <div class="mb-4" data-page-node-id="OdZQzHcoVFggAshNcysg60">
+            <span class="footer-link" onclick="openOverlay('overlay-privacy')" data-page-node-id="NTXLzauT4FoABnJTKCHkZD">Privacy</span>
+            <span class="footer-link" onclick="openOverlay('overlay-terms')" data-page-node-id="wdZ3975W7RhvL3XBLXHIAe">Terms</span>
+            <span class="footer-link" onclick="openOverlay('overlay-status')" data-page-node-id="gpDZ46qBq0ALGF7uwJg8WH">API Status</span>
         </div>
-        <div class="text-secondary smaller" style="letter-spacing: 2px;">
+        <div class="text-secondary smaller" style="letter-spacing: 2px;" data-page-node-id="w5PrTab9FrsbwHCGZKMp5O">
             © 2026 AUTOSCRAPE. AN OPEN SOURCE PROJECT BY RE0XIAOPA.
         </div>
     </div>
@@ -265,7 +272,7 @@
 <script src="js/inline-data.js?v=3"></script>
 <script src="js/subscription-manager.js?v=3"></script>
 <script src="js/app.js?v=7"></script>
-<script src="js/nodes.js?v=5"></script>
+<script src="js/nodes.js?v=7"></script>
 
 <script>
     function switchPage(p) {
