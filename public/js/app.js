@@ -7,6 +7,21 @@ let currentView = 'normal'; // 'normal' or 'detailed'
 // API基础URL - 从环境配置中获取
 const API_BASE_URL = ENV_CONFIG.API_BASE_URL;
 
+// 是否由 Node 服务托管（可访问实时接口）
+const IS_SERVER_MODE = ENV_CONFIG.IS_SERVER_MODE === true;
+
+/**
+ * 拼接接口地址
+ * 服务器模式：访问实时接口，如 /api/subscriptions（数据来自本次抓取）
+ * 静态模式：访问构建时预生成的快照，如 /api/subscriptions.json
+ * @param {string} path 接口路径，如 '/api/subscriptions'
+ * @returns {string} 完整请求地址
+ */
+function apiUrl(path) {
+  if (IS_SERVER_MODE) return `${API_BASE_URL}${path}`;
+  return `${API_BASE_URL}${path}.json`;
+}
+
 // Monkey patch Bootstrap模态框方法，阻止aria-hidden属性设置
 document.addEventListener('DOMContentLoaded', function() {
   if (typeof bootstrap !== 'undefined' && bootstrap.Modal) {
@@ -254,92 +269,9 @@ function showErrorModal(message) {
   }
 }
 
-// 检测网站状态
-async function checkSiteStatus(url) {
-  // 尝试多种检测方式
-  const methods = [
-    () => checkWithHeadRequest(url),
-    () => checkWithGetRequest(url),
-    () => checkWithImage(url) // 保留原有的图片检测作为后备
-  ];
-  
-  for (const method of methods) {
-    try {
-      const result = await method();
-      if (result) {
-        return true;
-      }
-    } catch (e) {
-      // 忽略单个方法的错误，尝试下一个方法
-    }
-  }
-  
-  return false;
-}
-
-function checkWithHeadRequest(url) {
-  return new Promise((resolve) => {
-    const timeout = setTimeout(() => {
-      resolve(false);
-    }, 8000);
-    
-    fetch(url, {
-      method: 'HEAD',
-      mode: 'no-cors'
-    })
-    .then(() => {
-      clearTimeout(timeout);
-      resolve(true);
-    })
-    .catch(() => {
-      clearTimeout(timeout);
-      resolve(false);
-    });
-  });
-}
-
-function checkWithGetRequest(url) {
-  return new Promise((resolve) => {
-    const timeout = setTimeout(() => {
-      resolve(false);
-    }, 8000);
-    
-    fetch(url, {
-      method: 'GET',
-      mode: 'no-cors',
-      headers: {
-        'Range': 'bytes=0-1024' // 只请求前1KB数据
-      }
-    })
-    .then(() => {
-      clearTimeout(timeout);
-      resolve(true);
-    })
-    .catch(() => {
-      clearTimeout(timeout);
-      resolve(false);
-    });
-  });
-}
-
-function checkWithImage(url) {
-  return new Promise((resolve) => {
-    const timeout = setTimeout(() => {
-      resolve(false);
-    }, 8000);
-    
-    const img = new Image();
-    img.onload = () => {
-      clearTimeout(timeout);
-      resolve(true);
-    };
-    img.onerror = () => {
-      clearTimeout(timeout);
-      resolve(false);
-    };
-    img.src = `${url}/favicon.ico?${new Date().getTime()}`;
-  });
-}
+// 源站的连通性统一由抓取/构建期校验产出（见 /api/status），前端不再各自发起探测。
+// 旧的 checkSiteStatus / checkWithHeadRequest / checkWithGetRequest / checkWithImage
+// 依赖 no-cors 的模糊响应，判定不可靠，已随 API Status 改造一并移除。
 
 // 文档加载完成后执行
 document.addEventListener('DOMContentLoaded', function() {
@@ -395,66 +327,7 @@ document.addEventListener('DOMContentLoaded', function() {
   } else if (refreshBtn) {
     // 非GitHub Pages环境的刷新按钮事件
     refreshBtn.addEventListener('click', function() {
-      refreshBtn.disabled = true;
-      refreshBtn.innerHTML = `<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> 刷新中...`;
-      
-      try {
-        // 首先尝试通过fetch获取数据（适用于服务器环境）
-        if (window.location.protocol.includes('http')) {
-          // 正常服务器环境
-          fetch(`${API_BASE_URL}/api/refresh/index.json`, {
-            method: 'GET'
-          })
-            .then(response => response.json())
-            .then(data => {
-              if (data.success) {
-                loadSubscriptions();
-                loadConfig(); // 同时刷新配置信息
-                showInfoModal('数据刷新成功！'); // 添加成功提示
-              } else {
-                showErrorModal('刷新失败: ' + (data.error || data.message || '未知错误'));
-              }
-            })
-            .catch(error => {
-              console.warn('通过fetch请求刷新失败，尝试使用内联数据:', error);
-              // 如果fetch失败，使用内联响应
-              if (typeof REFRESH_RESPONSE !== 'undefined') {
-                showInfoModal(REFRESH_RESPONSE.message);
-              } else {
-                showErrorModal('刷新请求失败: ' + (error.message || '未知错误'));
-              }
-            })
-            .finally(() => {
-              refreshBtn.disabled = false;
-              refreshBtn.innerHTML = '<i class="bi bi-arrow-repeat me-1"></i> 刷新数据';
-            });
-        } else {
-          // 本地文件系统环境，使用内联响应
-          console.log('检测到本地文件系统环境，使用内联刷新响应');
-          if (typeof REFRESH_RESPONSE !== 'undefined') {
-            setTimeout(() => {
-              showInfoModal(REFRESH_RESPONSE.message);
-              refreshBtn.disabled = false;
-              refreshBtn.innerHTML = '<i class="bi bi-arrow-repeat me-1"></i> 刷新数据';
-              
-              // 如果REFRESH_RESPONSE表示成功，刷新数据显示
-              if (REFRESH_RESPONSE.success) {
-                loadSubscriptions();
-                loadConfig();
-              }
-            }, 1000);
-          } else {
-            showErrorModal('内联数据不可用，请使用HTTP服务器或重新生成静态文件');
-            refreshBtn.disabled = false;
-            refreshBtn.innerHTML = '<i class="bi bi-arrow-repeat me-1"></i> 刷新数据';
-          }
-        }
-      } catch (error) {
-        console.error('刷新请求失败:', error);
-        showErrorModal('刷新请求失败: ' + (error.message || '未知错误'));
-        refreshBtn.disabled = false;
-        refreshBtn.innerHTML = '<i class="bi bi-arrow-repeat me-1"></i> 刷新数据';
-      }
+      return refreshAllData(refreshBtn);
     });
   }
   
@@ -580,6 +453,117 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 // 加载配置信息
+/**
+ * 刷新全部数据
+ * 服务器模式：调用后端抓取接口，真正重新抓取「站点订阅」与「markdown 节点」
+ * 静态模式：静态托管无法实时抓取，仅重新读取已有数据并给出提示
+ * @param {HTMLElement} buttonEl 触发刷新的按钮，用于展示加载状态
+ * @param {{scope?: 'all'|'subscriptions'|'nodes'}} [options] 骨架屏展示范围
+ */
+async function refreshAllData(buttonEl, options) {
+  const btn = buttonEl || document.getElementById('refresh-btn');
+  const originalHtml = btn ? (btn.dataset.originalHtml || btn.innerHTML) : '';
+  if (btn && !btn.dataset.originalHtml) btn.dataset.originalHtml = originalHtml;
+
+  // 哪些区块需要先铺骨架屏：两处刷新都会重新拉取全部数据，
+  // 但只给「用户点的那一块」铺骨架，另一块保持现有内容不动，减少不必要的重绘。
+  const scope = (options && options.scope) || 'all';
+  const skeletonSubscriptions = scope !== 'nodes';
+  const skeletonNodes = scope !== 'subscriptions';
+
+  const setBusy = (busy) => {
+    if (!btn) return;
+    btn.disabled = busy;
+    // 不再使用 Bootstrap 的 spinner-border（基座的 border-radius:0 会把它压成方块），
+    // 改用站点自有的旋转图标 + 文案；真正的加载反馈由区块骨架屏承担。
+    btn.innerHTML = busy
+      ? '<i class="bi bi-arrow-repeat me-1 icon-spin"></i> 刷新中...'
+      : (btn.dataset.originalHtml || '<i class="bi bi-arrow-repeat me-1"></i> 刷新数据');
+  };
+
+  // 骨架屏已经让区块高度基本不变，正常情况下不会再有滚动跳变；
+  // 这里再兜一层保险：检测到滚动位置被布局变化带走时立刻写回（用即时滚动，避免与平滑滚动打架）。
+  const beginScrollLock = () => {
+    const x = window.scrollX;
+    const y = window.scrollY;
+    let locked = true;
+
+    const unlock = () => { locked = false; };
+    window.addEventListener('wheel', unlock, { passive: true, once: true });
+    window.addEventListener('touchstart', unlock, { passive: true, once: true });
+    window.addEventListener('keydown', unlock, { once: true });
+
+    const restore = () => {
+      if (!locked) return;
+      if (window.scrollX !== x || window.scrollY !== y) {
+        // 直接赋值 = 即时滚动，不受任何 scroll-behavior 影响
+        document.documentElement.scrollTop = y;
+        document.body.scrollTop = y;
+        window.scrollTo(x, y);
+      }
+      requestAnimationFrame(restore);
+    };
+    requestAnimationFrame(restore);
+
+    window.setTimeout(() => {
+      unlock();
+      window.removeEventListener('wheel', unlock);
+      window.removeEventListener('touchstart', unlock);
+      window.removeEventListener('keydown', unlock);
+    }, 2500);
+  };
+
+  const reloadAll = async () => {
+    beginScrollLock();
+    await Promise.all([
+      Promise.resolve(loadConfig()),
+      Promise.resolve(loadSubscriptions(skeletonSubscriptions)),
+      typeof window.reloadNodes === 'function'
+        ? window.reloadNodes(skeletonNodes)
+        : Promise.resolve()
+    ]);
+  };
+
+  setBusy(true);
+
+  try {
+    if (IS_SERVER_MODE && window.location.protocol.includes('http')) {
+      // 1) 获取 CSRF 令牌（后端要求 POST 请求携带）
+      const tokenResponse = await fetch(`${API_BASE_URL}/api/csrf-token`);
+      if (!tokenResponse.ok) throw new Error(`获取 CSRF 令牌失败: ${tokenResponse.status}`);
+      const tokenData = await tokenResponse.json();
+
+      // 2) 触发后端抓取：站点订阅 + markdown 节点
+      const refreshResponse = await fetch(`${API_BASE_URL}/api/refresh`, {
+        method: 'POST',
+        headers: { 'x-csrf-token': tokenData.csrfToken || '' }
+      });
+      const result = await refreshResponse.json();
+      if (!refreshResponse.ok || !result.success) {
+        throw new Error(result.error || result.message || `抓取失败: ${refreshResponse.status}`);
+      }
+
+      // 3) 重新加载页面数据
+      await reloadAll();
+      showInfoModal('抓取完成，数据已更新。');
+    } else {
+      // 静态托管环境：数据在定时构建时更新
+      await reloadAll();
+      showInfoModal(
+        typeof REFRESH_RESPONSE !== 'undefined'
+          ? REFRESH_RESPONSE.message
+          : '当前为静态部署环境，无法实时抓取。数据会在定时构建时自动更新。'
+      );
+    }
+  } catch (error) {
+    console.error('刷新失败:', error);
+    showErrorModal('刷新失败: ' + (error.message || '未知错误'));
+  } finally {
+    setBusy(false);
+  }
+}
+window.refreshAllData = refreshAllData;
+
 function loadConfig() {
   try {
     // 检查是否在GitHub Pages环境
@@ -623,7 +607,7 @@ function loadConfig() {
     }
     
     // 正常HTTP服务器环境，使用fetch
-    fetch(`${API_BASE_URL}/api/config.json`)
+    return fetch(apiUrl('/api/config'))
       .then(response => {
         if (!response.ok) {
           throw new Error(`服务器响应错误: ${response.status}`);
@@ -838,17 +822,55 @@ function handleConfigError(error) {
   if (siteListEl) siteListEl.innerHTML = '<div class="text-center text-danger">加载站点列表失败</div>';
 }
 
+/**
+ * 订阅卡片骨架屏。
+ * 复用真实卡片外壳 .subscription-card，使加载期与加载后的高度基本一致，
+ * 避免占位内容过矮导致页面高度塌陷、浏览器钳制 scrollTop 引发的滚动跳变。
+ * 卡片数量需与当前已渲染的卡片数量对齐，否则页面上方的高度仍会塌陷。
+ * 打光只加在前 SHIMMER_LIMIT 张卡片上：屏幕外的卡片看不见打光，
+ * 却要额外参与合成，限制数量可以显著降低刷新时的合成开销。
+ * @param {number} count 占位卡片数量
+ * @returns {string} HTML 片段
+ */
+function subscriptionSkeletonHtml(count = 6) {
+  const SHIMMER_LIMIT = 12;
+  let html = '';
+  for (let i = 0; i < count; i++) {
+    const flat = i >= SHIMMER_LIMIT ? ' skeleton-flat' : '';
+    html += `
+      <div class="col-lg-6 mb-3">
+        <div class="subscription-card skeleton-card${flat}">
+          <div class="d-flex justify-content-between align-items-center mb-3">
+            <span class="skeleton-line" style="width:72px; height:24px; margin-bottom:0;"></span>
+            <span class="skeleton-line" style="width:132px; height:34px; margin-bottom:0;"></span>
+          </div>
+          <div class="skeleton-line skeleton-line-block"></div>
+          <div class="skeleton-line skeleton-line-md"></div>
+          <div class="skeleton-line skeleton-line-sm" style="margin-top:10px;"></div>
+        </div>
+      </div>
+    `;
+  }
+  return html;
+}
+
 // 加载订阅数据
-function loadSubscriptions() {
+/**
+ * @param {boolean} showSkeleton 是否先渲染骨架屏占位（刷新另外区块时可传 false，保持现有内容不动）
+ */
+function loadSubscriptions(showSkeleton = true) {
   const subscriptionsContainer = document.getElementById('subscriptions-container');
   if (!subscriptionsContainer) return;
   
-  subscriptionsContainer.innerHTML = `
-    <div class="col-12 text-center py-5">
-      <div class="spinner-border text-primary" style="width: 3rem; height: 3rem;" role="status"></div>
-      <div class="mt-3">加载订阅数据中...</div>
-    </div>
-  `;
+  if (showSkeleton !== false) {
+    // 骨架卡数量对齐当前已渲染的卡片数量：数量不一致时页面高度仍会塌陷，
+    // 浏览器会把 scrollTop 钳制到新的最大滚动位置，表现为「点刷新页面自己滚走」。
+    const prevCards = subscriptionsContainer.querySelectorAll('.subscription-card:not(.skeleton-card)').length;
+    const prevHeight = subscriptionsContainer.offsetHeight;
+    subscriptionsContainer.innerHTML = subscriptionSkeletonHtml(prevCards > 0 ? prevCards : 6);
+    // 高度兜底：骨架卡与真实卡存在几像素误差，按原高度兜底可确保页面高度不缩水
+    subscriptionsContainer.style.minHeight = prevHeight > 0 ? prevHeight + 'px' : '';
+  }
   
   try {
     // 检查是否在GitHub Pages环境
@@ -858,13 +880,11 @@ function loadSubscriptions() {
     if (!window.location.protocol.includes('http') || isGitHubPages) {
       console.log('使用内联订阅数据');
       if (typeof INLINE_SUBSCRIPTIONS !== 'undefined' && typeof INLINE_SITES !== 'undefined') {
-        setTimeout(() => {
-          // 合并配置文件中的自定义订阅
-          allSubscriptions = mergeConfigSubscriptions(INLINE_SUBSCRIPTIONS);
-          updateStats(allSubscriptions);
-          detailedData = INLINE_SITES;
-          renderSubscriptions();
-        }, 500); // 延迟一下，让用户看到加载动画
+        // 合并配置文件中的自定义订阅
+        allSubscriptions = mergeConfigSubscriptions(INLINE_SUBSCRIPTIONS);
+        updateStats(allSubscriptions);
+        detailedData = INLINE_SITES;
+        renderSubscriptions();
       } else {
         // 创建默认示例数据
         console.warn('内联订阅数据不可用，创建默认示例数据');
@@ -923,20 +943,18 @@ function loadSubscriptions() {
           ]
         };
         
-        setTimeout(() => {
-          const exampleSubscriptions = { "example": exampleSite };
-          // 合并配置文件中的自定义订阅
-          allSubscriptions = mergeConfigSubscriptions(exampleSubscriptions);
-          updateStats(allSubscriptions);
-          detailedData = { "example": exampleSiteDetailed };
-          renderSubscriptions();
-        }, 500);
+        const exampleSubscriptions = { "example": exampleSite };
+        // 合并配置文件中的自定义订阅
+        allSubscriptions = mergeConfigSubscriptions(exampleSubscriptions);
+        updateStats(allSubscriptions);
+        detailedData = { "example": exampleSiteDetailed };
+        renderSubscriptions();
       }
       return;
     }
     
     // 正常HTTP服务器环境，使用fetch
-    fetch(`${API_BASE_URL}/api/subscriptions.json`)
+    return fetch(apiUrl('/api/subscriptions'))
       .then(response => {
         if (!response.ok) {
           throw new Error(`服务器响应错误: ${response.status}`);
@@ -949,7 +967,7 @@ function loadSubscriptions() {
         updateStats(allSubscriptions);
         
         // 获取详细视图数据
-        return fetch(`${API_BASE_URL}/api/sites.json`);
+        return fetch(apiUrl('/api/sites'));
       })
       .then(response => {
         if (!response.ok) {
@@ -1040,6 +1058,7 @@ function mergeConfigSubscriptions(remoteSubscriptions) {
 function handleSubscriptionsError(error) {
   console.error('加载订阅数据失败:', error);
   const subscriptionsContainer = document.getElementById('subscriptions-container');
+  subscriptionsContainer.style.minHeight = '';
   subscriptionsContainer.innerHTML = `
     <div class="col-12">
       <div class="alert alert-danger">
@@ -1060,38 +1079,18 @@ function updateStats(data) {
   // 统计总站点数和总订阅数
   let totalSubscriptions = 0;
   let totalSites = Object.keys(data).length;
-  
-  // 统计各类型订阅数量
-  let typeCounts = {
-    'Clash': 0,
-    'V2ray': 0,
-    'Sing-Box': 0,
-    'Shadowrocket': 0,
-    'Quantumult': 0,
-    'SS/SSR': 0,
-    'Trojan': 0,
-    'Hysteria': 0,
-    'WireGuard': 0,
-    'Tuic': 0,
-    'NaiveProxy': 0,
-    'GoFlyway': 0,
-    '通用': 0,
-    '自定义': 0
-  };
-  
-  // 遍历所有站点，统计数量
+
+  // 节点源（GitHub 仓库 + 网页源）同样计入活跃源站
+  if (configData && Array.isArray(configData.mdSources)) {
+    totalSites += configData.mdSources.length;
+  }
+  if (configData && Array.isArray(configData.nodeSources)) {
+    totalSites += configData.nodeSources.length;
+  }
+
+  // 统计订阅总数
   Object.values(data).forEach(site => {
     totalSubscriptions += site.subscriptionCount || 0;
-    
-    // 统计各类型数量
-    if (site.subscriptions && Array.isArray(site.subscriptions)) {
-      site.subscriptions.forEach(sub => {
-        // 只统计显示在筛选下拉菜单中的类型
-        if (typeCounts[sub.type] !== undefined) {
-          typeCounts[sub.type]++;
-        }
-      });
-    }
   });
   
   // 更新总节点数显示（去重后）
@@ -1166,6 +1165,9 @@ function getTypeIcon(type) {
 
 // 渲染订阅链接 - 根据当前视图选择渲染函数
 function renderSubscriptions() {
+  // 刷新协议筛选：选项与数量都取自真实数据
+  updateSubscriptionTypeFilter(getUniqueSubscriptions(allSubscriptions));
+
   if (currentView === 'detailed') {
     renderDetailedView();
   } else {
@@ -1197,12 +1199,37 @@ function renderSubscriptions() {
   });
 }
 
+/**
+ * 订阅可用性徽章。数据来自抓取期的连通性校验（HTTP 状态 + 内容格式 + 延迟）。
+ * @param {Object} subscription 订阅对象
+ * @returns {string} HTML 片段
+ */
+function renderSubscriptionStatus(subscription) {
+  if (subscription.online === undefined || subscription.online === null) {
+    return '<div class="text-muted smaller mt-2"><i class="bi bi-question-circle me-1"></i>可用性未检测</div>';
+  }
+
+  const online = subscription.online === true;
+  const details = [];
+  if (subscription.httpStatus) details.push(`HTTP ${subscription.httpStatus}`);
+  if (online && typeof subscription.latencyMs === 'number') details.push(`${subscription.latencyMs}ms`);
+  if (subscription.note) details.push(subscription.note);
+
+  return `
+    <div class="mt-2 small">
+      <span class="badge bg-${online ? 'success' : 'danger'}">${online ? '可用' : '不可用'}</span>
+      <span class="text-muted smaller ms-2">${details.join(' · ')}</span>
+    </div>
+  `;
+}
+
 // 渲染订阅链接 - 简洁视图
 function renderNormalView() {
   const subscriptionsContainer = document.getElementById('subscriptions-container');
   const statsContainer = document.getElementById('stats-container');
   if (!subscriptionsContainer) return;
   
+  subscriptionsContainer.style.minHeight = ''; // 真实数据就位，移除骨架屏的高度兜底
   const filteredSubscriptions = getFilteredSubscriptions();
   
   // 更新统计
@@ -1251,6 +1278,7 @@ function renderNormalView() {
             ${subscription.description || `来自 ${subscription.siteName} 的${subscription.type}订阅`}
           </div>
           ${subscription.siteName ? `<div class="text-muted smaller mt-2"><i class="bi bi-globe2 me-1"></i> ${subscription.siteName}</div>` : ''}
+          ${renderSubscriptionStatus(subscription)}
         </div>
       </div>
     `;
@@ -1274,6 +1302,7 @@ function renderDetailedView() {
   const statsContainer = document.getElementById('stats-container');
   if (!subscriptionsContainer) return;
   
+  subscriptionsContainer.style.minHeight = ''; // 真实数据就位，移除骨架屏的高度兜底
   const filteredSubscriptions = getFilteredSubscriptions();
   
   // 更新统计
@@ -1447,35 +1476,54 @@ function showCopySuccess(button) {
   }, 2000);
 }
 
+/**
+ * 依据实际数据动态生成订阅协议筛选选项。
+ * 数据里出现哪些协议就列哪些，并带上该协议的数量（与「可导入节点」的做法一致）。
+ * @param {Array} subscriptions 去重后的订阅列表
+ */
+function updateSubscriptionTypeFilter(subscriptions) {
+  const select = document.getElementById('type-filter');
+  if (!select) return;
+
+  const counts = {};
+  subscriptions.forEach(subscription => {
+    const type = subscription.type || '未知';
+    counts[type] = (counts[type] || 0) + 1;
+  });
+
+  // 选项签名不变时不重建 DOM，避免在 change 事件中重建下拉造成闪烁
+  const signature = subscriptions.length + '#' + Object.keys(counts).sort()
+    .map(type => `${type}:${counts[type]}`).join('|');
+  if (select.dataset.optionSignature === signature) return;
+  select.dataset.optionSignature = signature;
+
+  const previous = select.value || 'all';
+
+  let html = `<option value="all">所有协议 (${subscriptions.length})</option>`;
+  Object.keys(counts)
+    .sort((a, b) => counts[b] - counts[a] || a.localeCompare(b))
+    .forEach(type => {
+      html += `<option value="${type}">${type} (${counts[type]})</option>`;
+    });
+  select.innerHTML = html;
+
+  // 保留此前的选择；若该协议已不存在则回落到「所有协议」
+  select.value = (previous === 'all' || counts[previous]) ? previous : 'all';
+}
+
 // 获取经过过滤和去重的订阅列表
 function getFilteredSubscriptions() {
   // 获取所有订阅并去重
   const uniqueSubscriptions = getUniqueSubscriptions(allSubscriptions);
-  
+
   const typeFilter = document.getElementById('type-filter');
-  
-  if (!typeFilter) {
-    return uniqueSubscriptions;
-  }
-  
+  if (!typeFilter) return uniqueSubscriptions;
+
   const selectedType = typeFilter.value;
-  
-  // 应用过滤条件
-  return uniqueSubscriptions.filter(subscription => {
-    // 检查类型筛选条件
-    const typeMatch = selectedType === 'all' || subscription.type === selectedType || 
-        (selectedType === '通用' && !subscription.isCustom) ||
-        (selectedType === '自定义' && subscription.isCustom) ||
-        (selectedType === 'SS/SSR' && (subscription.type === 'SS' || subscription.type === 'SSR')) ||
-        (selectedType === 'Trojan' && subscription.type === 'Trojan') ||
-        (selectedType === 'Hysteria' && subscription.type === 'Hysteria') ||
-        (selectedType === 'WireGuard' && subscription.type === 'WireGuard') ||
-        (selectedType === 'Tuic' && subscription.type === 'Tuic') ||
-        (selectedType === 'NaiveProxy' && subscription.type === 'NaiveProxy') ||
-        (selectedType === 'GoFlyway' && subscription.type === 'GoFlyway');
-    
-    return typeMatch;
-  });
+  if (!selectedType || selectedType === 'all') return uniqueSubscriptions;
+
+  // 协议选项由数据动态生成，这里只做精确匹配
+  return uniqueSubscriptions.filter(subscription => (subscription.type || '未知') === selectedType);
 }
 
 /**
@@ -1555,57 +1603,123 @@ function fallbackCopyToClipboard(text) {
 }
 
 // 初始化API状态检测
-function initApiStatus() {
+async function initApiStatus() {
   const statusOverlay = document.getElementById('overlay-status');
   if (!statusOverlay) return;
-  
+
   const siteList = statusOverlay.querySelector('.site-status-list');
   if (!siteList) return;
-  
-  // 清空之前的检测结果，避免累加
+
+  const healthStatusEl = statusOverlay.querySelector('.site-status');
+  const setSummary = (text, badgeClass) => {
+    if (!healthStatusEl) return;
+    healthStatusEl.textContent = text;
+    healthStatusEl.className = `site-status badge ${badgeClass}`;
+    healthStatusEl.style.minWidth = '60px';
+    healthStatusEl.style.textAlign = 'center';
+  };
+
+  siteList.innerHTML = '<div class="text-secondary small">正在读取健康度数据...</div>';
+  setSummary('读取中...', 'bg-secondary');
+
+  // 读取后端实时接口 / 构建期快照产出的统一健康度数据
+  let status = null;
+  try {
+    const response = await fetch(apiUrl('/api/status'));
+    if (response.ok) status = await response.json();
+  } catch (error) {
+    console.error('获取健康度数据失败:', error);
+  }
+  if (!status && typeof INLINE_STATUS !== 'undefined') status = INLINE_STATUS;
+
   siteList.innerHTML = '';
-  
-  // 检测配置中的爬取源站
-  if (configData && configData.sites) {
-    let onlineCount = 0;
-    let totalCount = configData.sites.length;
-    
-    // 更新健康度标题
-    const healthStatusEl = statusOverlay.querySelector('.site-status');
-    if (healthStatusEl) {
-      healthStatusEl.textContent = `检测中...`;
-      healthStatusEl.className = `site-status badge bg-secondary`;
-      healthStatusEl.style.minWidth = '40px';
-      healthStatusEl.style.textAlign = 'center';
-    }
-    
-    configData.sites.forEach(site => {
-      const siteItem = document.createElement('div');
-      siteItem.className = 'site-status-item';
-      siteItem.innerHTML = `
-        <div class="site-url">${site.url}</div>
-        <div class="site-status">检测中...</div>
-      `;
-      siteList.appendChild(siteItem);
-      
-      // 检测爬取源站状态
-      checkSiteStatus(site.url).then(online => {
-        if (online) onlineCount++;
-        
-        const statusEl = siteItem.querySelector('.site-status');
-        statusEl.textContent = online ? '在线' : '离线';
-        statusEl.className = `site-status ${online ? 'online' : 'offline'}`;
-        
-        // 更新健康度统计
-        if (healthStatusEl) {
-          healthStatusEl.textContent = `${onlineCount}/${totalCount}`;
-          healthStatusEl.className = `site-status badge ${onlineCount === totalCount ? 'bg-success' : onlineCount > 0 ? 'bg-warning text-dark' : 'bg-danger'}`;
-          healthStatusEl.style.minWidth = '40px';
-          healthStatusEl.style.textAlign = 'center';
-        }
-      });
+
+  if (!status) {
+    siteList.innerHTML = '<div class="text-secondary small">暂无健康度数据</div>';
+    setSummary('无数据', 'bg-secondary');
+    return;
+  }
+
+  const strategyLabels = { article: '文章页', static: '静态订阅', repoDaily: '仓库每日' };
+  const stateClass = { ok: 'online', bad: 'offline', unknown: '' };
+  const stateText = { ok: '正常', bad: '异常', unknown: '未知' };
+
+  const appendGroupTitle = (text, hint) => {
+    const title = document.createElement('div');
+    title.className = 'site-group-title';
+    title.innerHTML = `${text}${hint ? `<span class="text-secondary smaller ms-2">${hint}</span>` : ''}`;
+    siteList.appendChild(title);
+  };
+
+  const appendItem = (label, subLabel, state) => {
+    const item = document.createElement('div');
+    item.className = 'site-status-item';
+    item.innerHTML = `
+      <div>
+        <div class="site-url">${label}</div>
+        ${subLabel ? `<div class="text-secondary smaller">${subLabel}</div>` : ''}
+      </div>
+      <div class="site-status ${stateClass[state] || ''}">${stateText[state] || '未知'}</div>
+    `;
+    siteList.appendChild(item);
+  };
+
+  let healthySources = 0;
+  let totalSources = 0;
+
+  // 1) 订阅源：展示每条订阅的可用性（在线/总数）与平均延迟
+  const sites = Array.isArray(status.sites) ? status.sites : [];
+  if (sites.length) {
+    appendGroupTitle('订阅源', `${sites.length} 个`);
+    sites.forEach(site => {
+      const health = site.health || {};
+      const parts = [];
+      if (health.total) {
+        parts.push(`${health.online || 0}/${health.total} 条可用`);
+        if (health.avgLatencyMs) parts.push(`平均 ${health.avgLatencyMs}ms`);
+      } else {
+        parts.push('未采集到订阅');
+      }
+      if (site.strategy) parts.push(strategyLabels[site.strategy] || site.strategy);
+      if (site.error) parts.push('抓取异常');
+
+      const state = (site.error || !health.total || !health.online) ? 'bad' : 'ok';
+      totalSources += 1;
+      if (state === 'ok') healthySources += 1;
+      appendItem(site.url || site.name, parts.join(' · '), state);
     });
   }
+
+  // 2) 节点源：GitHub 仓库 + 网页源
+  const nodeGroups = []
+    .concat(Array.isArray(status.mdSources) ? status.mdSources : [])
+    .concat(Array.isArray(status.nodeSources) ? status.nodeSources : []);
+
+  if (nodeGroups.length) {
+    appendGroupTitle('节点源', `${nodeGroups.length} 个`);
+    nodeGroups.forEach(source => {
+      const parts = [`${source.nodeCount || 0} 个节点`];
+      if (source.kind === 'web') parts.push('网页源');
+      else if (source.fileCount) parts.push(`${source.fileCount} 个 md 文件`);
+      if (source.error) parts.push('抓取异常');
+
+      const state = (source.error || !source.nodeCount) ? 'bad' : 'ok';
+      totalSources += 1;
+      if (state === 'ok') healthySources += 1;
+      appendItem(source.url || source.name, parts.join(' · '), state);
+    });
+  }
+
+  // 「爬取源站健康度」这一行的语义是【源站】健康比：订阅源 + 节点源（4 + 2 + 1 = 7）。
+  // 之前错误地把「订阅条数」（34/45）填进来，导致 7 个源站显示成 45。
+  const nodeTotal = status.nodes ? status.nodes.total : 0;
+  const summaryText = totalSources
+    ? `${healthySources}/${totalSources} 源站正常`
+    : (nodeTotal ? `${nodeTotal} 节点` : '无数据');
+  const badge = totalSources === 0 ? 'bg-secondary'
+    : healthySources === totalSources ? 'bg-success'
+      : healthySources > 0 ? 'bg-warning text-dark' : 'bg-danger';
+  setSummary(summaryText, badge);
 }
 
 /**

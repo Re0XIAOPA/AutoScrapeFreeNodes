@@ -62,4 +62,10 @@ if (currentEnv === 'production' || currentEnv === 'static_test') {
 }
 
 // 导出当前环境的配置
-const ENV_CONFIG = CONFIG[currentEnv]; 
+const ENV_CONFIG = CONFIG[currentEnv];
+
+// 是否存在实时后端（Express 服务）
+// development 环境代表页面由 Node 服务直接托管，此时应访问 /api/xxx 实时接口；
+// production / static_test 为静态托管，只能读取构建时预生成的 .json 快照。
+ENV_CONFIG.IS_SERVER_MODE = currentEnv === 'development';
+console.log('使用实时接口:', ENV_CONFIG.IS_SERVER_MODE);

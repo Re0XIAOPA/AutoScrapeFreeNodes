@@ -12,14 +12,26 @@ body {
     background-color: var(--trae-bg);
     color: var(--trae-text-main);
     font-family: 'Inter', -apple-system, sans-serif;
-    background-image: linear-gradient(var(--trae-border) 1px, transparent 1px),
-                      linear-gradient(90deg, var(--trae-border) 1px, transparent 1px);
-    background-size: 45px 45px;
     overflow-x: hidden;
     line-height: 1.6;
     min-height: 100vh;
     display: flex;
     flex-direction: column;
+}
+
+/* 网格背景改为「固定层」而不是铺在 body 上：
+   以前两个 linear-gradient 会沿整份文档平铺，页面一高（330 节点 ≈ 3.7 万 px，
+   1000 节点 ≈ 9.6 万 px）就要栅格化几千万像素，滚动和重绘都在为它付成本。
+   固定层只有视口那么大，画一次之后滚动期间只是合成，不再重绘。 */
+body::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    z-index: -1;
+    pointer-events: none;
+    background-image: linear-gradient(var(--trae-border) 1px, transparent 1px),
+                      linear-gradient(90deg, var(--trae-border) 1px, transparent 1px);
+    background-size: 45px 45px;
 }
 
 /* 响应式调整 */
