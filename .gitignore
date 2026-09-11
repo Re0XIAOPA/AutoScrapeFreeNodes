@@ -22,8 +22,10 @@ pids
 *.pid.lock
 
 # 目录
-# 不忽略dist目录，以便GitHub Pages可以使用
-# dist/
+# dist 是构建产物：GitHub Actions 在 main 分支执行 node generate-static.js 生成，
+# 再通过 github-pages-deploy-action 发布到 gh-pages 分支，
+# 因此 main 分支不需要（也不应该）跟踪它，避免与 CI 产物冲突。
+dist/
 build/
 coverage/
 
