@@ -17,6 +17,25 @@ const config = require('./config.json');
 const OUTPUT_DIR = 'dist';
 const DATA_DIR = path.join(__dirname, config.settings.dataDir || 'data');
 
+// 清空输出目录：整目录的 emptyDirSync 在受限环境（沙箱 / 文件被占用）会直接抛错，
+// 而这里的 try/catch 会把错误吞掉继续用旧文件，表现为"构建成功但 dist 是旧的"。
+// 所以改成逐项删除，并对每一项单独容错 —— 单项失败只丢一个旧文件，不会让整个构建失效。
+function cleanOutputDir(dir) {
+  if (!fs.existsSync(dir)) return;
+  fs.readdirSync(dir, { withFileTypes: true }).forEach(entry => {
+    const full = path.join(dir, entry.name);
+    try {
+      if (entry.isDirectory()) {
+        fs.rmSync(full, { recursive: true, force: true });
+      } else {
+        fs.unlinkSync(full);
+      }
+    } catch (err) {
+      console.warn(`  清理失败（已跳过）: ${full} -> ${err.message}`);
+    }
+  });
+}
+
 async function generateStaticSite() {
   try {
     console.log('开始生成静态网站...');
@@ -24,7 +43,7 @@ async function generateStaticSite() {
     // 确保输出目录存在并清空
     console.log(`清空输出目录: ${OUTPUT_DIR}`);
     fs.ensureDirSync(OUTPUT_DIR);
-    fs.emptyDirSync(OUTPUT_DIR);
+    cleanOutputDir(OUTPUT_DIR);
 
     // 复制所有静态资源
     console.log('复制静态资源...');
@@ -41,6 +60,17 @@ async function generateStaticSite() {
         url: site.url,
         description: site.description,
         enabled: site.enabled
+      })),
+      mdSources: (config.mdSources || []).map(source => ({
+        name: source.name,
+        repo: source.repo,
+        url: `https://github.com/${source.repo}`,
+        enabled: source.enabled !== false
+      })),
+      nodeSources: (config.nodeSources || []).map(source => ({
+        name: source.name,
+        url: source.url,
+        enabled: source.enabled !== false
       })),
       settings: {
         updateInterval: config.settings.updateInterval,
@@ -63,6 +93,23 @@ async function generateStaticSite() {
     } catch (scraperError) {
       console.error('数据抓取过程中发生错误:', scraperError);
       console.log('继续生成静态站点，将使用现有数据...');
+    }
+
+    // 抓取 markdown 仓库中的可导入节点
+    let nodesData = { generatedAt: null, total: 0, summary: {}, sources: [], nodes: [] };
+    try {
+      console.log('执行 markdown 节点抓取...');
+      const mdNodes = require('./md-nodes');
+      nodesData = await mdNodes.scrapeMdNodes();
+    } catch (nodesError) {
+      console.error('markdown 节点抓取过程中发生错误:', nodesError);
+      console.log('继续生成静态站点，将使用现有节点数据...');
+      try {
+        const mdNodes = require('./md-nodes');
+        nodesData = mdNodes.readNodes() || nodesData;
+      } catch (readError) {
+        console.error('读取已有节点数据失败:', readError);
+      }
     }
 
     // 复制数据文件
@@ -166,6 +213,69 @@ async function generateStaticSite() {
     // 写入简化的订阅数据（包含自定义订阅）
     fs.writeJsonSync(path.join(apiDir, 'subscriptions.json'), subscriptionsData);
 
+    // 写入 markdown 提取的可导入节点数据
+    fs.writeJsonSync(path.join(apiDir, 'nodes.json'), nodesData);
+
+    // 写入统一健康度数据（供 API Status 浮层展示各源站真实连通性）
+    const statusSites = Object.keys(sitesData).map(key => {
+      const site = sitesData[key];
+      return {
+        name: site.siteName || key,
+        url: site.url,
+        description: site.description,
+        strategy: site.strategy,
+        scrapedAt: site.scrapedAt,
+        subscriptionCount: site.totalSubscriptions || 0,
+        health: site.health || null,
+        error: site.error || null
+      };
+    });
+
+    const nodeSourceStats = Array.isArray(nodesData.sources) ? nodesData.sources : [];
+
+    const statusData = {
+      generatedAt: new Date().toISOString(),
+      subscriptions: statusSites.reduce((acc, site) => {
+        const health = site.health || { total: 0, online: 0 };
+        acc.total += health.total || 0;
+        acc.online += health.online || 0;
+        return acc;
+      }, { total: 0, online: 0 }),
+      sites: statusSites,
+      mdSources: (config.mdSources || []).map(source => {
+        const stat = nodeSourceStats.find(item => item.repo === source.repo);
+        return {
+          kind: 'repo',
+          name: source.name,
+          repo: source.repo,
+          url: `https://github.com/${source.repo}`,
+          fileCount: stat ? stat.fileCount : 0,
+          nodeCount: stat ? stat.nodeCount : 0,
+          error: stat ? stat.error : null
+        };
+      }),
+      nodeSources: (config.nodeSources || []).map(source => {
+        const stat = nodeSourceStats.find(item => item.url === source.url || item.name === source.name);
+        return {
+          kind: 'web',
+          name: source.name,
+          url: source.url,
+          fileCount: stat ? stat.fileCount : 0,
+          nodeCount: stat ? stat.nodeCount : 0,
+          error: stat ? stat.error : null
+        };
+      }),
+      nodes: {
+        total: nodesData.total || 0,
+        generatedAt: nodesData.generatedAt || null,
+        summary: nodesData.summary || {},
+        duplicatesMerged: nodesData.duplicatesMerged || 0
+      }
+    };
+    statusData.subscriptions.offline = statusData.subscriptions.total - statusData.subscriptions.online;
+
+    fs.writeJsonSync(path.join(apiDir, 'status.json'), statusData);
+
     // 创建内联数据文件，避免使用fetch
     console.log('创建内联数据文件...');
     const inlineDataJs = `
@@ -173,6 +283,8 @@ async function generateStaticSite() {
 const INLINE_CONFIG = ${JSON.stringify(configData, null, 2)};
 const INLINE_SUBSCRIPTIONS = ${JSON.stringify(subscriptionsData, null, 2)};
 const INLINE_SITES = ${JSON.stringify(sitesData, null, 2)};
+const INLINE_NODES = ${JSON.stringify(nodesData, null, 2)};
+const INLINE_STATUS = ${JSON.stringify(statusData, null, 2)};
 const REFRESH_RESPONSE = ${JSON.stringify({
       success: true,
       message: '静态站点不支持实时刷新功能。GitHub Pages站点数据会在每天北京时间00:30通过GitHub Actions自动更新，请查看页面上的"最后更新时间"了解数据状态。'
@@ -219,6 +331,36 @@ if (currentEnv === 'production' || currentEnv === 'static_test') {
 
     // 复制.nojekyll文件到输出目录，确保GitHub Pages不会使用Jekyll处理
     fs.copySync('.nojekyll', path.join(OUTPUT_DIR, '.nojekyll'));
+
+    // 回写构建产物到 public 源目录，保证本地直接打开 public/index.html 时数据同样是最新的
+    // 使用逐文件覆盖写入（而非整目录替换），避免依赖目录级删除操作
+    try {
+      const publicApiDir = path.join(__dirname, 'public', 'api');
+      fs.ensureDirSync(publicApiDir);
+
+      fs.readdirSync(apiDir, { withFileTypes: true }).forEach(entry => {
+        const sourcePath = path.join(apiDir, entry.name);
+        const targetPath = path.join(publicApiDir, entry.name);
+
+        if (entry.isDirectory()) {
+          fs.ensureDirSync(targetPath);
+          fs.readdirSync(sourcePath).forEach(file => {
+            fs.copyFileSync(path.join(sourcePath, file), path.join(targetPath, file));
+          });
+        } else if (entry.isFile()) {
+          fs.copyFileSync(sourcePath, targetPath);
+        }
+      });
+
+      fs.copyFileSync(
+        path.join(OUTPUT_DIR, 'js', 'inline-data.js'),
+        path.join(__dirname, 'public', 'js', 'inline-data.js')
+      );
+
+      console.log('已同步 api 数据与内联数据到 public 目录');
+    } catch (syncError) {
+      console.warn('同步 public 目录失败:', syncError.message);
+    }
 
     // 如果有自定义域名，复制CNAME文件
     if (fs.existsSync('CNAME')) {
