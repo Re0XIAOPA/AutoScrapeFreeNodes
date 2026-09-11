@@ -5,6 +5,7 @@
   "main": "index.js",
   "scripts": {
     "start": "node index.js",
+    "nodes": "node md-nodes.js",
     "build": "node generate-static.js",
     "test": "node test-static.js",
     "dev": "nodemon index.js"

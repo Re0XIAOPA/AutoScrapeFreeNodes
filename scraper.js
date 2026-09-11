@@ -1,783 +1,478 @@
-const fs = require('fs-extra'); 
+/**
+ * scraper.js
+ * 站点订阅抓取：按站点声明的 strategy 真实抓取「订阅链接」，并做去重与连通性校验。
+ *
+ * 支持三种站点策略：
+ *  - article : 先取索引页拿到文章列表，再逐篇抓取文章里的订阅文件链接（clashnode / clash-meta）
+ *  - static  : 站点固定暴露若干订阅文件（airportnode 的 sub.txt / clash.yaml）
+ *  - repoDaily: GitHub 仓库每日产出一份订阅文件（free-nodes/clashfree 的 clashYYYYMMDD.yml）
+ *
+ * 输出：data/<hostname>.json，每条订阅带 online / httpStatus / latencyMs / bytes / note，
+ *       站点级 health 汇总在线率，供前端 API Status 与订阅列表展示。
+ */
+
+const fs = require('fs-extra');
 const path = require('path');
-const axios = require('axios');
-const cheerio = require('cheerio');
+const {
+  httpGet,
+  probeSubscription,
+  normalizeUrl,
+  mapLimit,
+  loadConfigSafe,
+  decodeHtmlEntities
+} = require('./http-client');
 
-// 读取配置文件
+const DEFAULT_SETTINGS = {
+  updateInterval: 15,
+  maxArticlesPerSite: 10,
+  cleanOldDataOnUpdate: true,
+  port: 3000,
+  dataDir: 'data',
+  localFreeNodesCount: 0
+};
+
+// ---------------------------------------------------------------------------
+// 配置
+// ---------------------------------------------------------------------------
+
 const loadConfig = () => {
-  try {
-    const configPath = path.join(__dirname, 'config.json');
-    if (!fs.existsSync(configPath)) {
-      console.error('配置文件不存在，请创建config.json文件');
-      return {
-        sites: [],
-        settings: {
-          updateInterval: 15,
-          maxArticlesPerSite: 20,
-          cleanOldDataOnUpdate: true,
-          port: 3000,
-          dataDir: 'data',
-          localFreeNodesCount: 0
-        },
-        subscriptions: []
-      };
-    }
-    
-    const config = fs.readJsonSync(configPath);
-    
-    // 确保subscriptions字段存在
-    if (!config.subscriptions) {
-      config.subscriptions = [];
-    }
-    
-    // 确保settings.localFreeNodesCount字段存在
-    if (!config.settings.localFreeNodesCount) {
-      config.settings.localFreeNodesCount = 0;
-    }
-    
-    return config;
-  } catch (error) {
-    console.error('读取配置文件失败:', error);
-    return {
-      sites: [],
-      settings: {
-        updateInterval: 15,
-        maxArticlesPerSite: 20,
-        cleanOldDataOnUpdate: true,
-        port: 3000,
-        dataDir: 'data',
-        localFreeNodesCount: 0
-      },
-      subscriptions: []
-    };
+  const config = loadConfigSafe();
+  if (!config || !Object.keys(config).length) {
+    return { sites: [], settings: { ...DEFAULT_SETTINGS }, subscriptions: [] };
   }
+  config.settings = { ...DEFAULT_SETTINGS, ...(config.settings || {}) };
+  if (!Array.isArray(config.subscriptions)) config.subscriptions = [];
+  if (!Array.isArray(config.sites)) config.sites = [];
+  return config;
 };
 
-// 从配置文件读取目标网站
+const getConfig = () => loadConfig();
+
 const readTargetSites = () => {
-  try {
-    const config = loadConfig();
-    // 过滤出已启用的站点
-    const enabledSites = config.sites
-      .filter(site => site.enabled)
-      .map(site => site.url);
-    
-    console.log(`从配置文件读取到 ${enabledSites.length} 个网站`);
-    return enabledSites;
-  } catch (error) {
-    console.error('读取目标网站失败:', error);
-    return [];
-  }
-};
-
-// 获取配置信息
-const getConfig = () => {
-  return loadConfig();
-};
-
-// 获取当前日期，格式为YYYYMMDD
-const getCurrentDate = () => {
-  const now = new Date();
-  const year = now.getFullYear();
-  const month = String(now.getMonth() + 1).padStart(2, '0');
-  const day = String(now.getDate()).padStart(2, '0');
-  return `${year}${month}${day}`;
-};
-
-// 从网站抓取文章链接
-const scrapeArticleLinks = async (siteUrl) => {
-  try {
-    const config = loadConfig();
-    const maxArticles = config.settings.maxArticlesPerSite || 20;
-    
-    console.log(`抓取网站文章列表: ${siteUrl}`);
-    
-    // 根据不同的网站使用不同的抓取策略
-    if (siteUrl.includes('clashnode.github.io')) {
-      // 对于clashnode.github.io，我们直接去获取今天的链接
-      const today = new Date();
-      const year = today.getFullYear();
-      const month = String(today.getMonth() + 1).padStart(2, '0');
-      const day = String(today.getDate()).padStart(2, '0');
-      
-      const todayUrl = `https://clashnode.github.io/newly-discovered-nodes/index.html?date=${year}-${month}-${day}`;
-      console.log(`尝试获取今日的节点: ${todayUrl}`);
-      
-      return [todayUrl];
-    }
-    else if (siteUrl.includes('clash-meta.github.io')) {
-      // 对于clash-meta.github.io，使用类似的策略
-      const today = new Date();
-      const year = today.getFullYear();
-      const month = String(today.getMonth() + 1).padStart(2, '0');
-      const day = String(today.getDate()).padStart(2, '0');
-      
-      const todayUrl = `https://clash-meta.github.io/newly-discovered-nodes/index.html?date=${year}-${month}-${day}`;
-      console.log(`尝试获取今日的节点: ${todayUrl}`);
-      
-      return [todayUrl];
-    }
-    else if (siteUrl.includes('airportnode.com')) {
-      // 对于airportnode.com，我们先访问分类页面，然后获取最新的文章
-      const response = await axios.get(siteUrl, {
-        headers: {
-          'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'
-        },
-        timeout: 15000
-      });
-      
-      const $ = cheerio.load(response.data);
-      // 找到最新的文章链接
-      const latestArticle = $('.entry-title a').first().attr('href');
-      
-      if (latestArticle) {
-        console.log(`找到airportnode.com最新文章: ${latestArticle}`);
-        return [latestArticle];
-      } else {
-        console.log('未在airportnode.com找到最新文章链接');
-        return [];
-      }
-    }
-    else {
-      // 对于其他网站使用通用策略
-      const response = await axios.get(siteUrl, {
-        headers: {
-          'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'
-        },
-        timeout: 15000
-      });
-      
-      const $ = cheerio.load(response.data);
-      const articles = [];
-      
-      // 尝试查找文章链接的常见选择器
-      const linkSelectors = [
-        'article a', '.post a', '.article a', '.entry a', 
-        '.post-title a', '.entry-title a', '.article-title a',
-        '.content a', '.main-content a', '.blog-post a',
-        'a.post-link', 'a.article-link', 'h2 a', 'h3 a',
-        '.article-list a', '.post-list a', '.entry-list a',
-        '.card a', '.item a', '.list-item a', '.archive-item a'
-      ];
-      
-      // 检查不同的选择器
-      for (const selector of linkSelectors) {
-        $(selector).each((i, el) => {
-          const href = $(el).attr('href');
-          if (href && !href.startsWith('#') && !href.startsWith('javascript:')) {
-            // 处理相对URL
-            let fullUrl = href;
-            if (href.startsWith('/')) {
-              const baseUrl = new URL(siteUrl);
-              fullUrl = `${baseUrl.protocol}//${baseUrl.host}${href}`;
-            } else if (!href.startsWith('http')) {
-              if (siteUrl.endsWith('/')) {
-                fullUrl = `${siteUrl}${href}`;
-              } else {
-                fullUrl = `${siteUrl}/${href}`;
-              }
-            }
-            
-            if (!articles.includes(fullUrl)) {
-              articles.push(fullUrl);
-            }
-          }
-        });
-        
-        // 如果找到足够的文章链接就停止查找
-        if (articles.length >= maxArticles) {
-          break;
-        }
-      }
-      
-      console.log(`从 ${siteUrl} 找到 ${articles.length} 篇文章`);
-      return articles.slice(0, maxArticles); // 最多取前maxArticles篇文章
-    }
-  } catch (error) {
-    console.error(`抓取网站文章列表失败 ${siteUrl}:`, error.message);
-    return [];
-  }
-};
-
-// 从文章中抓取订阅链接
-const scrapeArticle = async (articleUrl, siteName) => {
-  try {
-    console.log(`抓取文章内容: ${articleUrl}`);
-    const response = await axios.get(articleUrl, {
-      headers: {
-        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'
-      },
-      timeout: 10000
-    });
-    
-    const $ = cheerio.load(response.data);
-    
-    // 尝试获取文章标题
-    let title = '';
-    const titleSelectors = ['h1', '.post-title', '.entry-title', '.article-title', 'header h1', '.title'];
-    for (const selector of titleSelectors) {
-      const titleElement = $(selector).first();
-      if (titleElement.length > 0) {
-        title = titleElement.text().trim();
-        break;
-      }
-    }
-    
-    if (!title) {
-      title = $('title').text().trim() || new URL(articleUrl).pathname;
-    }
-    
-    // 提取订阅链接
-    const subscriptions = [];
-    
-    // 针对特定网站的解析策略
-    if (articleUrl.includes('clashnode.github.io') || articleUrl.includes('clash-meta.github.io')) {
-      // 查找订阅链接部分
-      const subscriptionSection = $('body').text().includes('订阅链接') ? $('body').html() : null;
-      
-      if (subscriptionSection) {
-        // 查找clash订阅链接
-        const clashLinks = [];
-        $('body').find('a').each(function() {
-          const href = $(this).attr('href');
-          if (href && href.includes('yaml') && href.includes('uploads')) {
-            clashLinks.push({
-              type: 'Clash',
-              url: href,
-              description: 'Clash订阅链接'
-            });
-          }
-        });
-        
-        // 查找v2ray订阅链接
-        const v2rayLinks = [];
-        $('body').find('a').each(function() {
-          const href = $(this).attr('href');
-          if (href && href.includes('txt') && href.includes('uploads')) {
-            v2rayLinks.push({
-              type: 'V2ray',
-              url: href,
-              description: 'V2ray订阅链接'
-            });
-          }
-        });
-        
-        // 查找sing-box订阅链接
-        const singboxLinks = [];
-        $('body').find('a').each(function() {
-          const href = $(this).attr('href');
-          if (href && href.includes('json') && href.includes('uploads')) {
-            singboxLinks.push({
-              type: 'Sing-Box',
-              url: href,
-              description: 'Sing-Box订阅链接'
-            });
-          }
-        });
-        
-        subscriptions.push(...clashLinks, ...v2rayLinks, ...singboxLinks);
-      }
-    } 
-    else if (articleUrl.includes('airportnode.com')) {
-      // 针对airportnode.com的解析策略
-      $('body').find('a').each(function() {
-        const href = $(this).attr('href');
-        const text = $(this).text().toLowerCase();
-        
-        if (href && href.includes('stair') && href.includes('yaml')) {
-          subscriptions.push({
-            type: 'Clash',
-            url: href,
-            description: 'Clash订阅链接'
-          });
-        }
-        
-        if (href && href.includes('stair') && href.includes('txt')) {
-          subscriptions.push({
-            type: 'V2ray',
-            url: href,
-            description: 'V2ray订阅链接'
-          });
-        }
-      });
-      
-      // 如果没有找到链接，尝试查找带有关键字的文本
-      if (subscriptions.length === 0) {
-        const bodyText = $('body').text();
-        const clashRegex = /clash订阅链接[：:]\s*(https?:\/\/[^\s"'<>]+)/gi;
-        const v2rayRegex = /v2ray订阅链接[：:]\s*(https?:\/\/[^\s"'<>]+)/gi;
-        
-        let match;
-        while ((match = clashRegex.exec(bodyText)) !== null) {
-          if (match[1]) {
-            subscriptions.push({
-              type: 'Clash',
-              url: match[1],
-              description: 'Clash订阅链接'
-            });
-          }
-        }
-        
-        while ((match = v2rayRegex.exec(bodyText)) !== null) {
-          if (match[1]) {
-            subscriptions.push({
-              type: 'V2ray',
-              url: match[1],
-              description: 'V2ray订阅链接'
-            });
-          }
-        }
-      }
-    }
-    else {
-      // 方法1：查找带关键词和链接的文本
-      const subscriptionRegexes = [
-        {
-          type: 'Clash',
-          regex: /(clash订阅链接|clash订阅地址|clash订阅|clash链接)[：:]\s*(https?:\/\/[^\s"'<>]+)/gi
-        },
-        {
-          type: 'V2ray',
-          regex: /(v2ray订阅链接|v2ray订阅地址|v2ray订阅|v2ray链接)[：:]\s*(https?:\/\/[^\s"'<>]+)/gi
-        },
-        {
-          type: 'Sing-Box',
-          regex: /(sing-box订阅链接|sing-box订阅地址|sing-box订阅|sing-box链接)[：:]\s*(https?:\/\/[^\s"'<>]+)/gi
-        },
-        {
-          type: 'Shadowrocket',
-          regex: /(shadowrocket订阅链接|shadowrocket订阅地址|shadowrocket订阅|小火箭订阅)[：:]\s*(https?:\/\/[^\s"'<>]+)/gi
-        },
-        {
-          type: 'Quantumult',
-          regex: /(quantumult订阅链接|quantumult订阅地址|quantumult订阅|圈x订阅)[：:]\s*(https?:\/\/[^\s"'<>]+)/gi
-        },
-        {
-          type: '通用',
-          regex: /(订阅链接|订阅地址|免费订阅)[：:]\s*(https?:\/\/[^\s"'<>]+)/gi
-        }
-      ];
-      
-      // 获取HTML内容
-      const htmlContent = $.html();
-      
-      // 应用正则表达式查找订阅链接
-      subscriptionRegexes.forEach(({ type, regex }) => {
-        let match;
-        while ((match = regex.exec(htmlContent)) !== null) {
-          if (match[2]) {
-            // 清理URL，移除末尾的标点符号
-            const url = match[2].replace(/[.,;'"<>\[\](){}]$/, '');
-            subscriptions.push({
-              type: type,
-              url: url,
-              description: match[0]
-            });
-          }
-        }
-      });
-      
-      // 方法2：查找链接附近的文本
-      const keywordMap = {
-        'clash': 'Clash',
-        'v2ray': 'V2ray',
-        'sing-box': 'Sing-Box',
-        'singbox': 'Sing-Box',
-        'shadowrocket': 'Shadowrocket',
-        '小火箭': 'Shadowrocket',
-        'quantumult': 'Quantumult',
-        '圈x': 'Quantumult',
-        '订阅链接': '通用',
-        '订阅地址': '通用',
-        '免费订阅': '通用'
-      };
-      
-      // 查找包含关键词的元素
-      Object.keys(keywordMap).forEach(keyword => {
-        // 查找包含关键词的文本节点
-        $('body').find('*').each(function() {
-          const $el = $(this);
-          
-          // 如果元素包含关键词
-          if ($el.text().toLowerCase().includes(keyword)) {
-            // 查找这个元素或其子元素中的链接
-            const $links = $el.find('a');
-            if ($links.length) {
-              $links.each(function() {
-                const href = $(this).attr('href');
-                if (href && href.startsWith('http')) {
-                  subscriptions.push({
-                    type: keywordMap[keyword],
-                    url: href,
-                    description: $el.text().trim()
-                  });
-                }
-              });
-            }
-            
-            // 查找这个元素相邻的链接
-            const $nextLink = $el.next('a');
-            if ($nextLink.length) {
-              const href = $nextLink.attr('href');
-              if (href && href.startsWith('http')) {
-                subscriptions.push({
-                  type: keywordMap[keyword],
-                  url: href,
-                  description: $el.text().trim() + ' ' + $nextLink.text().trim()
-                });
-              }
-            }
-            
-            // 查找父元素的链接
-            const $parentLink = $el.parent('a');
-            if ($parentLink.length) {
-              const href = $parentLink.attr('href');
-              if (href && href.startsWith('http')) {
-                subscriptions.push({
-                  type: keywordMap[keyword],
-                  url: href,
-                  description: $parentLink.text().trim()
-                });
-              }
-            }
-          }
-        });
-      });
-    }
-    
-    // 去重
-    const uniqueSubscriptions = [];
-    const urlSet = new Set();
-    
-    subscriptions.forEach(sub => {
-      if (!urlSet.has(sub.url)) {
-        urlSet.add(sub.url);
-        uniqueSubscriptions.push(sub);
-      }
-    });
-    
-    console.log(`从文章 "${title}" 抓取到 ${uniqueSubscriptions.length} 个订阅链接`);
-    
-    return {
-      url: articleUrl,
-      title: title,
-      scrapedAt: new Date().toISOString(),
-      subscriptionCount: uniqueSubscriptions.length,
-      subscriptions: uniqueSubscriptions
-    };
-  } catch (error) {
-    console.error(`抓取文章失败 ${articleUrl}:`, error.message);
-    return {
-      url: articleUrl,
-      title: articleUrl,
-      scrapedAt: new Date().toISOString(),
-      error: error.message,
-      subscriptionCount: 0,
-      subscriptions: []
-    };
-  }
-};
-
-// 尝试使用备用URL获取数据
-const tryAlternativeUrls = async (siteName) => {
-  console.log(`尝试获取备用URL: ${siteName}`);
-  
-  if (siteName.includes('clashnode.github.io')) {
-    // 对于clashnode.github.io，尝试获取主页的最新文章链接
-    try {
-      const response = await axios.get('https://clashnode.github.io/free-nodes/', {
-        headers: {
-          'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'
-        },
-        timeout: 15000
-      });
-      
-      const $ = cheerio.load(response.data);
-      const latestArticle = $('.post-title a').first().attr('href');
-      
-      if (latestArticle) {
-        let fullUrl = latestArticle;
-        if (latestArticle.startsWith('/')) {
-          fullUrl = `https://clashnode.github.io${latestArticle}`;
-        }
-        console.log(`找到备用文章链接: ${fullUrl}`);
-        return [fullUrl];
-      }
-    } catch (error) {
-      console.error(`尝试备用URL失败:`, error.message);
-    }
-  }
-  
-  if (siteName.includes('clash-meta.github.io')) {
-    // 对于clash-meta.github.io，尝试获取主页的最新文章
-    try {
-      const response = await axios.get('https://clash-meta.github.io/free-nodes/', {
-        headers: {
-          'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'
-        },
-        timeout: 15000
-      });
-      
-      const $ = cheerio.load(response.data);
-      const latestArticle = $('.post-title a').first().attr('href');
-      
-      if (latestArticle) {
-        let fullUrl = latestArticle;
-        if (latestArticle.startsWith('/')) {
-          fullUrl = `https://clash-meta.github.io${latestArticle}`;
-        }
-        console.log(`找到备用文章链接: ${fullUrl}`);
-        return [fullUrl];
-      }
-    } catch (error) {
-      console.error(`尝试备用URL失败:`, error.message);
-    }
-  }
-  
-  return [];
-};
-
-// 添加一个函数来生成模拟数据，用于测试
-const generateMockData = (siteName) => {
-  console.log(`为站点 ${siteName} 生成模拟数据用于测试`);
-  
-  const today = new Date();
-  const year = today.getFullYear();
-  const month = String(today.getMonth() + 1).padStart(2, '0');
-  const day = String(today.getDate()).padStart(2, '0');
-  const dateStr = `${year}${month}${day}`;
-  
-  // 针对不同站点生成不同的模拟数据
-  if (siteName.includes('clashnode.github.io')) {
-    return {
-      url: `https://clashnode.github.io/newly-discovered-nodes/index.html?date=${year}-${month}-${day}`,
-      title: `${month}月${day}日更新20.2M/S，${year}年最新高速Clash/V2ray订阅链接免费节点地址分享`,
-      scrapedAt: new Date().toISOString(),
-      subscriptionCount: 10,
-      subscriptions: [
-        {
-          type: 'Clash',
-          url: `https://node.freeclashnode.com/uploads/${year}/${month}/0-${dateStr}.yaml`,
-          description: 'Clash订阅链接'
-        },
-        {
-          type: 'Clash',
-          url: `https://node.freeclashnode.com/uploads/${year}/${month}/1-${dateStr}.yaml`,
-          description: 'Clash订阅链接'
-        },
-        {
-          type: 'Clash',
-          url: `https://node.freeclashnode.com/uploads/${year}/${month}/2-${dateStr}.yaml`,
-          description: 'Clash订阅链接'
-        },
-        {
-          type: 'Clash',
-          url: `https://node.freeclashnode.com/uploads/${year}/${month}/3-${dateStr}.yaml`,
-          description: 'Clash订阅链接'
-        },
-        {
-          type: 'Clash',
-          url: `https://node.freeclashnode.com/uploads/${year}/${month}/4-${dateStr}.yaml`,
-          description: 'Clash订阅链接'
-        },
-        {
-          type: 'V2ray',
-          url: `https://node.freeclashnode.com/uploads/${year}/${month}/0-${dateStr}.txt`,
-          description: 'V2ray订阅链接'
-        },
-        {
-          type: 'V2ray',
-          url: `https://node.freeclashnode.com/uploads/${year}/${month}/1-${dateStr}.txt`,
-          description: 'V2ray订阅链接'
-        },
-        {
-          type: 'V2ray',
-          url: `https://node.freeclashnode.com/uploads/${year}/${month}/2-${dateStr}.txt`,
-          description: 'V2ray订阅链接'
-        },
-        {
-          type: 'V2ray',
-          url: `https://node.freeclashnode.com/uploads/${year}/${month}/3-${dateStr}.txt`,
-          description: 'V2ray订阅链接'
-        },
-        {
-          type: 'Sing-Box',
-          url: `https://node.freeclashnode.com/uploads/${year}/${month}/${dateStr}.json`,
-          description: 'Sing-Box订阅链接'
-        }
-      ]
-    };
-  } 
-  else if (siteName.includes('clash-meta.github.io')) {
-    return {
-      url: `https://clash-meta.github.io/newly-discovered-nodes/index.html?date=${year}-${month}-${day}`,
-      title: `${month}月${day}日更新21.5M/S，${year}年最新高速Clash/V2ray订阅链接免费节点地址分享`,
-      scrapedAt: new Date().toISOString(),
-      subscriptionCount: 10,
-      subscriptions: [
-        {
-          type: 'Clash',
-          url: `https://node.freeclashnode.com/uploads/${year}/${month}/0-${dateStr}.yaml`,
-          description: 'Clash订阅链接'
-        },
-        {
-          type: 'Clash',
-          url: `https://node.freeclashnode.com/uploads/${year}/${month}/1-${dateStr}.yaml`,
-          description: 'Clash订阅链接'
-        },
-        {
-          type: 'Clash',
-          url: `https://node.freeclashnode.com/uploads/${year}/${month}/2-${dateStr}.yaml`,
-          description: 'Clash订阅链接'
-        },
-        {
-          type: 'Clash',
-          url: `https://node.freeclashnode.com/uploads/${year}/${month}/3-${dateStr}.yaml`,
-          description: 'Clash订阅链接'
-        },
-        {
-          type: 'Clash',
-          url: `https://node.freeclashnode.com/uploads/${year}/${month}/4-${dateStr}.yaml`,
-          description: 'Clash订阅链接'
-        },
-        {
-          type: 'V2ray',
-          url: `https://node.freeclashnode.com/uploads/${year}/${month}/0-${dateStr}.txt`,
-          description: 'V2ray订阅链接'
-        },
-        {
-          type: 'V2ray',
-          url: `https://node.freeclashnode.com/uploads/${year}/${month}/1-${dateStr}.txt`,
-          description: 'V2ray订阅链接'
-        },
-        {
-          type: 'V2ray',
-          url: `https://node.freeclashnode.com/uploads/${year}/${month}/2-${dateStr}.txt`,
-          description: 'V2ray订阅链接'
-        },
-        {
-          type: 'V2ray',
-          url: `https://node.freeclashnode.com/uploads/${year}/${month}/3-${dateStr}.txt`,
-          description: 'V2ray订阅链接'
-        },
-        {
-          type: 'Sing-Box',
-          url: `https://node.freeclashnode.com/uploads/${year}/${month}/${dateStr}.json`,
-          description: 'Sing-Box订阅链接'
-        }
-      ]
-    };
-  }
-  else if (siteName.includes('airportnode.com')) {
-    return {
-      url: 'https://www.airportnode.com/w/178.html',
-      title: `${month}月${day}日更新，${year}年最新免费节点`,
-      scrapedAt: new Date().toISOString(),
-      subscriptionCount: 2,
-      subscriptions: [
-        {
-          type: 'Clash',
-          url: `https://www.airportnode.com/stair/${year}${month}${day}-clash.yaml`,
-          description: 'Clash订阅链接'
-        },
-        {
-          type: 'V2ray',
-          url: `https://www.airportnode.com/stair/${year}${month}${day}-v2ray.txt`,
-          description: 'V2ray订阅链接'
-        }
-      ]
-    };
-  }
-  
-  return null;
-};
-
-// 抓取一个网站及其所有文章
-const scrapeSite = async (url) => {
-  try {
-    console.log(`处理网站 ${url}，直接使用模拟数据`);
-    
-    // 直接使用模拟数据进行测试
-    const siteData = {
-      url: url,
-      siteName: url.includes('://') ? new URL(url).hostname : 'unknown',
-      scrapedAt: new Date().toISOString(),
-      articles: []
-    };
-    
-    const mockData = generateMockData(url);
-    if (mockData) {
-      siteData.articles.push(mockData);
-    }
-    
-    siteData.totalSubscriptions = siteData.articles.reduce((sum, article) => sum + article.subscriptionCount, 0);
-    
-    console.log(`网站 ${url} 总共模拟了 ${siteData.totalSubscriptions} 个订阅链接`);
-    
-    return siteData;
-    
-  } catch (error) {
-    console.error(`处理网站 ${url} 失败:`, error.message);
-    
-    // 出错时也使用模拟数据
-    console.log(`网站 ${url} 处理出错，使用模拟数据进行测试`);
-    const siteData = {
-      url: url,
-      siteName: url.includes('://') ? new URL(url).hostname : 'unknown',
-      scrapedAt: new Date().toISOString(),
-      error: error.message,
-      articles: []
-    };
-    
-    const mockData = generateMockData(url);
-    if (mockData) {
-      siteData.articles.push(mockData);
-    }
-    
-    siteData.totalSubscriptions = siteData.articles.reduce((sum, article) => sum + article.subscriptionCount, 0);
-    
-    return siteData;
-  }
-};
-
-// 抓取所有网站
-const scrapeAllSites = async () => {
-  const sites = readTargetSites();
   const config = loadConfig();
-  const dataDir = path.join(__dirname, config.settings.dataDir || 'data');
-  
-  // 如果配置了清理旧数据，则重建数据目录
-  if (config.settings.cleanOldDataOnUpdate) {
-    fs.removeSync(dataDir);
+  const enabled = config.sites.filter(site => site && site.enabled !== false && site.url).map(site => site.url);
+  console.log(`从配置文件读取到 ${enabled.length} 个网站`);
+  return enabled;
+};
+
+// ---------------------------------------------------------------------------
+// 解析小工具
+// ---------------------------------------------------------------------------
+
+const absolutize = (href, baseUrl) => {
+  try {
+    return new URL(decodeHtmlEntities(href).trim(), baseUrl).href;
+  } catch (error) {
+    return '';
+  }
+};
+
+// 由扩展名推断订阅类型
+const detectTypeFromUrl = (url) => {
+  const pathname = (() => {
+    try {
+      return new URL(url).pathname.toLowerCase();
+    } catch (error) {
+      return String(url).toLowerCase();
+    }
+  })();
+  if (/\.ya?ml$/.test(pathname)) return 'Clash';
+  if (/\.json$/.test(pathname)) return 'Sing-Box';
+  if (/\.txt$/.test(pathname)) return 'V2ray';
+  return '通用';
+};
+
+// 需要排除的噪音域名（分享按钮、统计、推广等）
+const NOISE_HOSTS = [
+  'weibo.com', 'connect.qq.com', 'sns.qzone.qq.com', 'googletagmanager.com',
+  'google-analytics.com', 't.me', 'twitter.com', 'facebook.com', 't.cn',
+  'dginv.click', 'service.weibo.com', 'stats.starcore.one', 'clashbk'
+];
+
+const isSubscriptionUrl = (url) => {
+  let parsed;
+  try {
+    parsed = new URL(url);
+  } catch (error) {
+    return false;
+  }
+  if (!/^https?:$/.test(parsed.protocol)) return false;
+  const host = parsed.hostname.toLowerCase();
+  if (NOISE_HOSTS.some(n => host === n || host.endsWith(`.${n}`))) return false;
+
+  const pathname = parsed.pathname.toLowerCase();
+  if (/\.(htm|html|css|js|png|jpe?g|gif|svg|ico|webp|avif|woff2?|ttf|mp4|webm)$/.test(pathname)) return false;
+  if (!/\.(ya?ml|txt|json)$/.test(pathname)) return false;
+  // 订阅通常位于 uploads / stair / sub 等目录，或本身就是 sub.* 文件
+  return true;
+};
+
+/**
+ * 从 HTML 中提取订阅链接（同时覆盖 href 属性与正文里直接张贴的裸链接）
+ */
+const extractSubscriptionUrls = (html, baseUrl) => {
+  const found = new Map();
+  const push = (raw) => {
+    if (!raw) return;
+    const cleaned = decodeHtmlEntities(String(raw)).replace(/[.,;:'"<>)\]}]+$/, '').trim();
+    if (!cleaned) return;
+    const absolute = absolutize(cleaned, baseUrl);
+    if (!absolute || !isSubscriptionUrl(absolute)) return;
+    const key = normalizeUrl(absolute);
+    if (!found.has(key)) {
+      found.set(key, { url: absolute, type: detectTypeFromUrl(absolute) });
+    }
+  };
+
+  const attrRe = /(?:href|src|data-url|data-href)\s*=\s*["']([^"']+)["']/gi;
+  let m;
+  while ((m = attrRe.exec(html)) !== null) push(m[1]);
+
+  const bareRe = /https?:\/\/[^\s"'<>()\\]+/gi;
+  while ((m = bareRe.exec(html)) !== null) push(m[0]);
+
+  return [...found.values()];
+};
+
+// 从文章 URL 中解析日期（用于挑选最新文章）
+const parseDateFromUrl = (url) => {
+  const s = String(url);
+  let m = s.match(/(\d{4})-(\d{1,2})-(\d{1,2})/);
+  if (m) return Date.UTC(Number(m[1]), Number(m[2]) - 1, Number(m[3]));
+  m = s.match(/(\d{4})(\d{2})(\d{2})/);
+  if (m) return Date.UTC(Number(m[1]), Number(m[2]) - 1, Number(m[3]));
+  return 0;
+};
+
+const getHostname = (url) => {
+  try {
+    return new URL(url).hostname;
+  } catch (error) {
+    return 'unknown';
+  }
+};
+
+const safeFileName = (hostname) => hostname.replace(/[^a-zA-Z0-9]/g, '_');
+
+// ---------------------------------------------------------------------------
+// 各策略：收集订阅链接
+// ---------------------------------------------------------------------------
+
+/**
+ * article 策略：索引页 -> 最新 N 篇文章 -> 文章中的订阅链接
+ */
+const collectByArticle = async (site) => {
+  const indexUrl = site.indexUrl || site.url;
+  console.log(`[site] 抓取索引页: ${indexUrl}`);
+  const indexHtml = await httpGet(indexUrl);
+
+  const pattern = new RegExp(site.articlePathPattern || '/free-nodes/[^"\'#?\\s]+\\.html?', 'gi');
+  const links = new Set();
+  let m;
+  while ((m = pattern.exec(indexHtml)) !== null) {
+    const abs = absolutize(m[0], indexUrl);
+    if (abs) links.add(abs);
+  }
+
+  const articles = [...links]
+    .map(url => ({ url, date: parseDateFromUrl(url) }))
+    .sort((a, b) => b.date - a.date);
+
+  const limit = site.maxArticles || loadConfig().settings.maxArticlesPerSite || 3;
+  const picked = articles.slice(0, limit);
+  console.log(`[site] 索引页找到 ${articles.length} 篇文章，取最新 ${picked.length} 篇`);
+
+  const result = [];
+  for (const article of picked) {
+    try {
+      const html = await httpGet(article.url);
+      const titleMatch = html.match(/<title[^>]*>([\s\S]*?)<\/title>/i);
+      const title = titleMatch ? decodeHtmlEntities(titleMatch[1]).trim() : article.url;
+      const subs = extractSubscriptionUrls(html, article.url);
+      console.log(`[site]   ${article.url} -> ${subs.length} 条订阅`);
+      result.push({
+        url: article.url,
+        title,
+        scrapedAt: new Date().toISOString(),
+        subscriptionCount: subs.length,
+        subscriptions: subs
+      });
+    } catch (error) {
+      console.warn(`[site]   文章抓取失败 ${article.url}: ${error.message}`);
+      result.push({
+        url: article.url,
+        title: article.url,
+        scrapedAt: new Date().toISOString(),
+        error: error.message,
+        subscriptionCount: 0,
+        subscriptions: []
+      });
+    }
+  }
+  return result;
+};
+
+/**
+ * static 策略：站点固定暴露的订阅文件（相对路径按站点 URL 解析）
+ */
+const collectByStatic = async (site) => {
+  const subs = (site.subscriptions || []).map(item => {
+    const raw = typeof item === 'string' ? item : item.path || item.url;
+    const absolute = absolutize(raw, site.url);
+    if (!absolute) return null;
+    return {
+      url: absolute,
+      type: (typeof item === 'object' && item.type) || detectTypeFromUrl(absolute),
+      description: (typeof item === 'object' && item.description) || undefined
+    };
+  }).filter(Boolean);
+
+  console.log(`[site] 静态订阅 ${subs.length} 条`);
+  return [{
+    url: site.url,
+    title: site.description || getHostname(site.url),
+    scrapedAt: new Date().toISOString(),
+    subscriptionCount: subs.length,
+    subscriptions: subs
+  }];
+};
+
+/**
+ * repoDaily 策略：仓库 README 指向的每日订阅文件；README 不可用时按日期回退
+ */
+const collectByRepoDaily = async (site) => {
+  const repo = site.repo;
+  const branch = site.branch || 'main';
+  const filePattern = new RegExp(site.filePattern || 'clash(\\d{8})\\.ya?ml', 'gi');
+
+  const candidates = [];
+  try {
+    const readme = await httpGet(`https://raw.githubusercontent.com/${repo}/${branch}/README.md`, { timeout: 30000 });
+    let m;
+    const seen = new Set();
+    while ((m = filePattern.exec(readme)) !== null) {
+      const file = m[0];
+      if (seen.has(file)) continue;
+      seen.add(file);
+      candidates.push(file);
+    }
+  } catch (error) {
+    console.warn(`[site]   README 读取失败: ${error.message}`);
+  }
+
+  // 按文件名里的日期倒序，取最新的
+  candidates.sort((a, b) => parseDateFromUrl(b) - parseDateFromUrl(a));
+
+  if (!candidates.length) {
+    const now = new Date();
+    candidates.push(`clash${now.getFullYear()}${String(now.getMonth() + 1).padStart(2, '0')}${String(now.getDate()).padStart(2, '0')}.yml`);
+  }
+
+  const file = candidates[0];
+  const encodedPath = file.split('/').map(encodeURIComponent).join('/');
+  const url = `https://raw.githubusercontent.com/${repo}/${branch}/${encodedPath}`;
+
+  console.log(`[site] 仓库每日订阅: ${file}`);
+  return [{
+    url: `https://github.com/${repo}`,
+    title: `${repo} ${file}`,
+    scrapedAt: new Date().toISOString(),
+    subscriptionCount: 1,
+    subscriptions: [{ url, type: detectTypeFromUrl(url), description: `${file}（每日更新）` }]
+  }];
+};
+
+const STRATEGIES = {
+  article: collectByArticle,
+  static: collectByStatic,
+  repoDaily: collectByRepoDaily
+};
+
+// ---------------------------------------------------------------------------
+// 抓取单个站点
+// ---------------------------------------------------------------------------
+
+/**
+ * 抓取一个站点。此阶段只收集订阅链接，连通性在 scrapeAllSites 里统一批量校验。
+ */
+const scrapeSite = async (siteOrUrl) => {
+  const config = loadConfig();
+  const site = typeof siteOrUrl === 'string'
+    ? config.sites.find(s => s.url === siteOrUrl) || { url: siteOrUrl }
+    : siteOrUrl;
+
+  const hostname = getHostname(site.url);
+  const siteData = {
+    url: site.url,
+    siteName: site.name || hostname,
+    description: site.description,
+    strategy: site.strategy || 'article',
+    scrapedAt: new Date().toISOString(),
+    articles: []
+  };
+
+  const strategy = STRATEGIES[siteData.strategy] || collectByArticle;
+  try {
+    siteData.articles = await strategy(site);
+  } catch (error) {
+    console.error(`[site] ${site.url} 抓取失败: ${error.message}`);
+    siteData.error = error.message;
+  }
+
+  siteData.totalSubscriptions = siteData.articles.reduce((sum, a) => sum + (a.subscriptions ? a.subscriptions.length : 0), 0);
+  console.log(`[site] ${hostname} 收集到 ${siteData.totalSubscriptions} 条订阅链接`);
+  return siteData;
+};
+
+// ---------------------------------------------------------------------------
+// 抓取全部站点：收集 -> 全局去重 -> 连通性校验 -> 落盘
+// ---------------------------------------------------------------------------
+
+const scrapeAllSites = async () => {
+  const config = loadConfig();
+  const settings = config.settings;
+  const dataDir = path.join(__dirname, settings.dataDir || 'data');
+  const enabledSites = config.sites.filter(site => site && site.enabled !== false && site.url);
+
+  if (settings.cleanOldDataOnUpdate) {
+    // 只逐文件清理站点级 JSON（data/<site>.json）。
+    // 不用 fs.removeSync(dataDir) 整目录删除：
+    //  1) data/nodes 子目录存放可导入节点数据，整目录删除会把它一起清掉，使正确性依赖调用顺序，非常脆弱；
+    //  2) 逐文件 unlink 也更温和，不依赖递归删除能力。
     fs.ensureDirSync(dataDir);
+    fs.readdirSync(dataDir).forEach(file => {
+      if (!file.endsWith('.json')) return;
+      try {
+        fs.unlinkSync(path.join(dataDir, file));
+      } catch (error) {
+        console.warn(`清理旧数据失败 ${file}: ${error.message}`);
+      }
+    });
   } else {
     // 确保数据目录存在
     fs.ensureDirSync(dataDir);
   }
-  
-  console.log(`开始抓取 ${sites.length} 个网站`);
-  
-  for (const site of sites) {
+
+  console.log(`开始抓取 ${enabledSites.length} 个网站`);
+
+  const siteResults = [];
+  for (const site of enabledSites) {
     try {
-      const data = await scrapeSite(site);
-      
-      // 保存数据到JSON文件
-      const hostname = data.siteName.replace(/[^a-zA-Z0-9]/g, '_');
-      const filePath = path.join(dataDir, `${hostname}.json`);
-      
-      fs.writeJsonSync(filePath, data, { spaces: 2 });
-      console.log(`保存 ${hostname} 数据成功`);
+      siteResults.push(await scrapeSite(site));
     } catch (error) {
-      console.error(`处理 ${site} 失败:`, error);
+      console.error(`处理 ${site.url} 失败:`, error.message);
     }
   }
-  
-  console.log('所有网站抓取完成');
+
+  // ---- 全局去重：同一个订阅链接只探测一次 ----
+  const uniqueSubs = new Map();
+  let duplicatesRemoved = 0;
+
+  for (const siteData of siteResults) {
+    for (const article of siteData.articles) {
+      if (!Array.isArray(article.subscriptions)) continue;
+      for (const sub of article.subscriptions) {
+        const key = normalizeUrl(sub.url);
+        if (!key) continue;
+        if (uniqueSubs.has(key)) {
+          duplicatesRemoved += 1;
+          sub.duplicateOf = uniqueSubs.get(key).url;
+          continue;
+        }
+        uniqueSubs.set(key, {
+          url: sub.url,
+          type: sub.type || detectTypeFromUrl(sub.url),
+          description: sub.description,
+          sources: [siteData.siteName]
+        });
+      }
+    }
+  }
+
+  console.log(`去重后待校验订阅链接 ${uniqueSubs.size} 条（去除重复 ${duplicatesRemoved} 条）`);
+
+  // ---- 连通性校验（限制并发）----
+  const checkConfig = settings.subscriptionCheck || {};
+  const checkEnabled = checkConfig.enabled !== false;
+  const uniqueList = [...uniqueSubs.values()];
+
+  if (checkEnabled && uniqueList.length) {
+    const concurrency = checkConfig.concurrency || 6;
+    console.log(`开始校验订阅连通性（并发 ${concurrency}）...`);
+    await mapLimit(uniqueList, concurrency, async (entry) => {
+      const probe = await probeSubscription(entry.url, { timeout: checkConfig.timeout });
+      Object.assign(entry, probe);
+      console.log(`[check] ${entry.online ? '在线' : '离线'} ${entry.httpStatus || '-'} ${entry.latencyMs !== null ? entry.latencyMs + 'ms' : ''} ${entry.url}`);
+      return entry;
+    });
+  } else {
+    uniqueList.forEach(entry => {
+      Object.assign(entry, { online: null, httpStatus: null, latencyMs: null, bytes: 0, note: '未校验', checkedAt: null });
+    });
+  }
+
+  // ---- 把校验结果分发给各站点，并统计站点健康度 ----
+  const summary = { total: 0, online: 0, offline: 0, unknown: 0, duplicatesRemoved, checkedAt: new Date().toISOString() };
+
+  for (const siteData of siteResults) {
+    const seenInSite = new Set();
+    let siteTotal = 0;
+    let siteOnline = 0;
+    let latencySum = 0;
+
+    for (const article of siteData.articles) {
+      if (!Array.isArray(article.subscriptions)) continue;
+      for (const sub of article.subscriptions) {
+        const key = normalizeUrl(sub.url);
+        const probed = key ? uniqueSubs.get(key) : null;
+        if (probed) {
+          sub.online = probed.online;
+          sub.httpStatus = probed.httpStatus;
+          sub.latencyMs = probed.latencyMs;
+          sub.bytes = probed.bytes;
+          sub.note = probed.note;
+          sub.checkedAt = probed.checkedAt;
+        }
+        if (!seenInSite.has(key)) {
+          seenInSite.add(key);
+          siteTotal += 1;
+          if (sub.online === true) {
+            siteOnline += 1;
+            if (typeof sub.latencyMs === 'number') latencySum += sub.latencyMs;
+          }
+        }
+      }
+    }
+
+    siteData.health = {
+      total: siteTotal,
+      online: siteOnline,
+      offline: siteTotal - siteOnline,
+      ratio: siteTotal ? Number((siteOnline / siteTotal).toFixed(3)) : 0,
+      avgLatencyMs: siteOnline ? Math.round(latencySum / siteOnline) : null,
+      checkedAt: summary.checkedAt
+    };
+
+    summary.total += siteTotal;
+    summary.online += siteOnline;
+
+    const fileName = `${safeFileName(siteData.siteName)}.json`;
+    fs.writeJsonSync(path.join(dataDir, fileName), siteData, { spaces: 2 });
+    console.log(`保存 ${fileName} 数据成功（订阅 ${siteData.totalSubscriptions} 条，在线 ${siteOnline}/${siteTotal}）`);
+  }
+
+  summary.offline = summary.total - summary.online;
+
+  console.log(`所有网站抓取完成：订阅 ${summary.total} 条，在线 ${summary.online}，离线 ${summary.offline}`);
+  return { sites: siteResults, summary };
 };
 
 module.exports = {
   scrapeAllSites,
   scrapeSite,
   readTargetSites,
-  getConfig
-}; 
+  getConfig,
+  extractSubscriptionUrls,
+  detectTypeFromUrl,
+  isSubscriptionUrl
+};
