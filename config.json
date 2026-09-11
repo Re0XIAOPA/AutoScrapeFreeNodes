@@ -2,18 +2,76 @@
   "sites": [
     {
       "url": "https://clashnode.github.io/",
+      "name": "clashnode",
       "enabled": true,
-      "description": "免费节点订阅站点1"
+      "description": "Clash Node 免费节点（文章页订阅链接）",
+      "strategy": "article",
+      "indexUrl": "https://clashnode.github.io/newly-discovered-nodes/index.html",
+      "articlePathPattern": "/free-nodes/[^\"'#?\\s]+\\.html?",
+      "maxArticles": 3
     },
     {
       "url": "https://clash-meta.github.io/",
+      "name": "clash-meta",
       "enabled": true,
-      "description": "免费节点订阅站点2"
+      "description": "Clash Meta 免费节点（文章页订阅链接）",
+      "strategy": "article",
+      "indexUrl": "https://clash-meta.github.io/newly-discovered-nodes/index.html",
+      "articlePathPattern": "/free-nodes/[^\"'#?\\s]+\\.html?",
+      "maxArticles": 3
     },
     {
       "url": "https://www.airportnode.com/",
+      "name": "airportnode",
       "enabled": true,
-      "description": "免费节点订阅站点3"
+      "description": "AirportNode 免费节点（静态订阅文件）",
+      "strategy": "static",
+      "subscriptions": [
+        {
+          "type": "V2ray",
+          "path": "sub.txt",
+          "description": "V2Ray / 小火箭 订阅"
+        },
+        {
+          "type": "Clash",
+          "path": "clash.yaml",
+          "description": "Clash / Mihomo 订阅"
+        }
+      ]
+    },
+    {
+      "url": "https://github.com/free-nodes/clashfree",
+      "name": "clashfree",
+      "enabled": true,
+      "description": "free-nodes/clashfree（每日 clash 订阅文件）",
+      "strategy": "repoDaily",
+      "repo": "free-nodes/clashfree",
+      "branch": "main",
+      "filePattern": "clash(\\d{8})\\.ya?ml"
+    }
+  ],
+  "mdSources": [
+    {
+      "name": "v2rayfree",
+      "repo": "free-nodes/v2rayfree",
+      "branch": "main",
+      "enabled": true,
+      "description": "从仓库 markdown 中提取可直接导入的节点分享链接"
+    },
+    {
+      "name": "Free-servers",
+      "repo": "Pawdroid/Free-servers",
+      "branch": "main",
+      "enabled": true,
+      "description": "从仓库 markdown 中提取可直接导入的节点分享链接"
+    }
+  ],
+  "nodeSources": [
+    {
+      "name": "v2cross",
+      "url": "https://v2cross.com/1884.html",
+      "enabled": true,
+      "description": "v2cross 今日免费节点快照（网页内嵌分享链接）"
     }
   ],
   "settings": {
@@ -22,39 +80,15 @@
     "cleanOldDataOnUpdate": true,
     "port": 3001,
     "dataDir": "data",
+    "nodesDataDir": "data/nodes",
     "lastUpdated": "2023-09-15T00:00:00.000Z",
-    "localFreeNodesCount": 5
-  },
-  "subscriptions": [
-    {
-      "type": "Shadowrocket",
-      "name": "Shadowrocket免费节点1",
-      "url": "https://sub.0664.net/ss/sub",
-      "description": "Shadowrocket免费节点订阅1"
-    },
-    {
-      "type": "Shadowrocket",
-      "name": "Shadowrocket免费节点2",
-      "url": "https://sub.0664.net/sip002/sub",
-      "description": "Shadowrocket免费节点订阅2"
-    },
-    {
-      "type": "Shadowrocket",
-      "name": "Shadowrocket免费节点3",
-      "url": "https://sub.0664.net/ssr/sub",
-      "description": "Shadowrocket免费节点订阅3"
-    },
-    {
-      "type": "V2ray",
-      "name": "V2ray免费节点4",
-      "url": "https://sub.0664.net/vmess/sub",
-      "description": "V2ray免费节点订阅1"
-    },
-    {
-      "type": "通用",
-      "name": "通用免费节点5",
-      "url": "https://sub.0664.net/trojan/sub",
-      "description": "通用免费节点订阅1"
+    "localFreeNodesCount": 0,
+    "subscriptionCheck": {
+      "enabled": true,
+      "timeout": 12000,
+      "concurrency": 6,
+      "maxBytes": 65536
     }
-  ]
-} 
+  },
+  "subscriptions": []
+}
