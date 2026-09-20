@@ -1,15 +1,16 @@
-version: '3.8'
-
 services:
   autoscrape:
     build: .
     container_name: autoscrape-free-nodes
+    init: true                      # 正确处理信号 / 回收僵尸进程
     restart: unless-stopped
     ports:
       - "3000:3000"
     environment:
       - PORT=3000
       - TZ=Asia/Shanghai
+      # 可选：设置后 /api/* 需要带 x-api-key 才能访问
+      # - API_KEY=your-secret
     volumes:
       - ./data:/app/data
     logging:
