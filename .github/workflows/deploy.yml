@@ -13,10 +13,12 @@ on:
   workflow_dispatch:
 
 # 设置权限
+# 权限：JamesIves 动作通过 GITHUB_TOKEN 把 dist 推到 gh-pages 分支，
+# 只需 contents: write（不需要 id-token / pages 权限，也不会触发 OIDC 报错）
 permissions:
   contents: write
-  pages: write
-
+  # pages: write
+  
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
@@ -41,7 +43,7 @@ jobs:
       - name: 安装依赖
         run: npm install
         
-      # 执行抓取和生成静态网站
+      # 执行抓取和生成静态网站（generate-static.js 会把 CNAME 一并写入 dist/）
       - name: 生成静态网站
         run: node generate-static.js
       
@@ -65,7 +67,7 @@ jobs:
             echo "has_cname=false" >> $GITHUB_OUTPUT
           fi
         
-      # 部署到GitHub Pages
+      # 部署到GitHub Pages（推送 dist 到 gh-pages 分支，Pages Source 保持 "Deploy from a branch"）
       - name: 部署到GitHub Pages
         uses: JamesIves/github-pages-deploy-action@v4
         with:
@@ -83,4 +85,4 @@ jobs:
           git config --local user.name "GitHub Action"
           git add data/*.json
           git diff --quiet && git diff --staged --quiet || git commit -m "自动更新: 更新节点数据 [skip ci]"
-          git push --set-upstream origin main || (git pull --rebase origin main && git push) 
+          git push --set-upstream origin main || (git pull --rebase origin main && git push)
