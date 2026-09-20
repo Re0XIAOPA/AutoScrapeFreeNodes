@@ -47,13 +47,11 @@ function determineEnvironment() {
 
 // 获取当前环境
 const currentEnv = determineEnvironment();
-console.log('当前环境:', currentEnv);
 
 // 自动检测基础路径（用于静态部署）
 if (currentEnv === 'production' || currentEnv === 'static_test') {
   // 对于GitHub Pages和静态部署，使用相对路径
   CONFIG[currentEnv].API_BASE_URL = '.';
-  console.log('使用相对路径访问API');
 } else if (currentEnv === 'development') {
   // 开发环境，使用当前主机
   const port = '3001'; // 后端服务端口
@@ -68,4 +66,3 @@ const ENV_CONFIG = CONFIG[currentEnv];
 // development 环境代表页面由 Node 服务直接托管，此时应访问 /api/xxx 实时接口；
 // production / static_test 为静态托管，只能读取构建时预生成的 .json 快照。
 ENV_CONFIG.IS_SERVER_MODE = currentEnv === 'development';
-console.log('使用实时接口:', ENV_CONFIG.IS_SERVER_MODE);
