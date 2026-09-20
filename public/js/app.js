@@ -57,8 +57,6 @@ document.addEventListener('DOMContentLoaded', function() {
       // 调用原始方法
       return originalHide.apply(this, arguments);
     };
-    
-    console.log('Bootstrap Modal方法已增强，以改进可访问性');
   }
 });
 
@@ -572,7 +570,6 @@ function loadConfig() {
     // 优先使用内联数据
     if (typeof INLINE_CONFIG !== 'undefined') {
       configData = INLINE_CONFIG;
-      console.log('使用内联配置数据');
       
       // 处理配置数据
       processConfigData(INLINE_CONFIG);
@@ -586,7 +583,6 @@ function loadConfig() {
     
     // 本地文件系统环境或GitHub Pages，直接使用内联数据
     if (!window.location.protocol.includes('http') || isGitHubPages) {
-      console.log('使用内联配置数据');
       if (typeof INLINE_CONFIG !== 'undefined') {
         processConfigData(INLINE_CONFIG);
       } else {
@@ -878,7 +874,6 @@ function loadSubscriptions(showSkeleton = true) {
     
     // 本地文件系统环境或GitHub Pages，直接使用内联数据
     if (!window.location.protocol.includes('http') || isGitHubPages) {
-      console.log('使用内联订阅数据');
       if (typeof INLINE_SUBSCRIPTIONS !== 'undefined' && typeof INLINE_SITES !== 'undefined') {
         // 合并配置文件中的自定义订阅
         allSubscriptions = mergeConfigSubscriptions(INLINE_SUBSCRIPTIONS);
