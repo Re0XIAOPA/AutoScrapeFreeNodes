@@ -3,12 +3,12 @@
   "siteName": "clashnode",
   "description": "Clash Node 免费节点（文章页订阅链接）",
   "strategy": "article",
-  "scrapedAt": "2026-10-14T20:15:17.136Z",
+  "scrapedAt": "2026-10-14T20:17:02.308Z",
   "articles": [
     {
       "url": "https://clashnode.github.io/free-nodes/2026-10-6-free-ssr-subscribe.htm",
       "title": "10月6日更新18.3M/S，2025年最新高速Trojan节点/Shadowrocket节点/Singbox节点/V2ray节点/Clash节点/SSR节点订阅链接免费节点地址分享 - Clash Node免费节点站",
-      "scrapedAt": "2026-10-14T20:15:17.464Z",
+      "scrapedAt": "2026-10-14T20:17:02.538Z",
       "subscriptionCount": 8,
       "subscriptions": [
         {
@@ -16,87 +16,87 @@
           "type": "Clash",
           "online": true,
           "httpStatus": 200,
-          "latencyMs": 417,
+          "latencyMs": 121,
           "bytes": 2011215,
           "note": "Clash 配置可用",
-          "checkedAt": "2026-10-14T20:15:18.688Z"
+          "checkedAt": "2026-10-14T20:17:03.077Z"
         },
         {
           "url": "https://clashnode.github.io/uploads/2026/10/3-20261006.yaml",
           "type": "Clash",
           "online": true,
           "httpStatus": 200,
-          "latencyMs": 112,
+          "latencyMs": 55,
           "bytes": 19683,
           "note": "Clash 配置可用",
-          "checkedAt": "2026-10-14T20:15:18.690Z"
+          "checkedAt": "2026-10-14T20:17:03.079Z"
         },
         {
           "url": "https://clashnode.github.io/uploads/2026/10/4-20261006.yaml",
           "type": "Clash",
           "online": false,
           "httpStatus": 200,
-          "latencyMs": 92,
+          "latencyMs": 30,
           "bytes": 16,
           "note": "源站错误页（error code: 522）",
-          "checkedAt": "2026-10-14T20:15:18.692Z"
+          "checkedAt": "2026-10-14T20:17:03.081Z"
         },
         {
           "url": "https://clashnode.github.io/uploads/2026/10/0-20261006.txt",
           "type": "V2ray",
           "online": true,
           "httpStatus": 200,
-          "latencyMs": 169,
+          "latencyMs": 47,
           "bytes": 104350,
           "note": "明文节点列表",
-          "checkedAt": "2026-10-14T20:15:18.694Z"
+          "checkedAt": "2026-10-14T20:17:03.083Z"
         },
         {
           "url": "https://clashnode.github.io/uploads/2026/10/1-20261006.txt",
           "type": "V2ray",
           "online": true,
           "httpStatus": 200,
-          "latencyMs": 112,
+          "latencyMs": 38,
           "bytes": 47812,
           "note": "base64 节点列表",
-          "checkedAt": "2026-10-14T20:15:18.695Z"
+          "checkedAt": "2026-10-14T20:17:03.084Z"
         },
         {
           "url": "https://clashnode.github.io/uploads/2026/10/2-20261006.txt",
           "type": "V2ray",
           "online": true,
           "httpStatus": 200,
-          "latencyMs": 220,
+          "latencyMs": 77,
           "bytes": 809892,
           "note": "base64 节点列表",
-          "checkedAt": "2026-10-14T20:15:18.697Z"
+          "checkedAt": "2026-10-14T20:17:03.086Z"
         },
         {
           "url": "https://clashnode.github.io/uploads/2026/10/3-20261006.txt",
           "type": "V2ray",
           "online": true,
           "httpStatus": 200,
-          "latencyMs": 126,
+          "latencyMs": 32,
           "bytes": 5885,
           "note": "base64 节点列表",
-          "checkedAt": "2026-10-14T20:15:18.785Z"
+          "checkedAt": "2026-10-14T20:17:03.111Z"
         },
         {
           "url": "https://clashnode.github.io/uploads/2026/10/20261006.json",
           "type": "Sing-Box",
           "online": false,
           "httpStatus": 200,
-          "latencyMs": 100,
+          "latencyMs": 23,
           "bytes": 0,
           "note": "内容为空（0 字节）",
-          "checkedAt": "2026-10-14T20:15:18.802Z"
+          "checkedAt": "2026-10-14T20:17:03.123Z"
         }
       ]
     },
     {
       "url": "https://clashnode.github.io/free-nodes/2026-10-4-free-node-subscribe.htm",
       "title": "10月4日更新20.7M/S，2025年最新高速Clash节点/Shadowrocket节点/SSR节点/Singbox节点/Trojan节点/V2ray节点订阅链接免费节点地址分享 - Clash Node免费节点站",
-      "scrapedAt": "2026-10-14T20:15:17.707Z",
+      "scrapedAt": "2026-10-14T20:17:02.596Z",
       "subscriptionCount": 9,
       "subscriptions": [
         {
@@ -104,97 +104,97 @@
           "type": "Clash",
           "online": true,
           "httpStatus": 200,
-          "latencyMs": 158,
+          "latencyMs": 52,
           "bytes": 218756,
           "note": "Clash 配置可用",
-          "checkedAt": "2026-10-14T20:15:18.808Z"
+          "checkedAt": "2026-10-14T20:17:03.130Z"
         },
         {
           "url": "https://clashnode.github.io/uploads/2026/10/1-20261004.yaml",
           "type": "Clash",
           "online": true,
           "httpStatus": 200,
-          "latencyMs": 117,
+          "latencyMs": 45,
           "bytes": 95158,
           "note": "Clash 配置可用",
-          "checkedAt": "2026-10-14T20:15:18.864Z"
+          "checkedAt": "2026-10-14T20:17:03.134Z"
         },
         {
           "url": "https://clashnode.github.io/uploads/2026/10/2-20261004.yaml",
           "type": "Clash",
           "online": true,
           "httpStatus": 200,
-          "latencyMs": 271,
+          "latencyMs": 111,
           "bytes": 2144286,
           "note": "Clash 配置可用",
-          "checkedAt": "2026-10-14T20:15:18.902Z"
+          "checkedAt": "2026-10-14T20:17:03.144Z"
         },
         {
           "url": "https://clashnode.github.io/uploads/2026/10/3-20261004.yaml",
           "type": "Clash",
           "online": true,
           "httpStatus": 200,
-          "latencyMs": 99,
+          "latencyMs": 29,
           "bytes": 19683,
           "note": "Clash 配置可用",
-          "checkedAt": "2026-10-14T20:15:18.912Z"
+          "checkedAt": "2026-10-14T20:17:03.146Z"
         },
         {
           "url": "https://clashnode.github.io/uploads/2026/10/4-20261004.yaml",
           "type": "Clash",
           "online": false,
           "httpStatus": 200,
-          "latencyMs": 106,
+          "latencyMs": 40,
           "bytes": 16,
           "note": "源站错误页（error code: 522）",
-          "checkedAt": "2026-10-14T20:15:18.925Z"
+          "checkedAt": "2026-10-14T20:17:03.170Z"
         },
         {
           "url": "https://clashnode.github.io/uploads/2026/10/0-20261004.txt",
           "type": "V2ray",
           "online": true,
           "httpStatus": 200,
-          "latencyMs": 145,
+          "latencyMs": 29,
           "bytes": 96176,
           "note": "明文节点列表",
-          "checkedAt": "2026-10-14T20:15:18.967Z"
+          "checkedAt": "2026-10-14T20:17:03.176Z"
         },
         {
           "url": "https://clashnode.github.io/uploads/2026/10/2-20261004.txt",
           "type": "V2ray",
           "online": true,
           "httpStatus": 200,
-          "latencyMs": 167,
+          "latencyMs": 131,
           "bytes": 938848,
           "note": "base64 节点列表",
-          "checkedAt": "2026-10-14T20:15:18.982Z"
+          "checkedAt": "2026-10-14T20:17:03.179Z"
         },
         {
           "url": "https://clashnode.github.io/uploads/2026/10/3-20261004.txt",
           "type": "V2ray",
           "online": true,
           "httpStatus": 200,
-          "latencyMs": 82,
+          "latencyMs": 28,
           "bytes": 5885,
           "note": "base64 节点列表",
-          "checkedAt": "2026-10-14T20:15:19.011Z"
+          "checkedAt": "2026-10-14T20:17:03.184Z"
         },
         {
           "url": "https://clashnode.github.io/uploads/2026/10/20261004.json",
           "type": "Sing-Box",
           "online": false,
           "httpStatus": 200,
-          "latencyMs": 83,
+          "latencyMs": 18,
           "bytes": 0,
           "note": "内容为空（0 字节）",
-          "checkedAt": "2026-10-14T20:15:19.032Z"
+          "checkedAt": "2026-10-14T20:17:03.200Z"
         }
       ]
     },
     {
       "url": "https://clashnode.github.io/free-nodes/2026-9-30-clash-v2ray-ss-ssr.htm",
       "title": "9月30日更新20.6M/S，2025年最新高速Shadowrocket节点/V2ray节点/Singbox节点/Trojan节点/Clash节点/SSR节点订阅链接免费节点地址分享 - Clash Node免费节点站",
-      "scrapedAt": "2026-10-14T20:15:17.791Z",
+      "scrapedAt": "2026-10-14T20:17:02.641Z",
       "subscriptionCount": 7,
       "subscriptions": [
         {
@@ -202,70 +202,70 @@
           "type": "Clash",
           "online": true,
           "httpStatus": 200,
-          "latencyMs": 541,
+          "latencyMs": 147,
           "bytes": 3248392,
           "note": "Clash 配置可用",
-          "checkedAt": "2026-10-14T20:15:19.093Z"
+          "checkedAt": "2026-10-14T20:17:03.205Z"
         },
         {
           "url": "https://clashnode.github.io/uploads/2026/09/3-20260930.yaml",
           "type": "Clash",
           "online": true,
           "httpStatus": 200,
-          "latencyMs": 96,
+          "latencyMs": 50,
           "bytes": 13452,
           "note": "Clash 配置可用",
-          "checkedAt": "2026-10-14T20:15:19.107Z"
+          "checkedAt": "2026-10-14T20:17:03.210Z"
         },
         {
           "url": "https://clashnode.github.io/uploads/2026/09/1-20260930.txt",
           "type": "V2ray",
           "online": true,
           "httpStatus": 200,
-          "latencyMs": 94,
+          "latencyMs": 25,
           "bytes": 85416,
           "note": "base64 节点列表",
-          "checkedAt": "2026-10-14T20:15:19.113Z"
+          "checkedAt": "2026-10-14T20:17:03.212Z"
         },
         {
           "url": "https://clashnode.github.io/uploads/2026/09/2-20260930.txt",
           "type": "V2ray",
           "online": true,
           "httpStatus": 200,
-          "latencyMs": 291,
+          "latencyMs": 63,
           "bytes": 1313764,
           "note": "base64 节点列表",
-          "checkedAt": "2026-10-14T20:15:19.115Z"
+          "checkedAt": "2026-10-14T20:17:03.219Z"
         },
         {
           "url": "https://clashnode.github.io/uploads/2026/09/3-20260930.txt",
           "type": "V2ray",
           "online": true,
           "httpStatus": 200,
-          "latencyMs": 150,
+          "latencyMs": 24,
           "bytes": 6908,
           "note": "base64 节点列表",
-          "checkedAt": "2026-10-14T20:15:19.157Z"
+          "checkedAt": "2026-10-14T20:17:03.238Z"
         },
         {
           "url": "https://clashnode.github.io/uploads/2026/09/4-20260930.txt",
           "type": "V2ray",
           "online": true,
           "httpStatus": 200,
-          "latencyMs": 72,
+          "latencyMs": 48,
           "bytes": 93220,
           "note": "base64 节点列表",
-          "checkedAt": "2026-10-14T20:15:19.175Z"
+          "checkedAt": "2026-10-14T20:17:03.257Z"
         },
         {
           "url": "https://clashnode.github.io/uploads/2026/09/20260930.json",
           "type": "Sing-Box",
           "online": false,
           "httpStatus": 200,
-          "latencyMs": 91,
+          "latencyMs": 39,
           "bytes": 0,
           "note": "内容为空（0 字节）",
-          "checkedAt": "2026-10-14T20:15:19.203Z"
+          "checkedAt": "2026-10-14T20:17:03.261Z"
         }
       ]
     }
@@ -276,7 +276,7 @@
     "online": 19,
     "offline": 5,
     "ratio": 0.792,
-    "avgLatencyMs": 181,
-    "checkedAt": "2026-10-14T20:15:20.192Z"
+    "avgLatencyMs": 61,
+    "checkedAt": "2026-10-14T20:17:03.979Z"
   }
 }
