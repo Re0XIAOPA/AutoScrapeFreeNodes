@@ -149,25 +149,53 @@ https://www.airportnode.com/category-1.html
 
 ## Docker 部署
 
-### 使用 Docker Compose (推荐)
+Docker 模式运行的是**完整应用**：Express 同时托管前端页面（`public/`）、提供实时抓取 API（`/api/*`），并按 `config.json` 的 `updateInterval` 定时刷新数据。抓取结果持久化在挂载的 `./data` 卷中。
 
-1. 确保已安装 Docker 和 Docker Compose
-2. 在项目根目录下运行：
+### 方式一：Docker Compose（推荐）
+
 ```bash
 docker compose up -d
 ```
-3. 访问 `http://localhost:3000`
 
-### 使用 Docker 构建
+- 访问 `http://localhost:3000`
+- 数据目录 `./data` 已挂载为卷，重启 / 更新不丢数据
+- 容器配置了健康检查（`/`）与 `init` 信号处理，异常会自动按 `restart: unless-stopped` 重启
 
-1. 构建镜像：
+### 方式二：Docker 命令
+
 ```bash
 docker build -t autoscrape-free-nodes .
-```
-2. 运行容器：
-```bash
 docker run -d -p 3000:3000 -v $(pwd)/data:/app/data --name autoscrape autoscrape-free-nodes
 ```
+
+### 更新镜像
+
+代码变动后需重新构建（镜像不会自动拉取最新代码）：
+
+```bash
+git pull
+docker compose build
+docker compose up -d
+```
+
+### 用域名访问（如 asfn.awafuns.cn）
+
+镜像只暴露容器端口 `3000`，前面用 Nginx / Caddy 反代即可。Nginx 示例：
+
+```nginx
+server {
+    listen 80;
+    server_name asfn.awafuns.cn;
+    location / {
+        proxy_pass http://127.0.0.1:3000;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+    }
+}
+```
+
+> 说明：Docker 部署 = 动态全量应用（含实时 API 与定时抓取）；`gh-pages` 分支 = 静态快照，方便分发到 GitHub Pages / Netlify / Vercel 等任意静态平台。两者可并存，按需选用。
 
 
 <div style="padding: 16px; border: 1px solid #1dff91; margin: 24px 0;">

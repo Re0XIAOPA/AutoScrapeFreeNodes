@@ -1,5 +1,16 @@
 node_modules
 npm-debug.log
+npm-error.log
 data
 .git
+.github
+.workbuddy
+dist
+*.md
+Dockerfile
+docker-compose.yml
+.env
+.env.*
+.dockerignore
 .DS_Store
+*.log
