@@ -3,35 +3,35 @@
   "siteName": "airportnode",
   "description": "AirportNode 免费节点（静态订阅文件）",
   "strategy": "static",
-  "scrapedAt": "2026-10-29T10:59:16.685Z",
+  "scrapedAt": "2026-10-29T21:15:35.377Z",
   "articles": [
     {
       "url": "https://www.airportnode.com/",
       "title": "AirportNode 免费节点（静态订阅文件）",
-      "scrapedAt": "2026-10-29T10:59:16.686Z",
+      "scrapedAt": "2026-10-29T21:15:35.377Z",
       "subscriptionCount": 2,
       "subscriptions": [
         {
           "url": "https://www.airportnode.com/sub.txt",
           "type": "V2ray",
           "description": "V2Ray / 小火箭 订阅",
-          "online": true,
-          "httpStatus": 200,
-          "latencyMs": 334,
-          "bytes": 3268,
-          "note": "base64 节点列表",
-          "checkedAt": "2026-10-29T10:59:17.897Z"
+          "online": false,
+          "httpStatus": null,
+          "latencyMs": null,
+          "bytes": 0,
+          "note": "无法连接（ENOTFOUND）",
+          "checkedAt": "2026-10-29T21:15:36.851Z"
         },
         {
           "url": "https://www.airportnode.com/clash.yaml",
           "type": "Clash",
           "description": "Clash / Mihomo 订阅",
-          "online": true,
-          "httpStatus": 200,
-          "latencyMs": 290,
-          "bytes": 7675,
-          "note": "Clash 配置可用",
-          "checkedAt": "2026-10-29T10:59:17.945Z"
+          "online": false,
+          "httpStatus": null,
+          "latencyMs": null,
+          "bytes": 0,
+          "note": "无法连接（ENOTFOUND）",
+          "checkedAt": "2026-10-29T21:15:36.993Z"
         }
       ]
     }
@@ -39,10 +39,10 @@
   "totalSubscriptions": 2,
   "health": {
     "total": 2,
-    "online": 2,
-    "offline": 0,
-    "ratio": 1,
-    "avgLatencyMs": 312,
-    "checkedAt": "2026-10-29T10:59:18.873Z"
+    "online": 0,
+    "offline": 2,
+    "ratio": 0,
+    "avgLatencyMs": null,
+    "checkedAt": "2026-10-29T21:15:37.239Z"
   }
 }
