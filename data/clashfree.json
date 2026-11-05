@@ -3,12 +3,12 @@
   "siteName": "clashfree",
   "description": "free-nodes/clashfree（每日 clash 订阅文件）",
   "strategy": "repoDaily",
-  "scrapedAt": "2026-11-04T22:03:48.358Z",
+  "scrapedAt": "2026-11-05T12:34:52.229Z",
   "articles": [
     {
       "url": "https://github.com/free-nodes/clashfree",
       "title": "free-nodes/clashfree clash20261105.yml",
-      "scrapedAt": "2026-11-04T22:03:48.498Z",
+      "scrapedAt": "2026-11-05T12:34:52.274Z",
       "subscriptionCount": 1,
       "subscriptions": [
         {
@@ -17,10 +17,10 @@
           "description": "clash20261105.yml（每日更新）",
           "online": true,
           "httpStatus": 200,
-          "latencyMs": 61,
-          "bytes": 700019,
+          "latencyMs": 104,
+          "bytes": 700209,
           "note": "Clash 配置可用",
-          "checkedAt": "2026-11-04T22:03:48.905Z"
+          "checkedAt": "2026-11-05T12:34:53.456Z"
         }
       ]
     }
@@ -31,7 +31,7 @@
     "online": 1,
     "offline": 0,
     "ratio": 1,
-    "avgLatencyMs": 61,
-    "checkedAt": "2026-11-04T22:03:49.076Z"
+    "avgLatencyMs": 104,
+    "checkedAt": "2026-11-05T12:34:53.656Z"
   }
 }
