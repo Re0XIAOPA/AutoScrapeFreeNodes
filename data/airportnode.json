@@ -3,12 +3,12 @@
   "siteName": "airportnode",
   "description": "AirportNode 免费节点（静态订阅文件）",
   "strategy": "static",
-  "scrapedAt": "2026-11-13T12:25:52.741Z",
+  "scrapedAt": "2026-11-13T22:02:53.811Z",
   "articles": [
     {
       "url": "https://www.airportnode.com/",
       "title": "AirportNode 免费节点（静态订阅文件）",
-      "scrapedAt": "2026-11-13T12:25:52.741Z",
+      "scrapedAt": "2026-11-13T22:02:53.811Z",
       "subscriptionCount": 2,
       "subscriptions": [
         {
@@ -20,7 +20,7 @@
           "latencyMs": null,
           "bytes": 0,
           "note": "无法连接（ECONNRESET）",
-          "checkedAt": "2026-11-13T12:25:53.693Z"
+          "checkedAt": "2026-11-13T22:02:54.211Z"
         },
         {
           "url": "https://www.airportnode.com/clash.yaml",
@@ -31,7 +31,7 @@
           "latencyMs": null,
           "bytes": 0,
           "note": "无法连接（ECONNRESET）",
-          "checkedAt": "2026-11-13T12:25:53.697Z"
+          "checkedAt": "2026-11-13T22:02:54.213Z"
         }
       ]
     }
@@ -43,6 +43,6 @@
     "offline": 2,
     "ratio": 0,
     "avgLatencyMs": null,
-    "checkedAt": "2026-11-13T12:25:54.308Z"
+    "checkedAt": "2026-11-13T22:02:54.522Z"
   }
 }
