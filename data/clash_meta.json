@@ -3,12 +3,12 @@
   "siteName": "clash-meta",
   "description": "Clash Meta 免费节点（文章页订阅链接）",
   "strategy": "article",
-  "scrapedAt": "2026-11-17T00:23:04.029Z",
+  "scrapedAt": "2026-11-17T13:41:14.760Z",
   "articles": [
     {
       "url": "https://clash-meta.github.io/free-nodes/2026-11-12-clash-meta-node.htm",
       "title": "11月12日 | Clash Meta每天更新20.8M/S免费节点订阅链接地址 - Clash Meta免费节点订阅站",
-      "scrapedAt": "2026-11-17T00:23:04.100Z",
+      "scrapedAt": "2026-11-17T13:41:15.018Z",
       "subscriptionCount": 8,
       "subscriptions": [
         {
@@ -16,87 +16,87 @@
           "type": "Clash",
           "online": true,
           "httpStatus": 200,
-          "latencyMs": 46,
+          "latencyMs": 122,
           "bytes": 342864,
           "note": "Clash 配置可用",
-          "checkedAt": "2026-11-17T00:23:04.378Z"
+          "checkedAt": "2026-11-17T13:41:15.871Z"
         },
         {
           "url": "https://clash-meta.github.io/uploads/2026/11/1-20261112.yaml",
           "type": "Clash",
           "online": true,
           "httpStatus": 200,
-          "latencyMs": 25,
+          "latencyMs": 98,
           "bytes": 100963,
           "note": "Clash 配置可用",
-          "checkedAt": "2026-11-17T00:23:04.393Z"
+          "checkedAt": "2026-11-17T13:41:15.924Z"
         },
         {
           "url": "https://clash-meta.github.io/uploads/2026/11/3-20261112.yaml",
           "type": "Clash",
           "online": true,
           "httpStatus": 200,
-          "latencyMs": 40,
+          "latencyMs": 117,
           "bytes": 9365,
           "note": "Clash 配置可用",
-          "checkedAt": "2026-11-17T00:23:04.412Z"
+          "checkedAt": "2026-11-17T13:41:15.949Z"
         },
         {
           "url": "https://clash-meta.github.io/uploads/2026/11/4-20261112.yaml",
           "type": "Clash",
           "online": false,
           "httpStatus": 200,
-          "latencyMs": 37,
+          "latencyMs": 100,
           "bytes": 16,
           "note": "源站错误页（error code: 522）",
-          "checkedAt": "2026-11-17T00:23:04.419Z"
+          "checkedAt": "2026-11-17T13:41:15.987Z"
         },
         {
           "url": "https://clash-meta.github.io/uploads/2026/11/0-20261112.txt",
           "type": "V2ray",
           "online": true,
           "httpStatus": 200,
-          "latencyMs": 52,
+          "latencyMs": 144,
           "bytes": 141459,
           "note": "明文节点列表",
-          "checkedAt": "2026-11-17T00:23:04.424Z"
+          "checkedAt": "2026-11-17T13:41:15.993Z"
         },
         {
           "url": "https://clash-meta.github.io/uploads/2026/11/1-20261112.txt",
           "type": "V2ray",
           "online": true,
           "httpStatus": 200,
-          "latencyMs": 27,
+          "latencyMs": 133,
           "bytes": 58300,
           "note": "base64 节点列表",
-          "checkedAt": "2026-11-17T00:23:04.433Z"
+          "checkedAt": "2026-11-17T13:41:16.001Z"
         },
         {
           "url": "https://clash-meta.github.io/uploads/2026/11/4-20261112.txt",
           "type": "V2ray",
           "online": true,
           "httpStatus": 200,
-          "latencyMs": 19,
+          "latencyMs": 109,
           "bytes": 62192,
           "note": "base64 节点列表",
-          "checkedAt": "2026-11-17T00:23:04.445Z"
+          "checkedAt": "2026-11-17T13:41:16.022Z"
         },
         {
           "url": "https://clash-meta.github.io/uploads/2026/11/20261112.json",
           "type": "Sing-Box",
           "online": true,
           "httpStatus": 200,
-          "latencyMs": 37,
+          "latencyMs": 96,
           "bytes": 28173,
           "note": "sing-box/JSON 配置可用",
-          "checkedAt": "2026-11-17T00:23:04.452Z"
+          "checkedAt": "2026-11-17T13:41:16.066Z"
         }
       ]
     },
     {
       "url": "https://clash-meta.github.io/free-nodes/clash-meta-node-share-2026-11-9.htm",
       "title": "11月9日 | Clash Meta每天更新22.2M/S免费节点订阅链接地址 - Clash Meta免费节点订阅站",
-      "scrapedAt": "2026-11-17T00:23:04.159Z",
+      "scrapedAt": "2026-11-17T13:41:15.151Z",
       "subscriptionCount": 8,
       "subscriptions": [
         {
@@ -104,87 +104,87 @@
           "type": "Clash",
           "online": true,
           "httpStatus": 200,
-          "latencyMs": 70,
+          "latencyMs": 121,
           "bytes": 328570,
           "note": "Clash 配置可用",
-          "checkedAt": "2026-11-17T00:23:04.456Z"
+          "checkedAt": "2026-11-17T13:41:16.087Z"
         },
         {
           "url": "https://clash-meta.github.io/uploads/2026/11/1-20261109.yaml",
           "type": "Clash",
           "online": true,
           "httpStatus": 200,
-          "latencyMs": 56,
+          "latencyMs": 121,
           "bytes": 100520,
           "note": "Clash 配置可用",
-          "checkedAt": "2026-11-17T00:23:04.461Z"
+          "checkedAt": "2026-11-17T13:41:16.121Z"
         },
         {
           "url": "https://clash-meta.github.io/uploads/2026/11/2-20261109.yaml",
           "type": "Clash",
           "online": true,
           "httpStatus": 200,
-          "latencyMs": 45,
+          "latencyMs": 164,
           "bytes": 1638658,
           "note": "Clash 配置可用",
-          "checkedAt": "2026-11-17T00:23:04.465Z"
+          "checkedAt": "2026-11-17T13:41:16.132Z"
         },
         {
           "url": "https://clash-meta.github.io/uploads/2026/11/0-20261109.txt",
           "type": "V2ray",
           "online": true,
           "httpStatus": 200,
-          "latencyMs": 46,
+          "latencyMs": 112,
           "bytes": 135381,
           "note": "明文节点列表",
-          "checkedAt": "2026-11-17T00:23:04.476Z"
+          "checkedAt": "2026-11-17T13:41:16.135Z"
         },
         {
           "url": "https://clash-meta.github.io/uploads/2026/11/1-20261109.txt",
           "type": "V2ray",
           "online": true,
           "httpStatus": 200,
-          "latencyMs": 29,
+          "latencyMs": 113,
           "bytes": 54264,
           "note": "base64 节点列表",
-          "checkedAt": "2026-11-17T00:23:04.490Z"
+          "checkedAt": "2026-11-17T13:41:16.137Z"
         },
         {
           "url": "https://clash-meta.github.io/uploads/2026/11/2-20261109.txt",
           "type": "V2ray",
           "online": true,
           "httpStatus": 200,
-          "latencyMs": 38,
+          "latencyMs": 154,
           "bytes": 623356,
           "note": "base64 节点列表",
-          "checkedAt": "2026-11-17T00:23:04.512Z"
+          "checkedAt": "2026-11-17T13:41:16.163Z"
         },
         {
           "url": "https://clash-meta.github.io/uploads/2026/11/4-20261109.txt",
           "type": "V2ray",
           "online": true,
           "httpStatus": 200,
-          "latencyMs": 25,
+          "latencyMs": 93,
           "bytes": 62348,
           "note": "base64 节点列表",
-          "checkedAt": "2026-11-17T00:23:04.517Z"
+          "checkedAt": "2026-11-17T13:41:16.208Z"
         },
         {
           "url": "https://clash-meta.github.io/uploads/2026/11/20261109.json",
           "type": "Sing-Box",
           "online": true,
           "httpStatus": 200,
-          "latencyMs": 59,
+          "latencyMs": 95,
           "bytes": 29842,
           "note": "sing-box/JSON 配置可用",
-          "checkedAt": "2026-11-17T00:23:04.520Z"
+          "checkedAt": "2026-11-17T13:41:16.243Z"
         }
       ]
     },
     {
       "url": "https://clash-meta.github.io/free-nodes/2026-11-6-free-clash-meta-node.htm",
       "title": "11月6日 | Clash Meta每天更新22.1M/S免费节点订阅链接地址 - Clash Meta免费节点订阅站",
-      "scrapedAt": "2026-11-17T00:23:04.199Z",
+      "scrapedAt": "2026-11-17T13:41:15.255Z",
       "subscriptionCount": 6,
       "subscriptions": [
         {
@@ -192,60 +192,60 @@
           "type": "Clash",
           "online": true,
           "httpStatus": 200,
-          "latencyMs": 43,
+          "latencyMs": 121,
           "bytes": 313861,
           "note": "Clash 配置可用",
-          "checkedAt": "2026-11-17T00:23:04.522Z"
+          "checkedAt": "2026-11-17T13:41:16.248Z"
         },
         {
           "url": "https://clash-meta.github.io/uploads/2026/11/1-20261106.yaml",
           "type": "Clash",
           "online": false,
           "httpStatus": 200,
-          "latencyMs": 20,
+          "latencyMs": 96,
           "bytes": 3017,
           "note": "返回的是网页而非订阅内容",
-          "checkedAt": "2026-11-17T00:23:04.527Z"
+          "checkedAt": "2026-11-17T13:41:16.250Z"
         },
         {
           "url": "https://clash-meta.github.io/uploads/2026/11/3-20261106.yaml",
           "type": "Clash",
           "online": true,
           "httpStatus": 200,
-          "latencyMs": 37,
+          "latencyMs": 290,
           "bytes": 9255,
           "note": "Clash 配置可用",
-          "checkedAt": "2026-11-17T00:23:04.529Z"
+          "checkedAt": "2026-11-17T13:41:16.298Z"
         },
         {
           "url": "https://clash-meta.github.io/uploads/2026/11/0-20261106.txt",
           "type": "V2ray",
           "online": true,
           "httpStatus": 200,
-          "latencyMs": 29,
+          "latencyMs": 109,
           "bytes": 129975,
           "note": "明文节点列表",
-          "checkedAt": "2026-11-17T00:23:04.543Z"
+          "checkedAt": "2026-11-17T13:41:16.301Z"
         },
         {
           "url": "https://clash-meta.github.io/uploads/2026/11/3-20261106.txt",
           "type": "V2ray",
           "online": true,
           "httpStatus": 200,
-          "latencyMs": 31,
+          "latencyMs": 148,
           "bytes": 5304,
           "note": "base64 节点列表",
-          "checkedAt": "2026-11-17T00:23:04.547Z"
+          "checkedAt": "2026-11-17T13:41:16.322Z"
         },
         {
           "url": "https://clash-meta.github.io/uploads/2026/11/20261106.json",
           "type": "Sing-Box",
           "online": false,
           "httpStatus": 200,
-          "latencyMs": 16,
+          "latencyMs": 105,
           "bytes": 3017,
           "note": "返回的是网页而非订阅内容",
-          "checkedAt": "2026-11-17T00:23:04.554Z"
+          "checkedAt": "2026-11-17T13:41:16.339Z"
         }
       ]
     }
@@ -256,7 +256,7 @@
     "online": 19,
     "offline": 3,
     "ratio": 0.864,
-    "avgLatencyMs": 40,
-    "checkedAt": "2026-11-17T00:23:04.928Z"
+    "avgLatencyMs": 129,
+    "checkedAt": "2026-11-17T13:41:17.635Z"
   }
 }
