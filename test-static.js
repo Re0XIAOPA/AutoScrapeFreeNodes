@@ -4,7 +4,26 @@ const http = require('http');
 const express = require('express');
 
 const DIST_DIR = path.join(__dirname, 'dist');
+const API_DIR = path.join(DIST_DIR, 'api');
 const BASE_PATH = '/AutoScrapeFreeNodes'; // 模拟GitHub Pages部署路径
+
+// 请求路径只作为标识符查表，绝不参与文件路径拼接（防止路径穿越）
+const API_FILES = new Map([
+  ['config', path.join(API_DIR, 'config.json')],
+  ['csrf-token', path.join(API_DIR, 'csrf-token.json')],
+  ['nodes', path.join(API_DIR, 'nodes.json')],
+  ['sites', path.join(API_DIR, 'sites.json')],
+  ['subscriptions', path.join(API_DIR, 'subscriptions.json')],
+  ['status', path.join(API_DIR, 'status.json')],
+  ['refresh', path.join(API_DIR, 'refresh', 'index.json')]
+]);
+
+// 纵深防御：确认目标文件确实位于 api 目录内
+function isInsideApiDir(filePath) {
+  const resolved = path.resolve(filePath);
+  const root = path.resolve(API_DIR) + path.sep;
+  return resolved.startsWith(root);
+}
 
 // 测试静态网站生成和服务
 async function testStaticSite() {
@@ -36,23 +55,24 @@ async function testStaticSite() {
     
     // 确保API请求被正确路由到对应的JSON文件
     app.get(`${BASE_PATH}/api/*`, (req, res, next) => {
-      // 从请求路径中提取API路径
-      const apiPath = req.path.replace(new RegExp(`^${BASE_PATH}/api/`), '');
-      const jsonFilePath = path.join(DIST_DIR, 'api', `${apiPath}.json`);
-      const indexJsonPath = path.join(DIST_DIR, 'api', apiPath, 'index.json');
-      
-      console.log(`尝试访问API: ${req.path}`);
-      console.log(`- 检查文件: ${jsonFilePath}`);
-      console.log(`- 或检查文件: ${indexJsonPath}`);
-      
-      if (fs.existsSync(jsonFilePath)) {
-        console.log(`- 找到API文件: ${jsonFilePath}`);
-        return res.sendFile(jsonFilePath);
-      } else if (fs.existsSync(indexJsonPath)) {
-        console.log(`- 找到API文件: ${indexJsonPath}`);
-        return res.sendFile(indexJsonPath);
+      // 从请求路径中提取API名称，仅用于白名单查表
+      const prefix = `${BASE_PATH}/api/`;
+      const apiPath = req.path.startsWith(prefix) ? req.path.slice(prefix.length) : '';
+      const filePath = API_FILES.get(apiPath);
+
+      if (!filePath || !isInsideApiDir(filePath)) {
+        console.log(`拒绝访问未知 API 路径: ${req.path}`);
+        return next();
       }
-      
+
+      console.log(`尝试访问API: ${req.path}`);
+      console.log(`- 检查文件: ${filePath}`);
+
+      if (fs.existsSync(filePath)) {
+        console.log(`- 找到API文件: ${filePath}`);
+        return res.sendFile(filePath, { dotfiles: 'deny' });
+      }
+
       // 如果找不到文件，继续下一个处理器
       next();
     });
